@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS (exact from dashboard file) ── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --whitecap-gray:#e1d7cb;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-strong:rgba(122,104,86,0.26);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-strong:rgba(209,186,162,0.22);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070;  --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe;    --info-bg:rgba(122,154,190,0.12);
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg); color:var(--text-primary);
+  min-height:100vh; display:flex; font-size:15px; line-height:1.6;
+  transition:background .3s ease, color .3s ease;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:81px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:22px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-track{background:transparent}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-section::-webkit-scrollbar-thumb:hover{background:rgba(122,104,86,.35)}
+[data-theme="dark"] .nav-section{scrollbar-color:rgba(209,186,162,.12) transparent}
+[data-theme="dark"] .nav-section::-webkit-scrollbar-thumb{background:rgba(209,186,162,.15)}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 10px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit;}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;letter-spacing:0;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease,opacity .2s}
+.nav-chevron svg{display:block}
+.nav-item:hover .nav-chevron,.nav-item.open .nav-chevron{opacity:.7}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px;gap:0}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--sidebar-muted);padding:6px 12px;cursor:pointer;transition:all .15s;border-radius:8px;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.sidebar-footer{padding:20px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:white;flex-shrink:0}
+.therapist-info{flex:1;min-width:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ── MAIN ── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:81px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-left h1{font-family:'DM Sans',system-ui,sans-serif;font-size:19px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.date-chip{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px;line-height:1}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;flex-shrink:0}
+
+/* ── ROLE SWITCHER ── */
+.role-switcher{position:relative}
+.role-trigger{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--border);border-radius:99px;background:transparent;cursor:pointer;transition:all .2s;font-family:'DM Sans',system-ui,sans-serif}
+.role-trigger:hover{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-trigger-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.role-trigger-label{font-size:12.5px;font-weight:500;color:var(--text-primary);letter-spacing:.01em}
+.role-trigger-caret{width:14px;height:14px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:transform .2s,opacity .2s;flex-shrink:0}
+.role-switcher.open .role-trigger-caret{transform:rotate(180deg);opacity:.7}
+.role-switcher.open .role-trigger{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:248px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(58,47,36,.1),0 2px 8px rgba(58,47,36,.06);padding:8px;z-index:200;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:opacity .18s ease,transform .18s ease;transform-origin:top right}
+.role-switcher.open .role-dropdown{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.role-dropdown-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);font-weight:600;padding:6px 10px 8px;display:block}
+.role-option{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
+.role-option:hover{background:var(--surface-2)}
+.role-option.selected{background:var(--sidebar-active-bg)}
+.role-option-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.role-option-text{flex:1;min-width:0}
+.role-option-name{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.2}
+.role-option.selected .role-option-name{color:var(--accent)}
+.role-option-desc{font-size:11px;color:var(--text-muted);margin-top:1px}
+.role-check{width:14px;height:14px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.role-option.selected .role-check{opacity:1}
+
+/* ── PAGE LAYOUT ── */
+.page { display:flex; flex:1; overflow:hidden; height:calc(100vh - 81px); }
+
+/* ── LEFT: TRANSACTION PANEL ── */
+.tx-panel {
+  flex:1; display:flex; flex-direction:column;
+  overflow:hidden; border-right:1px solid var(--border);
+}
+
+/* Transaction type tabs */
+.tx-tabs {
+  display:flex; align-items:center; gap:2px;
+  padding:14px 28px 0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tx-tab {
+  display:flex; align-items:center; gap:6px;
+  font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:600; color:var(--text-muted);
+  padding:8px 16px; border-radius:8px 8px 0 0; cursor:pointer;
+  border:1px solid transparent; border-bottom:none;
+  transition:all .15s; margin-bottom:-1px; background:transparent;
+}
+.tx-tab:hover { color:var(--shitake); background:var(--surface-2); }
+.tx-tab.active {
+  color:var(--shitake); background:var(--surface);
+  border-color:var(--border); border-bottom-color:var(--surface);
+  font-weight:600;
+}
+.tx-tab-icon { width:14px; height:14px; opacity:.6; }
+.tx-tab.active .tx-tab-icon { opacity:1; }
+
+/* On Hold badge */
+.on-hold-badge {
+  margin-left:auto; margin-bottom:6px;
+  display:flex; align-items:center; gap:6px;
+  font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; font-weight:600; color:var(--warning);
+  background:var(--warning-bg); border:1px solid rgba(160,128,64,.25);
+  padding:4px 12px; border-radius:99px; cursor:pointer;
+}
+.hold-cnt { background:var(--warning); color:white; font-size:9px; font-weight:700; padding:1px 5px; border-radius:99px; }
+
+/* Scrollable body */
+.tx-body { flex:1; overflow-y:auto; padding:24px 28px; display:flex; flex-direction:column; gap:20px; }
+.tx-body::-webkit-scrollbar { width:5px; }
+.tx-body::-webkit-scrollbar-thumb { background:var(--oatmeal); border-radius:3px; }
+
+/* Section block */
+.tx-section {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; overflow:hidden;
+}
+.tx-section-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  border-bottom:1px solid var(--border-soft);
+}
+.tx-section-title {
+  display:flex; align-items:center; gap:8px;
+  font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.16em;
+  text-transform:uppercase; font-weight:600; color:var(--text-muted);
+}
+.tx-section-title svg { opacity:.6; }
+
+/* ── CUSTOMER SEARCH ── */
+.customer-search-wrap { padding:14px 18px; }
+.search-row { display:flex; gap:10px; }
+.search-input-wrap { position:relative; flex:1; }
+.search-ic { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-placeholder); pointer-events:none; }
+.search-input {
+  font-family:'DM Sans',system-ui,sans-serif; font-size:14px; color:var(--text-primary);
+  background:var(--surface-3); border:1px solid var(--border);
+  border-radius:10px; padding:10px 14px 10px 36px;
+  outline:none; width:100%; transition:all .2s;
+}
+.search-input::placeholder { color:var(--text-placeholder); font-size:13px; }
+.search-input:focus { border-color:var(--shitake); background:var(--surface); box-shadow:0 0 0 3px rgba(122,104,86,.08); }
+
+/* Customer found card */
+.customer-card {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 18px;
+  border-top:1px solid var(--border-soft);
+  animation:fadeUp .3s ease;
+}
+.cust-avatar {
+  width:42px; height:42px; border-radius:50%;
+  background:linear-gradient(135deg,#d1baa2,#a98076);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Sans',system-ui,sans-serif; font-size:15px; color:white; flex-shrink:0;
+}
+.cust-info { flex:1; min-width:0; }
+.cust-name { font-family:'DM Sans',system-ui,sans-serif; font-size:15px; color:var(--text-primary); font-weight:500; }
+.cust-meta { font-family:'DM Sans',system-ui,sans-serif; font-size:12px; color:var(--text-muted); font-weight:500; margin-top:1px; }
+.cust-tags { display:flex; gap:5px; margin-top:5px; }
+.cust-tag {
+  font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.08em;
+  text-transform:uppercase; font-weight:600; padding:2px 8px; border-radius:99px; border:1px solid;
+}
+.tag-gold    { color:var(--warning); background:var(--warning-bg); border-color:rgba(160,128,64,.25); }
+.tag-vip     { color:#7a6856; background:rgba(122,104,86,.08); border-color:var(--border); }
+.tag-pkg     { color:var(--info); background:var(--info-bg); border-color:rgba(90,122,158,.25); }
+.cust-balance { text-align:right; flex-shrink:0; }
+.cust-bal-val { font-family:'EB Garamond',serif; font-size:15px; color:var(--text-primary); }
+.cust-bal-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.1em; color:var(--text-muted); font-weight:600; text-transform:uppercase; }
+.cust-change { font-size:10px; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; gap:3px; margin-top:8px; transition:color .15s; }
+.cust-change:hover { color:var(--shitake); }
+
+/* ── LINE ITEMS ── */
+.line-items-body { padding:0 18px 14px; display:flex; flex-direction:column; gap:0; }
+
+/* Line item search */
+.item-search-row { padding:14px 0 10px; }
+.item-search-wrap { position:relative; }
+.item-search-ic { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-placeholder); pointer-events:none; }
+.item-search-in {
+  font-family:'DM Sans',system-ui,sans-serif; font-size:13.5px; color:var(--text-primary);
+  background:var(--surface-3); border:1px solid var(--border); border-radius:10px;
+  padding:9px 14px 9px 36px; outline:none; width:100%; transition:all .2s;
+}
+.item-search-in::placeholder { color:var(--text-placeholder); font-size:13px; }
+.item-search-in:focus { border-color:var(--shitake); background:var(--surface); box-shadow:0 0 0 3px rgba(122,104,86,.08); }
+
+/* Column header */
+.li-header {
+  display:grid; grid-template-columns:1fr 80px 80px 80px 36px;
+  gap:12px; padding:6px 0 8px;
+  border-bottom:1px solid var(--border-soft);
+}
+.li-hcell {
+  font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--text-placeholder); font-weight:600;
+}
+.li-hcell.right { text-align:right; }
+.li-hcell.center { text-align:center; }
+
+/* Line item row */
+.li-row {
+  display:grid; grid-template-columns:1fr 80px 80px 80px 36px;
+  gap:12px; padding:12px 0;
+  border-bottom:1px solid var(--border-soft);
+  align-items:center; transition:background .15s;
+}
+.li-row:last-child { border-bottom:none; }
+.li-row:hover { background:var(--surface-3); border-radius:8px; padding-left:8px; padding-right:8px; margin:0 -8px; }
+
+.li-name { font-size:14px; color:var(--text-primary); font-weight:500; font-family:'DM Sans',system-ui,sans-serif; }
+.li-sub { font-size:11.5px; color:var(--text-muted); margin-top:1px; font-family:'DM Sans',system-ui,sans-serif; }
+.li-badge {
+  display:inline-flex; align-items:center;
+  font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.08em;
+  text-transform:uppercase; font-weight:600; padding:1px 7px; border-radius:99px;
+  border:1px solid; margin-top:3px;
+}
+.badge-treatment { color:var(--shitake); background:rgba(122,104,86,.08); border-color:var(--border); }
+.badge-package   { color:var(--info); background:var(--info-bg); border-color:rgba(90,122,158,.25); }
+.badge-product   { color:var(--success); background:var(--success-bg); border-color:rgba(106,143,90,.25); }
+
+.li-qty-wrap { display:flex; align-items:center; justify-content:center; gap:4px; }
+.qty-btn {
+  width:22px; height:22px; border:1px solid var(--border); border-radius:6px;
+  background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-muted); font-size:14px; line-height:1; transition:all .15s;
+}
+.qty-btn:hover { background:var(--surface-2); color:var(--shitake); }
+.qty-val { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-primary); min-width:16px; text-align:center; }
+
+.li-price { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-muted); text-align:right; }
+.li-total { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-primary); font-weight:500; text-align:right; }
+.li-remove { display:flex; align-items:center; justify-content:center; }
+.remove-btn {
+  width:26px; height:26px; border:none; border-radius:6px;
+  background:transparent; cursor:pointer; color:var(--text-placeholder);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; transition:all .15s;
+}
+.remove-btn:hover { background:var(--danger-bg); color:var(--danger); }
+
+/* Empty state */
+.li-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:40px 20px; gap:10px; color:var(--text-placeholder);
+}
+.li-empty-icon { font-size:32px; opacity:.4; }
+.li-empty-text { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; }
+
+/* ── SERVED BY ── */
+.served-by-row {
+  display:flex; align-items:center; gap:10px;
+  padding:14px 18px; flex-wrap:wrap;
+}
+.served-label { font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-right:4px; }
+.served-chip {
+  display:flex; align-items:center; gap:5px;
+  font-family:'DM Sans',system-ui,sans-serif; font-size:12.5px; color:var(--text-secondary);
+  background:var(--surface-3); border:1px solid var(--border);
+  padding:4px 11px; border-radius:99px; cursor:pointer; transition:all .15s;
+}
+.served-chip:hover { background:var(--surface-2); border-color:var(--border-strong); }
+.served-chip.selected { background:rgba(122,104,86,.1); border-color:var(--shitake); color:var(--shitake); }
+.sc-avt { width:18px; height:18px; border-radius:50%; background:linear-gradient(135deg,#d1baa2,#a98076); display:flex; align-items:center; justify-content:center; font-size:9px; color:white; }
+
+/* ── RIGHT: ORDER SUMMARY ── */
+.summary-panel {
+  width:340px; flex-shrink:0;
+  display:flex; flex-direction:column;
+  background:var(--surface); border-left:1px solid var(--border);
+  overflow:hidden;
+}
+.summary-header {
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border-soft);
+  flex-shrink:0;
+}
+.summary-title { font-family:'DM Sans',system-ui,sans-serif; font-size:15px; font-weight:500; color:var(--text-primary); }
+.summary-outlet { font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-top:2px; }
+
+.summary-body { flex:1; overflow-y:auto; padding:18px 24px; display:flex; flex-direction:column; gap:0; }
+.summary-body::-webkit-scrollbar { width:4px; }
+.summary-body::-webkit-scrollbar-thumb { background:var(--oatmeal); border-radius:2px; }
+
+/* Summary line rows */
+.sum-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border-soft); }
+.sum-row:last-child { border-bottom:none; }
+.sum-label { font-family:'DM Sans',system-ui,sans-serif; font-size:13px; color:var(--text-muted); font-weight:500; }
+.sum-val { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-primary); }
+
+/* Discount row */
+.discount-row { display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid var(--border-soft); }
+.disc-label { font-family:'DM Sans',system-ui,sans-serif; font-size:13px; color:var(--text-muted); font-weight:500; min-width:80px; }
+.disc-type-wrap { display:flex; background:var(--surface-3); border-radius:7px; padding:2px; }
+.disc-type-btn { font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; padding:3px 10px; border-radius:5px; cursor:pointer; color:var(--text-muted); border:none; background:transparent; transition:all .15s; }
+.disc-type-btn.active { background:var(--surface); color:var(--shitake); box-shadow:0 1px 3px rgba(122,104,86,.1); }
+.disc-input-wrap { position:relative; flex:1; }
+.disc-input {
+  font-family:'EB Garamond',serif; font-size:14px; color:var(--text-primary);
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:5px 10px; outline:none; width:100%; transition:all .2s; text-align:right;
+}
+.disc-input:focus { border-color:var(--shitake); box-shadow:0 0 0 2px rgba(122,104,86,.08); }
+
+/* Divider */
+.sum-divider { height:1px; background:var(--border); margin:6px 0; }
+
+/* GST row */
+.sum-row.gst .sum-label { font-size:12.5px; }
+.sum-row.gst .sum-val   { font-size:13px; color:var(--text-muted); }
+
+/* Total */
+.sum-total-row { display:flex; align-items:baseline; justify-content:space-between; padding:12px 0 6px; }
+.sum-total-label { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--text-muted); }
+.sum-total-val { font-family:'EB Garamond',serif; font-size:26px; color:var(--text-primary); letter-spacing:-.01em; }
+
+/* Balance due */
+.balance-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; border-radius:10px;
+  background:var(--success-bg); border:1px solid rgba(106,143,90,.2); margin:6px 0;
+}
+.bal-label { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--success); }
+.bal-val { font-family:'EB Garamond',serif; font-size:18px; color:var(--success); }
+
+/* ── PAYMENT SECTION ── */
+.payment-section { padding:16px 24px 0; border-top:1px solid var(--border-soft); flex-shrink:0; }
+.pay-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.pay-title { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--text-muted); }
+.add-payment-btn {
+  display:flex; align-items:center; gap:5px;
+  font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.1em;
+  text-transform:uppercase; font-weight:600; color:var(--shitake);
+  background:transparent; border:1px solid var(--border); border-radius:7px;
+  padding:4px 11px; cursor:pointer; transition:all .15s;
+}
+.add-payment-btn:hover { background:var(--surface-2); }
+
+/* Payment method chips */
+.payment-methods { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.pm-chip {
+  display:flex; align-items:center; gap:5px;
+  font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.08em;
+  text-transform:uppercase; font-weight:600; color:var(--text-muted);
+  background:var(--surface-3); border:1px solid var(--border);
+  padding:5px 11px; border-radius:99px; cursor:pointer; transition:all .15s;
+}
+.pm-chip:hover { background:var(--surface-2); border-color:var(--border-strong); }
+.pm-chip.selected { background:rgba(122,104,86,.1); border-color:var(--shitake); color:var(--shitake); }
+.pm-chip svg { opacity:.6; }
+.pm-chip.selected svg { opacity:1; }
+
+/* Added payment item */
+.payment-items { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.pay-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 13px; border-radius:9px;
+  background:var(--surface-3); border:1px solid var(--border-soft);
+}
+.pay-item-method { flex:1; font-family:'DM Sans',system-ui,sans-serif; font-size:13px; color:var(--text-secondary); font-weight:500; }
+.pay-item-amt { font-family:'EB Garamond',serif; font-size:15px; color:var(--text-primary); }
+.pay-item-remove { width:22px; height:22px; border:none; border-radius:5px; background:transparent; cursor:pointer; color:var(--text-placeholder); font-size:14px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.pay-item-remove:hover { background:var(--danger-bg); color:var(--danger); }
+
+/* ── COMPLETE BUTTON AREA ── */
+.complete-section { padding:14px 24px 20px; flex-shrink:0; }
+.complete-btn {
+  width:100%; font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; font-weight:600; color:#faf9f5;
+  background:var(--shitake); border:none; border-radius:11px;
+  padding:15px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.complete-btn:hover { background:var(--fallen-rock); transform:translateY(-1px); box-shadow:0 6px 20px rgba(122,104,86,.25); }
+.complete-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+/* ── INPUT SHARED ── */
+input { font-family:inherit; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <div class="nav-item active">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </div>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a><a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a><a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a></div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Checkout</h1>
+      <p>Streamlined 7-in-1 sales flow · 75+ payment types supported</p>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="#80756a" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:14px;color:white;cursor:pointer;flex-shrink:0">A</div>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- LEFT — TRANSACTION PANEL -->
+    <div class="tx-panel">
+
+      <!-- TABS -->
+      <div class="tx-tabs">
+        <button class="tx-tab active" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          New Sale
+        </button>
+        <button class="tx-tab" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v6M5 5.5c0-1 .9-1.5 2-1.5s2 .5 2 1.5S8 7 7 7s-2 .5-2 1.5S5.9 10 7 10s2-.5 2-1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+          Balance Due
+        </button>
+        <button class="tx-tab" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><rect x="1" y="1.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>
+          Credit Note
+        </button>
+        <button class="tx-tab" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><path d="M2 12l3-3 2.5 2.5L12 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Upgrade
+        </button>
+        <button class="tx-tab" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><path d="M7 1L1.5 3.5v4c0 3 2.5 5 5.5 5s5.5-2 5.5-5V3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Usage
+        </button>
+        <button class="tx-tab" onclick="setTab(this)">
+          <svg class="tx-tab-icon" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Contra
+        </button>
+        <div class="on-hold-badge">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10" r=".8" fill="currentColor"/></svg>
+          On Hold <span class="hold-cnt">2</span>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="tx-body">
+
+        <!-- CUSTOMER -->
+        <div class="tx-section" style="animation:fadeUp .3s ease">
+          <div class="tx-section-header">
+            <div class="tx-section-title">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Customer
+            </div>
+          </div>
+          <div class="customer-search-wrap">
+            <div class="search-row">
+              <div class="search-input-wrap">
+                <svg class="search-ic" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                <input class="search-input" id="custSearch" type="text" placeholder="Search by mobile, NRIC, or name…" value="Wendy Goh">
+              </div>
+            </div>
+          </div>
+          <!-- Customer result -->
+          <div class="customer-card" id="customerCard">
+            <div class="cust-avatar">W</div>
+            <div class="cust-info">
+              <div class="cust-name">Wendy Goh</div>
+              <div class="cust-meta">+65 9087 1117 · SB-004338 · Gold Member</div>
+              <div class="cust-tags">
+                <span class="cust-tag tag-gold">Gold</span>
+                <span class="cust-tag tag-vip">VIP</span>
+                <span class="cust-tag tag-pkg">3 Active Packages</span>
+              </div>
+            </div>
+            <div class="cust-balance">
+              <div class="cust-bal-val">$240.00</div>
+              <div class="cust-bal-label">Store Credit</div>
+              <div class="cust-change">
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M9 4l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Change customer
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LINE ITEMS -->
+        <div class="tx-section" style="animation:fadeUp .35s ease">
+          <div class="tx-section-header">
+            <div class="tx-section-title">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="1.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Line Items
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-placeholder);font-weight:600" id="itemCount">3 items</span>
+              <button style="display:flex;align-items:center;gap:5px;font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--danger);background:var(--danger-bg);border:1px solid rgba(160,96,96,.2);padding:3px 10px;border-radius:7px;cursor:pointer">
+                <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><path d="M7 1v4M7 9v4M1 7h4M9 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                HOLD
+              </button>
+            </div>
+          </div>
+
+          <div class="line-items-body">
+            <div class="item-search-row">
+              <div class="item-search-wrap">
+                <svg class="item-search-ic" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                <input class="item-search-in" type="text" placeholder="Search treatments, products, or packages…">
+              </div>
+            </div>
+
+            <!-- Col headers -->
+            <div class="li-header">
+              <span class="li-hcell">Item</span>
+              <span class="li-hcell center">Qty</span>
+              <span class="li-hcell right">Unit Price</span>
+              <span class="li-hcell right">Total</span>
+              <span class="li-hcell"></span>
+            </div>
+
+            <!-- Line item 1 -->
+            <div class="li-row">
+              <div>
+                <div class="li-name">HydraFacial Premium</div>
+                <div class="li-sub">75 min · Treatment · Dr. Sarah Chen</div>
+                <span class="li-badge badge-treatment">Treatment</span>
+              </div>
+              <div class="li-qty-wrap">
+                <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                <span class="qty-val">1</span>
+                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+              </div>
+              <div class="li-price">$180.00</div>
+              <div class="li-total">$180.00</div>
+              <div class="li-remove"><button class="remove-btn" onclick="removeItem(this)">×</button></div>
+            </div>
+
+            <!-- Line item 2 -->
+            <div class="li-row">
+              <div>
+                <div class="li-name">Vitamin C Brightening Serum</div>
+                <div class="li-sub">30ml · Retail Product</div>
+                <span class="li-badge badge-product">Product</span>
+              </div>
+              <div class="li-qty-wrap">
+                <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                <span class="qty-val">2</span>
+                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+              </div>
+              <div class="li-price">$65.00</div>
+              <div class="li-total">$130.00</div>
+              <div class="li-remove"><button class="remove-btn" onclick="removeItem(this)">×</button></div>
+            </div>
+
+            <!-- Line item 3 -->
+            <div class="li-row">
+              <div>
+                <div class="li-name">Gold Facial Package 5x</div>
+                <div class="li-sub">Pre-paid package · Expires 09 Jun 2026</div>
+                <span class="li-badge badge-package">Package</span>
+              </div>
+              <div class="li-qty-wrap">
+                <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+                <span class="qty-val">1</span>
+                <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+              </div>
+              <div class="li-price">$580.00</div>
+              <div class="li-total">$580.00</div>
+              <div class="li-remove"><button class="remove-btn" onclick="removeItem(this)">×</button></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SERVED BY -->
+        <div class="tx-section" style="animation:fadeUp .4s ease">
+          <div class="tx-section-header">
+            <div class="tx-section-title">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 13c0-2.21 1.79-4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 13c0-1.66 1.34-3 3-3s3 1.34 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Served By
+            </div>
+          </div>
+          <div class="served-by-row">
+            <span class="served-label">Therapist</span>
+            <div class="served-chip selected"><div class="sc-avt">D</div>Dr. Tan</div>
+            <div class="served-chip"><div class="sc-avt" style="background:linear-gradient(135deg,#c8a89e,#7a6856)">W</div>Dr. Wong</div>
+            <div class="served-chip"><div class="sc-avt" style="background:linear-gradient(135deg,#8a9e7a,#6a8f5a)">L</div>Dr. Lim</div>
+            <div class="served-chip"><div class="sc-avt" style="background:linear-gradient(135deg,#5a7a9e,#7a9abe)">C</div>CA Sarah</div>
+            <div class="served-chip" style="border-style:dashed">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Add
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT — ORDER SUMMARY -->
+    <div class="summary-panel">
+      <div class="summary-header">
+        <div class="summary-title">Order Summary</div>
+        <div class="summary-outlet">Causeway Point (CWP) · New Sale</div>
+      </div>
+
+      <div class="summary-body">
+        <div class="sum-row">
+          <span class="sum-label">Subtotal</span>
+          <span class="sum-val">$890.00</span>
+        </div>
+
+        <!-- Discount -->
+        <div class="discount-row">
+          <span class="disc-label">Discount</span>
+          <div class="disc-type-wrap">
+            <button class="disc-type-btn active" onclick="setDiscType(this,'%')">%</button>
+            <button class="disc-type-btn" onclick="setDiscType(this,'$')">$</button>
+          </div>
+          <div class="disc-input-wrap">
+            <input class="disc-input" id="discInput" type="number" value="0" min="0">
+          </div>
+        </div>
+
+        <div class="sum-row">
+          <span class="sum-label">Discount Amount</span>
+          <span class="sum-val" id="discAmt">−$0.00</span>
+        </div>
+
+        <div class="sum-divider"></div>
+
+        <div class="sum-row gst">
+          <span class="sum-label">GST (9%)</span>
+          <span class="sum-val" id="gstAmt">$80.10</span>
+        </div>
+
+        <div class="sum-total-row">
+          <span class="sum-total-label">Grand Total</span>
+          <span class="sum-total-val" id="grandTotal">$970.10</span>
+        </div>
+
+        <div class="balance-row">
+          <span class="bal-label">Balance Due</span>
+          <span class="bal-val" id="balDue">$970.10</span>
+        </div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="payment-section">
+        <div class="pay-header">
+          <span class="pay-title">Payment Method</span>
+          <button class="add-payment-btn">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Add Payment
+          </button>
+        </div>
+
+        <!-- Quick method chips -->
+        <div class="payment-methods">
+          <div class="pm-chip selected" onclick="togglePM(this)">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.1"/></svg>
+            Credit Card
+          </div>
+          <div class="pm-chip" onclick="togglePM(this)">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h2M1 9h2M11 5h2M11 9h2M5 1v2M9 1v2M5 11v2M9 11v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            PayNow
+          </div>
+          <div class="pm-chip" onclick="togglePM(this)">NETS</div>
+          <div class="pm-chip" onclick="togglePM(this)">Cash</div>
+          <div class="pm-chip" onclick="togglePM(this)">GrabPay</div>
+          <div class="pm-chip" onclick="togglePM(this)">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v6M5 5.5c0-1 .9-1.5 2-1.5s2 .5 2 1.5S8 7 7 7s-2 .5-2 1.5S5.9 10 7 10s2-.5 2-1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            Store Credit
+          </div>
+          <div class="pm-chip" onclick="togglePM(this)">Atome</div>
+          <div class="pm-chip" onclick="togglePM(this)">Package</div>
+        </div>
+
+        <!-- Selected payment items -->
+        <div class="payment-items">
+          <div class="pay-item">
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(122,104,86,.08);display:flex;align-items:center;justify-content:center">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="2" stroke="#7a6856" stroke-width="1.2"/><path d="M1 6h12" stroke="#7a6856" stroke-width="1.1"/></svg>
+              </div>
+              <div>
+                <div class="pay-item-method">Credit Card</div>
+                <div style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.08em;color:var(--text-placeholder)">VISA · **** 4821</div>
+              </div>
+            </div>
+            <div class="pay-item-amt">$970.10</div>
+            <button class="pay-item-remove">×</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPLETE -->
+      <div class="complete-section">
+        <button class="complete-btn" id="completeBtn">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Complete Transaction
+        </button>
+        <div style="text-align:center;margin-top:10px;font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-placeholder);font-weight:600">
+          Press Enter to confirm
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* Theme toggle */
+const btn = document.getElementById('themeToggle');
+let dark = false;
+btn.addEventListener('click', () => {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+  btn.textContent = dark ? '☀️' : '🌙';
+});
+
+/* Tabs */
+function setTab(el) {
+  document.querySelectorAll('.tx-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* Discount type */
+function setDiscType(el, type) {
+  document.querySelectorAll('.disc-type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  recalc();
+}
+
+/* Qty change */
+function changeQty(btn, delta) {
+  const valEl = btn.parentElement.querySelector('.qty-val');
+  let v = parseInt(valEl.textContent) + delta;
+  if (v < 1) v = 1;
+  valEl.textContent = v;
+  recalc();
+}
+
+/* Remove item */
+function removeItem(btn) {
+  btn.closest('.li-row').remove();
+  recalc();
+}
+
+/* Recalculate */
+function recalc() {
+  const rows = document.querySelectorAll('.li-row');
+  let sub = 0;
+  rows.forEach(row => {
+    const qty  = parseInt(row.querySelector('.qty-val').textContent);
+    const priceText = row.querySelector('.li-price').textContent.replace(/[^0-9.]/g,'');
+    const price = parseFloat(priceText) || 0;
+    const total = qty * price;
+    row.querySelector('.li-total').textContent = '$' + total.toFixed(2);
+    sub += total;
+  });
+  document.getElementById('itemCount').textContent = rows.length + ' item' + (rows.length !== 1 ? 's' : '');
+
+  const discBtn = document.querySelector('.disc-type-btn.active');
+  const discVal = parseFloat(document.getElementById('discInput').value) || 0;
+  const isPct   = discBtn && discBtn.textContent === '%';
+  const discAmt = isPct ? sub * discVal / 100 : Math.min(discVal, sub);
+  const afterDisc = sub - discAmt;
+  const gst = afterDisc * 0.09;
+  const total = afterDisc + gst;
+
+  document.getElementById('discAmt').textContent  = '−$' + discAmt.toFixed(2);
+  document.getElementById('gstAmt').textContent   = '$' + gst.toFixed(2);
+  document.getElementById('grandTotal').textContent = '$' + total.toFixed(2);
+  document.getElementById('balDue').textContent   = '$' + total.toFixed(2);
+
+  // Update payment item amount
+  const payAmt = document.querySelector('.pay-item-amt');
+  if (payAmt) payAmt.textContent = '$' + total.toFixed(2);
+}
+
+/* Discount input live */
+document.getElementById('discInput').addEventListener('input', recalc);
+
+/* Payment methods */
+function togglePM(el) {
+  el.classList.toggle('selected');
+}
+
+/* Nav collapsible */
+document.querySelectorAll('.nav-item[onclick]').forEach(() => {});
+
+/* Keyboard shortcut */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) {
+    const btn = document.getElementById('completeBtn');
+    btn.style.transform = 'scale(.98)';
+    setTimeout(() => btn.style.transform = '', 150);
+  }
+});
+</script>
+</body>
+</html>

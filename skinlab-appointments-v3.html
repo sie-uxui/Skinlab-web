@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Appointments</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS (from dashboard) ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --whitecap-gray:#e1d7cb;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --accent:#7a6856; --accent-warm:#a98076; --accent-soft:#c8a89e;
+
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+
+  /* Appointment status colors */
+  --c-completed-bg:#eaf0e5; --c-completed-border:#b5cead; --c-completed-text:#3d6134;
+  --c-ongoing-bg:#e3ecf6;   --c-ongoing-border:#8fb0d4;   --c-ongoing-text:#1e4d7a;
+  --c-arrived-bg:#e8eef6;   --c-arrived-border:#9ab4d0;   --c-arrived-text:#2a4a6e;
+  --c-confirmed-bg:#e8f1e4; --c-confirmed-border:#a5c69d; --c-confirmed-text:#375e2d;
+  --c-booked-bg:#f3ede6;    --c-booked-border:#cdb89e;    --c-booked-text:#7a6450;
+  --c-late-bg:#f5eddf;      --c-late-border:#d4a85e;      --c-late-text:#8a5e1a;
+  --c-cancelled-bg:#eeebe7; --c-cancelled-border:#bbb0a4; --c-cancelled-text:#7a6e64;
+
+  --row-h:52px; --time-w:64px;
+}
+
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --accent:#d1baa2; --accent-warm:#c8a89e; --accent-soft:#a98076;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070;  --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe;    --info-bg:rgba(122,154,190,0.12);
+  --c-completed-bg:rgba(58,97,52,0.2); --c-completed-border:rgba(90,140,80,0.35); --c-completed-text:#8ab878;
+  --c-ongoing-bg:rgba(30,77,122,0.2);  --c-ongoing-border:rgba(90,130,175,0.35); --c-ongoing-text:#8ab0d8;
+  --c-arrived-bg:rgba(42,74,110,0.2);  --c-arrived-border:rgba(100,140,185,0.3); --c-arrived-text:#90b8d8;
+  --c-confirmed-bg:rgba(55,94,45,0.2); --c-confirmed-border:rgba(120,175,110,0.3);--c-confirmed-text:#90c882;
+  --c-booked-bg:rgba(90,70,45,0.2);    --c-booked-border:rgba(160,130,90,0.3);   --c-booked-text:#c8a878;
+  --c-late-bg:rgba(100,75,20,0.2);     --c-late-border:rgba(185,145,60,0.3);     --c-late-text:#d8b060;
+  --c-cancelled-bg:rgba(55,50,44,0.2); --c-cancelled-border:rgba(130,120,108,0.25);--c-cancelled-text:#9a8e82;
+}
+
+/* ─── BASE ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);height:100vh;display:flex;font-size:15px;line-height:1.6;overflow:hidden;transition:background .3s ease,color .3s ease}
+
+/* ─── SIDEBAR (from dashboard) ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:81px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:22px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-track{background:transparent}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-section::-webkit-scrollbar-thumb:hover{background:rgba(122,104,86,.35)}
+[data-theme="dark"] .nav-section{scrollbar-color:rgba(209,186,162,.12) transparent}
+[data-theme="dark"] .nav-section::-webkit-scrollbar-thumb{background:rgba(209,186,162,.15)}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 10px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit;}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;letter-spacing:0;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease,opacity .2s}
+.nav-chevron svg{display:block}
+.nav-item:hover .nav-chevron,.nav-item.open .nav-chevron{opacity:.7}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px;gap:0}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--sidebar-muted);padding:6px 12px;cursor:pointer;transition:all .15s;border-radius:8px;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.sidebar-footer{padding:20px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:white;flex-shrink:0}
+.therapist-info{flex:1;min-width:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN SHELL ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+
+/* ─── TOPBAR (from dashboard, adapted) ─── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:81px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;transition:background .3s ease}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-left h1{font-family:'DM Sans',system-ui,sans-serif;font-size:19px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.date-chip{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;color:var(--text-muted)}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px;line-height:1}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;flex-shrink:0}
+
+/* ─── CONTROLS BAR ─── */
+.controls{background:var(--surface);border-bottom:1px solid var(--border);padding:0 36px;height:56px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:nowrap}
+
+/* Date navigation */
+.date-nav{display:flex;align-items:center;gap:3px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:3px}
+.arr-btn{width:26px;height:26px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s;font-size:14px}
+.arr-btn:hover{background:var(--surface)}
+.today-btn{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text-secondary);background:transparent;border:none;padding:0 8px;height:26px;cursor:pointer;border-radius:6px;transition:background .12s}
+.today-btn:hover{background:var(--surface)}
+.date-pill{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;color:var(--surface);background:var(--accent);padding:3px 13px;border-radius:6px;white-space:nowrap;letter-spacing:.01em;font-weight:500}
+
+.vsep{width:1px;height:20px;background:var(--border-mid);flex-shrink:0;margin:0 2px}
+
+/* Control buttons */
+.ctrl-btn{display:flex;align-items:center;gap:5px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--text-secondary);background:transparent;border:1px solid var(--border);border-radius:8px;padding:0 12px;height:32px;cursor:pointer;white-space:nowrap;transition:all .12s}
+.ctrl-btn:hover{background:var(--surface-2);border-color:var(--border-mid)}
+
+/* Filter */
+.filter-wrap{position:relative}
+.filter-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.filter-in{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0 10px 0 30px;height:32px;width:152px;outline:none;transition:all .2s}
+.filter-in::placeholder{color:var(--text-muted);font-size:12px}
+.filter-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+
+/* Right group */
+.ctrl-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.view-tabs{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:2px;gap:2px}
+.vtab{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:4px 12px;border-radius:7px;cursor:pointer;color:var(--text-muted);background:transparent;border:none;transition:all .15s}
+.vtab.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.waitlist-btn{display:flex;align-items:center;gap:5px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#8a6018;background:rgba(160,128,64,.07);border:1px solid rgba(160,128,64,.22);border-radius:8px;padding:0 12px;height:32px;cursor:pointer;transition:background .12s}
+.waitlist-btn:hover{background:rgba(160,128,64,.13)}
+.wl-cnt{background:#a07828;color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px}
+.new-btn{display:flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;letter-spacing:.01em;color:#faf8f4;background:var(--accent);border:none;border-radius:8px;padding:0 16px;height:32px;cursor:pointer;transition:all .15s}
+.new-btn:hover{background:var(--shitake);transform:translateY(-1px);box-shadow:0 4px 12px rgba(122,104,86,.25)}
+.new-btn svg{flex-shrink:0}
+
+/* ─── LEGEND ─── */
+.legend{background:var(--bg);border-bottom:1px solid var(--border);padding:8px 36px;display:flex;align-items:center;gap:20px;flex-shrink:0;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--text-muted);white-space:nowrap;cursor:pointer;transition:opacity .15s;user-select:none}
+.leg-item.hidden-status{opacity:.35}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ─── CALENDAR AREA ─── */
+.cal-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+
+/* Therapist header */
+.th-header{display:grid;grid-template-columns:var(--time-w) repeat(6,minmax(0,1fr));background:var(--surface);border-bottom:2px solid var(--border-mid);flex-shrink:0;min-width:0;overflow:hidden}
+.th-time-spacer{border-right:1px solid var(--border-mid)}
+.th-cell{display:flex;align-items:center;gap:10px;padding:12px 16px;border-right:1px solid var(--border);cursor:pointer;transition:background .12s;min-width:0;position:relative}
+.th-cell:last-child{border-right:none}
+.th-cell:hover{background:var(--surface-2)}
+.th-cell.has-appt::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:20px;height:2px;border-radius:99px;background:var(--accent-warm);opacity:.5}
+.th-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:white;flex-shrink:0;font-family:'EB Garamond',serif;font-weight:500;position:relative}
+.th-av-status{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface)}
+.th-av-status.busy{background:#d4a85e}
+.th-av-status.active{background:#6a8f5a}
+.th-av-status.free{background:#bbb0a4}
+.th-info{min-width:0;flex:1}
+.th-name{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-role{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:1px}
+.th-count{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.06em;font-weight:600;color:var(--text-muted);white-space:nowrap;margin-top:2px}
+
+/* Grid scroll */
+.grid-scroll{flex:1;overflow:auto;min-height:0;position:relative}
+.grid-scroll::-webkit-scrollbar{width:5px;height:5px}
+.grid-scroll::-webkit-scrollbar-track{background:transparent}
+.grid-scroll::-webkit-scrollbar-thumb{background:var(--border-mid);border-radius:3px}
+.grid-scroll::-webkit-scrollbar-corner{background:transparent}
+
+/* Cal grid */
+.cal-grid{display:grid;grid-template-columns:var(--time-w) repeat(6,minmax(0,1fr));position:relative}
+
+/* Time cell */
+.tc{background:var(--surface);border-right:1px solid var(--border-mid);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:flex-end;padding:5px 10px 0 0;position:relative;z-index:2;flex-shrink:0}
+.tc.half{border-bottom:1px dashed rgba(122,104,86,.06)}
+.tc.half .tl{opacity:0}
+.tl{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.04em;color:var(--text-muted);font-weight:600;white-space:nowrap;user-select:none}
+
+/* Slot */
+.sc{border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;cursor:cell;transition:background .1s}
+.sc.half{border-bottom:1px dashed rgba(122,104,86,.05)}
+.sc:last-child{border-right:none}
+.sc:hover{background:rgba(122,104,86,.035)}
+.sc.col-even{background:rgba(122,104,86,.01)}
+.sc.col-even:hover{background:rgba(122,104,86,.04)}
+/* Hover + indicator on empty slots */
+.sc:hover::after{content:'+';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;color:rgba(122,104,86,.2);pointer-events:none;line-height:1}
+
+/* ── Appointment block ── */
+.ab{
+  position:absolute;left:5px;right:5px;top:4px;
+  border-radius:7px;
+  padding:8px 10px;
+  overflow:hidden;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  border-top:none;border-right:none;border-bottom:none;
+  transition:filter .15s, transform .15s;
+  z-index:5;
+}
+.ab:hover{filter:brightness(.96);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.08);z-index:20}
+
+/* Softer, less saturated backgrounds with a clean left accent */
+.ab.completed{background:var(--c-completed-bg);border-left-color:var(--c-completed-border)}
+.ab.ongoing   {background:var(--c-ongoing-bg);  border-left-color:var(--c-ongoing-border)}
+.ab.arrived   {background:var(--c-arrived-bg);  border-left-color:var(--c-arrived-border)}
+.ab.confirmed {background:var(--c-confirmed-bg);border-left-color:var(--c-confirmed-border)}
+.ab.booked    {background:var(--c-booked-bg);   border-left-color:var(--c-booked-border)}
+.ab.late      {background:var(--c-late-bg);     border-left-color:var(--c-late-border)}
+.ab.cancelled {background:var(--c-cancelled-bg);border-left-color:var(--c-cancelled-border);opacity:.45}
+
+/* Single font family throughout (DM Sans), two weights only */
+.ab-client{
+  font-family:'DM Sans',system-ui,sans-serif;
+  font-size:12.5px;font-weight:500;
+  line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  padding-right:56px;
+}
+.ab.completed .ab-client{color:var(--c-completed-text)}
+.ab.ongoing   .ab-client{color:var(--c-ongoing-text)}
+.ab.arrived   .ab-client{color:var(--c-arrived-text)}
+.ab.confirmed .ab-client{color:var(--c-confirmed-text)}
+.ab.booked    .ab-client{color:var(--c-booked-text)}
+.ab.late      .ab-client{color:var(--c-late-text)}
+.ab.cancelled .ab-client{color:var(--c-cancelled-text)}
+
+.ab-svc{
+  font-family:'DM Sans',system-ui,sans-serif;
+  font-size:11px;font-weight:400;
+  margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.3;
+  opacity:.6;
+}
+.ab.completed .ab-svc{color:var(--c-completed-text)}
+.ab.ongoing   .ab-svc{color:var(--c-ongoing-text)}
+.ab.arrived   .ab-svc{color:var(--c-arrived-text)}
+.ab.confirmed .ab-svc{color:var(--c-confirmed-text)}
+.ab.booked    .ab-svc{color:var(--c-booked-text)}
+.ab.late      .ab-svc{color:var(--c-late-text)}
+.ab.cancelled .ab-svc{color:var(--c-cancelled-text)}
+
+/* Time — always visible */
+.ab-meta{margin-top:4px}
+.ab-time{
+  font-family:'DM Sans',system-ui,sans-serif;
+  font-size:10px;font-weight:400;
+  opacity:.55;
+}
+.ab.completed .ab-time{color:var(--c-completed-text)}
+.ab.ongoing   .ab-time{color:var(--c-ongoing-text)}
+.ab.arrived   .ab-time{color:var(--c-arrived-text)}
+.ab.confirmed .ab-time{color:var(--c-confirmed-text)}
+.ab.booked    .ab-time{color:var(--c-booked-text)}
+.ab.late      .ab-time{color:var(--c-late-text)}
+.ab.cancelled .ab-time{color:var(--c-cancelled-text)}
+
+/* Status badge — always visible pill, top-right corner */
+.ab-status{
+  position:absolute;top:7px;right:7px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:8px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 7px;border-radius:99px;white-space:nowrap;line-height:1.6;
+}
+.ab.completed .ab-status{background:rgba(106,143,90,.15);color:var(--c-completed-text)}
+.ab.ongoing   .ab-status{background:rgba(90,122,158,.18);color:var(--c-ongoing-text)}
+.ab.arrived   .ab-status{background:rgba(90,122,158,.14);color:var(--c-arrived-text)}
+.ab.confirmed .ab-status{background:rgba(106,143,90,.12);color:var(--c-confirmed-text)}
+.ab.booked    .ab-status{background:rgba(160,130,90,.14);color:var(--c-booked-text)}
+.ab.late      .ab-status{background:rgba(185,145,60,.18);color:var(--c-late-text)}
+.ab.cancelled .ab-status{background:rgba(130,120,108,.12);color:var(--c-cancelled-text)}
+
+/* Price / balance row */
+.ab-price{
+  display:flex;align-items:center;gap:4px;margin-top:5px;
+  font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:400;opacity:.7;
+}
+
+.ab-flags{font-size:9px;opacity:.5;margin-left:4px;vertical-align:middle}
+
+/* Now line */
+.now-line{position:absolute;left:0;right:0;height:1.5px;background:var(--misty-rose);z-index:30;pointer-events:none}
+.now-line::before{content:'';position:absolute;left:-1px;top:-3.5px;width:8px;height:8px;border-radius:50%;background:var(--misty-rose)}
+.now-label{position:absolute;right:6px;top:-9px;font-family:'Cormorant Garamond',serif;font-size:8.5px;font-weight:600;letter-spacing:.06em;color:var(--misty-rose);opacity:.85}
+
+/* ─── APPOINTMENT TOOLTIP / POPOVER ─── */
+.appt-popover{position:fixed;z-index:100;width:260px;background:var(--surface);border:1px solid var(--border-mid);border-radius:14px;box-shadow:0 16px 48px rgba(58,47,36,.13),0 4px 12px rgba(58,47,36,.07);padding:0;overflow:hidden;opacity:0;transform:translateY(4px) scale(.98);pointer-events:none;transition:opacity .18s ease,transform .18s ease;transform-origin:top left}
+.appt-popover.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.popover-head{padding:16px 18px 12px;border-bottom:1px solid var(--border)}
+.popover-status-bar{height:3px;border-radius:99px;margin-bottom:14px}
+.popover-client{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;font-weight:500;color:var(--text-primary);line-height:1.2;margin-bottom:2px}
+.popover-svc{font-size:12px;color:var(--text-muted)}
+.popover-body{padding:12px 18px}
+.popover-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.popover-row:last-child{margin-bottom:0}
+.popover-icon{width:28px;height:28px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted)}
+.popover-detail{font-size:12px;color:var(--text-secondary)}
+.popover-detail strong{color:var(--text-primary);font-weight:500}
+.popover-actions{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:6px}
+.pop-btn{flex:1;font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:7px 4px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-muted)}
+.pop-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.pop-btn.primary{background:var(--accent);color:#faf8f4;border-color:transparent}
+.pop-btn.primary:hover{background:var(--shitake)}
+
+/* ─── NEW APPOINTMENT MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(33,35,34,.45);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease;backdrop-filter:blur(2px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:0;width:460px;max-width:calc(100vw - 40px);box-shadow:0 24px 72px rgba(33,35,34,.18);overflow:hidden;transform:translateY(16px) scale(.98);transition:transform .25s ease;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-head{padding:24px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-family:'DM Sans',system-ui,sans-serif;font-size:16px;font-weight:500;color:var(--text-primary)}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.modal-close{width:30px;height:30px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .15s;font-size:16px;flex-shrink:0}
+.modal-close:hover{background:var(--surface-2)}
+.modal-body{padding:24px 28px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+.form-input,.form-select{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 13px;outline:none;transition:all .2s;width:100%;appearance:none}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 4l3 3 3-3' stroke='%2380756a' stroke-width='1.3' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.form-input:focus,.form-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+.form-input::placeholder{color:var(--text-muted)}
+.modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.modal-cancel{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:9px 20px;border-radius:9px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s}
+.modal-cancel:hover{background:var(--surface-2)}
+.modal-confirm{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:9px 22px;border-radius:9px;cursor:pointer;border:none;background:var(--accent);color:#faf8f4;transition:all .15s}
+.modal-confirm:hover{background:var(--shitake);transform:translateY(-1px);box-shadow:0 4px 12px rgba(122,104,86,.25)}
+
+/* ─── SUMMARY STRIP ─── */
+.summary-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:0 36px;height:48px;display:flex;align-items:center;gap:28px;flex-shrink:0;overflow-x:auto}
+.summary-strip::-webkit-scrollbar{display:none}
+.sum-item{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.sum-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sum-label{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+.sum-val{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--text-primary)}
+.sum-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+
+/* ─── STATUS PILL ─── */
+.status-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;display:inline-flex;align-items:center}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.cal-area{animation:fadeUp .35s ease both}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR (from dashboard) ═══ -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <div class="nav-item active">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </div>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- TOPBAR (dashboard style) -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Appointments</h1>
+      <p>Causeway Point · 03 Jun 2026</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-chip">Tue, 09 Dec 2025</div>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn" title="Notifications">
+        <div class="notif-dot"></div>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <!-- SUMMARY STRIP (new UX addition) -->
+  <div class="summary-strip">
+    <div class="sum-item">
+      <div class="sum-dot" style="background:#8fb0d4"></div>
+      <span class="sum-label">Ongoing</span>
+      <span class="sum-val">2</span>
+    </div>
+    <div class="sum-sep"></div>
+    <div class="sum-item">
+      <div class="sum-dot" style="background:#9ab4d0"></div>
+      <span class="sum-label">Arrived</span>
+      <span class="sum-val">2</span>
+    </div>
+    <div class="sum-sep"></div>
+    <div class="sum-item">
+      <div class="sum-dot" style="background:#a5c69d"></div>
+      <span class="sum-label">Confirmed</span>
+      <span class="sum-val">3</span>
+    </div>
+    <div class="sum-sep"></div>
+    <div class="sum-item">
+      <div class="sum-dot" style="background:#cdb89e"></div>
+      <span class="sum-label">Booked</span>
+      <span class="sum-val">1</span>
+    </div>
+    <div class="sum-sep"></div>
+    <div class="sum-item">
+      <div class="sum-dot" style="background:#b5cead"></div>
+      <span class="sum-label">Completed</span>
+      <span class="sum-val">2</span>
+    </div>
+    <div class="sum-sep"></div>
+    <div class="sum-item" style="margin-left: auto">
+      <span class="sum-label" style="letter-spacing:.04em;font-size:11px;color:var(--text-secondary)">Total · 9 appts · 6 therapists</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="date-nav">
+      <button class="arr-btn">‹</button>
+      <button class="today-btn">Today</button>
+      <button class="arr-btn">›</button>
+      <div class="date-pill">Tue, 09 Dec</div>
+    </div>
+
+    <div class="vsep"></div>
+
+    <button class="ctrl-btn">
+      <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 1L1.5 3.5v4c0 3 2.5 5 5.5 5s5.5-2 5.5-5V3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      Causeway Point
+      <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 4l2.5 2.5L7.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="filter-wrap">
+      <svg class="filter-ic" width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input class="filter-in" id="therapistFilter" type="text" placeholder="Filter therapist…">
+    </div>
+
+    <button class="ctrl-btn" id="slotSizeBtn">
+      <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      30 min
+      <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2.5 4l2.5 2.5L7.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="ctrl-right">
+      <div class="view-tabs">
+        <button class="vtab active">Therapist</button>
+        <button class="vtab">Resource</button>
+      </div>
+      <button class="waitlist-btn">
+        Waitlist <span class="wl-cnt">2</span>
+      </button>
+      <button class="new-btn" id="newApptBtn">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        New Appointment
+      </button>
+    </div>
+  </div>
+
+  <!-- LEGEND (clickable to filter) -->
+  <div class="legend">
+    <div class="leg-item" data-status="booked"><div class="leg-dot" style="background:#cdb89e"></div>Booked</div>
+    <div class="leg-item" data-status="confirmed"><div class="leg-dot" style="background:#a5c69d"></div>Confirmed</div>
+    <div class="leg-item" data-status="late"><div class="leg-dot" style="background:#d4a85e"></div>Late</div>
+    <div class="leg-item" data-status="arrived"><div class="leg-dot" style="background:#9ab4d0"></div>Arrived</div>
+    <div class="leg-item" data-status="ongoing"><div class="leg-dot" style="background:#8fb0d4"></div>Ongoing</div>
+    <div class="leg-item" data-status="completed"><div class="leg-dot" style="background:#b5cead"></div>Completed</div>
+    <div class="leg-item" data-status="cancelled"><div class="leg-dot" style="background:#bbb0a4"></div>Cancelled</div>
+    <span style="margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;opacity:.6">Click to filter</span>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="cal-area">
+    <div class="th-header" id="thHeader">
+      <div class="th-time-spacer"></div>
+    </div>
+    <div class="grid-scroll" id="gridScroll">
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- APPOINTMENT POPOVER -->
+<div class="appt-popover" id="apptPopover">
+  <div class="popover-head">
+    <div class="popover-status-bar" id="popoverBar"></div>
+    <div class="popover-client" id="popoverClient"></div>
+    <div class="popover-svc" id="popoverSvc"></div>
+  </div>
+  <div class="popover-body">
+    <div class="popover-row">
+      <div class="popover-icon">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="popover-detail" id="popoverTime"></div>
+    </div>
+    <div class="popover-row">
+      <div class="popover-icon">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="popover-detail" id="popoverTherapist"></div>
+    </div>
+    <div class="popover-row" id="popoverStatusRow">
+      <div class="popover-icon">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="popover-detail" id="popoverStatus"></div>
+    </div>
+  </div>
+  <div class="popover-actions">
+    <button class="pop-btn" id="popEdit">Edit</button>
+    <button class="pop-btn" id="popCheckout">Checkout</button>
+    <button class="pop-btn primary" id="popClose">Close</button>
+  </div>
+</div>
+
+<!-- NEW APPOINTMENT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">New Appointment</div>
+        <div class="modal-sub">Causeway Point · Tue, 09 Dec 2025</div>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Client Name</label>
+          <input class="form-input" type="text" placeholder="Search or add client…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact</label>
+          <input class="form-input" type="text" placeholder="+65 ···">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Service</label>
+          <select class="form-select">
+            <option>Gold Facial Treatment</option>
+            <option>Pico Rejuvenate</option>
+            <option>Intense Hydration HA Facial</option>
+            <option>Cryotherapy Facial</option>
+            <option>Fotona Reaces Laser</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Therapist</label>
+          <select class="form-select">
+            <option>Ginli</option>
+            <option>Iris Tan</option>
+            <option>Chai Ting</option>
+            <option>Apple</option>
+            <option>P Noon</option>
+            <option>Stephanie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration</label>
+          <select class="form-select">
+            <option>30 min</option>
+            <option>60 min</option>
+            <option>90 min</option>
+            <option>120 min</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Start Time</label>
+          <input class="form-input" type="time" value="10:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select">
+            <option>Booked</option>
+            <option>Confirmed</option>
+            <option>Arrived</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <input class="form-input" type="text" placeholder="Allergies, preferences, package…">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" id="modalCancelBtn">Cancel</button>
+      <button class="modal-confirm">Create Appointment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const THERAPISTS = [
+  { name:'Ginli',     role:'Facial',  color:['#d1baa2','#a98076'], status:'busy'  },
+  { name:'Iris Tan',  role:'Laser',   color:['#c8a89e','#7a6856'], status:'active' },
+  { name:'Chai Ting', role:'Facial',  color:['#8a9e7a','#6a8f5a'], status:'busy'  },
+  { name:'Apple',     role:'Facial',  color:['#cec4b4','#80756a'], status:'active' },
+  { name:'P Noon',    role:'Laser',   color:['#5a7a9e','#7a9abe'], status:'busy'  },
+  { name:'Stephanie', role:'Facial',  color:['#a98076','#7a6856'], status:'free'  },
+];
+
+const APPTS = [
+  { col:1, row:0,  dur:4, client:'Wendy Goh',     service:'Gold Facial Treatment',       status:'completed', flags:['★'] },
+  { col:2, row:2,  dur:2, client:'Elisabeth Lee',  service:'Pico Rejuvenate',             status:'ongoing',   flags:['⚠'], owed:240 },
+  { col:3, row:0,  dur:4, client:'Wendy Goh',      service:'Gold Facial Treatment',       status:'completed' },
+  { col:3, row:5,  dur:3, client:'Emily Singh',    service:'Cryotherapy Facial',          status:'confirmed' },
+  { col:4, row:3,  dur:3, client:'Victoria Tan',   service:'Intense Hydration HA Facial', status:'arrived',   flags:['★','⚠'], owed:120 },
+  { col:4, row:7,  dur:2, client:'Emily Singh',    service:'Cryotherapy Facial',          status:'confirmed' },
+  { col:5, row:2,  dur:2, client:'Elisabeth Lee',  service:'Pico Rejuvenate',             status:'ongoing',   owed:180 },
+  { col:5, row:12, dur:2, client:'Elisabeth Lee',  service:'Fotona Reaces Laser',         status:'booked' },
+  { col:6, row:3,  dur:3, client:'Victoria Tan',   service:'Intense Hydration HA Facial', status:'arrived',   flags:['★'] },
+];
+
+const ROW_H = 52;
+const START_H = 9;
+const statusLabels = { completed:'Done', ongoing:'In Progress', arrived:'Arrived', confirmed:'Confirmed', booked:'Not In', late:'Late', cancelled:'Cancelled' };
+const statusColors  = { completed:'#b5cead', ongoing:'#8fb0d4', arrived:'#9ab4d0', confirmed:'#a5c69d', booked:'#cdb89e', late:'#d4a85e', cancelled:'#bbb0a4' };
+
+// Count appts per therapist
+const therapistApptCount = {};
+APPTS.forEach(a => { therapistApptCount[a.col] = (therapistApptCount[a.col] || 0) + 1; });
+
+// Build therapist header
+const thHeader = document.getElementById('thHeader');
+THERAPISTS.forEach((t, i) => {
+  const col = i + 1;
+  const cnt = therapistApptCount[col] || 0;
+  const cell = document.createElement('div');
+  cell.className = 'th-cell' + (cnt > 0 ? ' has-appt' : '');
+  cell.innerHTML = `
+    <div class="th-av" style="background:linear-gradient(135deg,${t.color[0]},${t.color[1]})">
+      ${t.name[0]}
+      <div class="th-av-status ${t.status}"></div>
+    </div>
+    <div class="th-info">
+      <div class="th-name">${t.name}</div>
+      <div class="th-role">${t.role} Specialist</div>
+      <div class="th-count">${cnt} appt${cnt !== 1 ? 's' : ''}</div>
+    </div>`;
+  thHeader.appendChild(cell);
+});
+
+// Sync horizontal scroll
+const gridScroll = document.getElementById('gridScroll');
+gridScroll.addEventListener('scroll', () => {
+  thHeader.style.transform = `translateX(-${gridScroll.scrollLeft}px)`;
+});
+
+// Build time grid
+const grid = document.getElementById('calGrid');
+const times = [];
+for (let h = START_H; h <= 20; h++) {
+  times.push({ label:`${String(h).padStart(2,'0')}:00`, half:false });
+  times.push({ label:`${String(h).padStart(2,'0')}:30`, half:true });
+}
+times.push({ label:'21:00', half:false });
+
+times.forEach((t, ri) => {
+  const tc = document.createElement('div');
+  tc.className = 'tc' + (t.half ? ' half' : '');
+  tc.style.height = ROW_H + 'px';
+  tc.innerHTML = `<span class="tl">${t.label}</span>`;
+  grid.appendChild(tc);
+  for (let c = 1; c <= 6; c++) {
+    const sc = document.createElement('div');
+    sc.className = 'sc' + (t.half ? ' half' : '') + (c % 2 === 0 ? ' col-even' : '');
+    sc.style.height = ROW_H + 'px';
+    sc.dataset.row = ri;
+    sc.dataset.col = c;
+    sc.dataset.time = t.label;
+    grid.appendChild(sc);
+  }
+});
+
+// Place appointments
+APPTS.forEach(a => {
+  const anchor = grid.querySelector(`[data-row="${a.row}"][data-col="${a.col}"]`);
+  if (!anchor) return;
+  const block = document.createElement('div');
+  block.className = `ab ${a.status}`;
+  block.style.height = (a.dur * ROW_H - 8) + 'px';
+  const flagStr = (a.flags || []).join(' ');
+  const endTime = calcEndTime(anchor.dataset.time, a.dur * 30);
+  const priceRow = a.owed ? `<div class="ab-price"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 7.5h14M5 7.5V13M9 7.5V13" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg> $${a.owed.toFixed(2)} Owed</div>` : '';
+  block.innerHTML = `
+    <div class="ab-status">${statusLabels[a.status] || a.status}</div>
+    <div class="ab-client">${a.client}${flagStr ? ' <span class="ab-flags">' + flagStr + '</span>' : ''}</div>
+    <div class="ab-svc">${a.service}</div>
+    <div class="ab-meta"><span class="ab-time">${anchor.dataset.time} – ${endTime}</span></div>
+    ${priceRow}`;
+  anchor.style.position = 'relative';
+  // Attach popover data
+  block.dataset.client = a.client;
+  block.dataset.svc = a.service;
+  block.dataset.time = anchor.dataset.time;
+  block.dataset.endTime = endTime;
+  block.dataset.therapist = THERAPISTS[a.col - 1].name;
+  block.dataset.status = a.status;
+  block.addEventListener('click', e => { e.stopPropagation(); showPopover(block, e); });
+  anchor.appendChild(block);
+});
+
+function calcEndTime(start, addMinutes) {
+  const [h, m] = start.split(':').map(Number);
+  const total = h * 60 + m + addMinutes;
+  return `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+}
+
+// Now line
+const nowRow = 3, nowFrac = 0.5;
+const nowY = nowRow * ROW_H + nowFrac * ROW_H;
+grid.style.position = 'relative';
+const nowLine = document.createElement('div');
+nowLine.className = 'now-line';
+nowLine.style.top = nowY + 'px';
+nowLine.innerHTML = `<span class="now-label">Now</span>`;
+grid.appendChild(nowLine);
+gridScroll.scrollTop = Math.max(0, nowY - 160);
+
+// Sync header width
+const observer = new ResizeObserver(() => {
+  thHeader.style.minWidth = grid.offsetWidth + 'px';
+});
+observer.observe(grid);
+
+// ─── THEME ───
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+});
+
+// ─── VIEW TABS ───
+document.querySelectorAll('.vtab').forEach(b => {
+  b.addEventListener('click', function() {
+    document.querySelectorAll('.vtab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ─── LEGEND FILTER (click to toggle status visibility) ───
+const hiddenStatuses = new Set();
+document.querySelectorAll('.leg-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const status = item.dataset.status;
+    if (hiddenStatuses.has(status)) {
+      hiddenStatuses.delete(status);
+      item.classList.remove('hidden-status');
+    } else {
+      hiddenStatuses.add(status);
+      item.classList.add('hidden-status');
+    }
+    document.querySelectorAll('.ab').forEach(ab => {
+      ab.style.opacity = hiddenStatuses.has(ab.parentElement.dataset ? [...ab.classList].find(c => statusLabels[c]) : '') ? '0.1' : '';
+      const cls = [...ab.classList].find(c => statusLabels[c]);
+      if (cls) ab.style.opacity = hiddenStatuses.has(cls) ? '0.08' : '';
+    });
+  });
+});
+
+// ─── THERAPIST FILTER ───
+document.getElementById('therapistFilter').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.th-cell').forEach((cell, i) => {
+    const name = THERAPISTS[i].name.toLowerCase();
+    const show = name.includes(q);
+    cell.style.opacity = show ? '' : '0.25';
+    document.querySelectorAll(`.ab`).forEach(ab => {
+      if (ab.dataset.therapist) {
+        const match = ab.dataset.therapist.toLowerCase().includes(q);
+        if (!q) ab.style.opacity = '';
+        else if (ab.dataset.therapist === THERAPISTS[i].name) ab.style.opacity = match ? '' : '0.08';
+      }
+    });
+  });
+  if (!q) {
+    document.querySelectorAll('.th-cell').forEach(c => c.style.opacity = '');
+    document.querySelectorAll('.ab').forEach(a => a.style.opacity = '');
+  }
+});
+
+// ─── POPOVER ───
+const popover = document.getElementById('apptPopover');
+let popoverOpen = false;
+function showPopover(block, e) {
+  document.getElementById('popoverClient').textContent = block.dataset.client;
+  document.getElementById('popoverSvc').textContent = block.dataset.svc;
+  document.getElementById('popoverTime').innerHTML = `<strong>${block.dataset.time} – ${block.dataset.endTime}</strong>`;
+  document.getElementById('popoverTherapist').innerHTML = `<strong>${block.dataset.therapist}</strong>`;
+  document.getElementById('popoverStatus').innerHTML = `<strong style="text-transform:capitalize">${block.dataset.status}</strong>`;
+  document.getElementById('popoverBar').style.background = statusColors[block.dataset.status] || '#ccc';
+  // Position
+  const rect = block.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let left = rect.right + 10, top = rect.top;
+  if (left + 270 > vw) left = rect.left - 270;
+  if (top + 280 > vh) top = vh - 290;
+  popover.style.left = left + 'px';
+  popover.style.top = top + 'px';
+  popover.classList.add('open');
+  popoverOpen = true;
+  e.stopPropagation();
+}
+document.getElementById('popClose').addEventListener('click', () => popover.classList.remove('open'));
+document.addEventListener('click', () => popover.classList.remove('open'));
+
+// ─── NEW APPT MODAL ───
+const overlay = document.getElementById('modalOverlay');
+document.getElementById('newApptBtn').addEventListener('click', () => overlay.classList.add('open'));
+document.getElementById('modalClose').addEventListener('click', () => overlay.classList.remove('open'));
+document.getElementById('modalCancelBtn').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// ─── EMPTY SLOT CLICK (open modal pre-filled) ───
+document.getElementById('calGrid').addEventListener('click', e => {
+  const sc = e.target.closest('.sc');
+  if (sc && !e.target.closest('.ab')) {
+    overlay.classList.add('open');
+    const timeInput = overlay.querySelector('input[type="time"]');
+    if (sc.dataset.time && timeInput) timeInput.value = sc.dataset.time.replace(':', ':');
+  }
+});
+</script>
+</body>
+</html>

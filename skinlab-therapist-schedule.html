@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — My Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS (exact from dashboard file) ── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --jet-stream:#e9e0d7;
+  --oatmeal:#cec4b4; --frosted-almond:#d1baa2; --misty-rose:#c8a89e;
+  --mocha-mousse:#a98076; --fallen-rock:#80756a; --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a; --text-placeholder:#b0a090;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+  /* appointment status */
+  --ab-completed-bg:#eaf0e6; --ab-completed-border:#b8d0b0; --ab-completed-text:#4a6e40;
+  --ab-ongoing-bg:#e4edf7;   --ab-ongoing-border:#90aed0;   --ab-ongoing-text:#2a5278;
+  --ab-arrived-bg:#e8eef6;   --ab-arrived-border:#9ab4d0;   --ab-arrived-text:#2a4a6e;
+  --ab-confirmed-bg:#e8f2e4; --ab-confirmed-border:#a8c8a0; --ab-confirmed-text:#3a6030;
+  --ab-booked-bg:#f4efe8;    --ab-booked-border:#d1baa2;    --ab-booked-text:#7a6856;
+  --ab-late-bg:#f5ede0;      --ab-late-border:#d4a860;      --ab-late-text:#8a5e20;
+  --ab-cancelled-bg:#f0ece8; --ab-cancelled-border:#c0b0a0; --ab-cancelled-text:#806858;
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a; --text-placeholder:#5a4e42;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --ab-completed-bg:#1e2e1a; --ab-completed-border:#4a6e40; --ab-completed-text:#8ab880;
+  --ab-ongoing-bg:#182030;   --ab-ongoing-border:#3a6090;   --ab-ongoing-text:#7aaad8;
+  --ab-arrived-bg:#182030;   --ab-arrived-border:#3a5880;   --ab-arrived-text:#6a9ac8;
+  --ab-confirmed-bg:#1a2c18; --ab-confirmed-border:#3a6030; --ab-confirmed-text:#80b070;
+  --ab-booked-bg:#2a2520;    --ab-booked-border:#7a6856;    --ab-booked-text:#d1baa2;
+  --ab-late-bg:#2a2010;      --ab-late-border:#8a6020;      --ab-late-text:#d4a060;
+  --ab-cancelled-bg:#262220; --ab-cancelled-border:#6a5848; --ab-cancelled-text:#9a8878;
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'EB Garamond',Georgia,serif;
+  background:var(--bg); color:var(--text-primary);
+  min-height:100vh; display:flex; font-size:15px; line-height:1.6;
+  transition:background .3s ease, color .3s ease;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:81px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:22px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-track{background:transparent}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-section::-webkit-scrollbar-thumb:hover{background:rgba(122,104,86,.35)}
+[data-theme="dark"] .nav-section{scrollbar-color:rgba(209,186,162,.12) transparent}
+[data-theme="dark"] .nav-section::-webkit-scrollbar-thumb{background:rgba(209,186,162,.15)}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 10px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit;}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;letter-spacing:0;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease,opacity .2s}
+.nav-chevron svg{display:block}
+.nav-item:hover .nav-chevron,.nav-item.open .nav-chevron{opacity:.7}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px;gap:0}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--sidebar-muted);padding:6px 12px;cursor:pointer;transition:all .15s;border-radius:8px;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.sidebar-footer{padding:20px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:white;flex-shrink:0}
+.therapist-info{flex:1;min-width:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ── MAIN + TOPBAR ── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:81px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-left h1{font-family:'DM Sans',system-ui,sans-serif;font-size:19px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.date-chip{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px;line-height:1}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8a9e7a,#6a8f5a);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;flex-shrink:0}
+
+/* ── ROLE SWITCHER ── */
+.role-switcher{position:relative}
+.role-trigger{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--border);border-radius:99px;background:transparent;cursor:pointer;transition:all .2s;font-family:'DM Sans',system-ui,sans-serif}
+.role-trigger:hover{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-trigger-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.role-trigger-label{font-size:12.5px;font-weight:500;color:var(--text-primary);letter-spacing:.01em}
+.role-trigger-caret{width:14px;height:14px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:transform .2s,opacity .2s;flex-shrink:0}
+.role-switcher.open .role-trigger-caret{transform:rotate(180deg);opacity:.7}
+.role-switcher.open .role-trigger{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:248px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(58,47,36,.1),0 2px 8px rgba(58,47,36,.06);padding:8px;z-index:100;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:opacity .18s ease,transform .18s ease;transform-origin:top right}
+.role-switcher.open .role-dropdown{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.role-dropdown-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);font-weight:600;padding:6px 10px 8px;display:block}
+.role-option{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
+.role-option:hover{background:var(--surface-2)}
+.role-option.selected{background:var(--sidebar-active-bg)}
+.role-option-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.role-option-text{flex:1;min-width:0}
+.role-option-name{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.2}
+.role-option.selected .role-option-name{color:var(--accent)}
+.role-option-desc{font-size:11px;color:var(--text-muted);margin-top:1px}
+.role-check{width:14px;height:14px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.role-option.selected .role-check{opacity:1}
+
+/* ── CONTENT ── */
+.content { padding:32px 36px; display:flex; flex-direction:column; gap:24px; }
+
+/* ── THERAPIST HERO STRIP ── */
+.hero-strip {
+  display:flex; align-items:center; gap:20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px 26px;
+  animation: fadeUp .4s ease both;
+}
+.hero-avatar {
+  width:52px; height:52px; border-radius:50%;
+  background:linear-gradient(135deg,#d1baa2,#a98076);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'EB Garamond',serif; font-size:20px; color:white; flex-shrink:0;
+}
+.hero-info { flex:1; }
+.hero-name { font-family:'EB Garamond',serif; font-size:20px; font-weight:400; color:var(--text-primary); letter-spacing:.01em; line-height:1.1; }
+.hero-meta {
+  font-family:'Cormorant Garamond',serif; font-size:10px;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--text-muted); font-weight:600;
+  margin-top:3px;
+}
+.hero-stats { display:flex; align-items:stretch; gap:0; }
+.hstat {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:0 24px;
+  border-left:1px solid var(--border);
+}
+.hstat-val { font-family:'EB Garamond',serif; font-size:24px; color:var(--text-primary); line-height:1; }
+.hstat-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-top:3px; white-space:nowrap; }
+.hstat-sub { font-size:11px; color:var(--text-muted); margin-top:1px; font-weight:500; }
+.hstat-sub.up   { color:var(--success); }
+.hstat-sub.down { color:var(--danger); }
+
+/* ── DATE NAV BAR ── */
+.date-nav-bar {
+  display:flex; align-items:center; gap:8px;
+  animation: fadeUp .4s ease .05s both;
+}
+.dnav-btn {
+  width:32px; height:32px; border:1px solid var(--border); border-radius:8px;
+  background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-muted); font-size:13px; transition:all .15s;
+}
+.dnav-btn:hover { background:var(--surface-2); color:var(--shitake); }
+.dnav-today {
+  font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:600; color:var(--text-secondary);
+  border:1px solid var(--border); border-radius:8px; background:transparent;
+  padding:0 13px; height:32px; cursor:pointer; transition:all .15s;
+}
+.dnav-today:hover { background:var(--surface-2); }
+.dnav-active {
+  font-family:'EB Garamond',serif; font-size:14px; color:#faf9f5;
+  background:var(--shitake); padding:5px 16px; border-radius:8px; letter-spacing:.02em;
+}
+.dnav-sep { flex:1; }
+/* mini day pills */
+.day-pills { display:flex; gap:4px; }
+.day-pill {
+  display:flex; flex-direction:column; align-items:center;
+  padding:5px 10px; border-radius:10px; cursor:pointer;
+  border:1px solid transparent; transition:all .15s; min-width:42px;
+}
+.day-pill:hover { background:var(--surface-2); border-color:var(--border); }
+.day-pill.active { background:var(--shitake); }
+.dp-day { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; color:var(--text-muted); }
+.day-pill.active .dp-day { color:rgba(255,255,255,.7); }
+.dp-num { font-family:'EB Garamond',serif; font-size:16px; color:var(--text-primary); line-height:1.1; }
+.day-pill.active .dp-num { color:white; }
+.dp-dot { width:4px; height:4px; border-radius:50%; background:var(--frosted-almond); margin-top:2px; }
+.day-pill.active .dp-dot { background:rgba(255,255,255,.5); }
+.dp-dot.hidden { opacity:0; }
+
+/* ── TIMELINE ── */
+.timeline-wrap {
+  display:flex; gap:24px;
+  animation: fadeUp .4s ease .1s both;
+}
+
+/* Left — timeline list */
+.timeline {
+  flex:1; min-width:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+}
+.timeline-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 22px 14px;
+  border-bottom:1px solid var(--border-soft);
+}
+.tl-title { font-family:'EB Garamond',serif; font-size:15px; font-weight:500; color:var(--text-primary); }
+.tl-count { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); font-weight:600; }
+.tl-body { padding:0; }
+
+/* Each time-group */
+.time-group { border-bottom:1px solid var(--border-soft); }
+.time-group:last-child { border-bottom:none; }
+.tg-label {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 22px 0;
+}
+.tg-time {
+  font-family:'Cormorant Garamond',serif; font-size:10px;
+  letter-spacing:.12em; font-weight:600; color:var(--oatmeal);
+  text-transform:uppercase; min-width:36px;
+}
+.tg-line { flex:1; height:1px; background:var(--border-soft); }
+.tg-now {
+  font-family:'Cormorant Garamond',serif; font-size:9px;
+  letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  color:var(--danger); display:flex; align-items:center; gap:4px;
+}
+.tg-now-dot { width:6px; height:6px; border-radius:50%; background:var(--danger); animation:pulse 2s infinite; }
+
+/* Appointment card in timeline */
+.tl-card {
+  display:flex; align-items:stretch; gap:0;
+  margin:8px 14px 10px;
+  border-radius:11px;
+  border:1px solid;
+  overflow:hidden;
+  cursor:pointer;
+  transition:all .18s;
+}
+.tl-card:hover { transform:translateY(-1px); box-shadow:0 4px 18px rgba(0,0,0,.07); }
+
+/* Left accent bar */
+.tl-accent { width:4px; flex-shrink:0; }
+
+.tl-card-body { display:flex; align-items:center; gap:14px; padding:14px 16px; flex:1; }
+
+/* Client avatar */
+.tl-cavatar {
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'EB Garamond',serif; font-size:14px; color:white;
+  flex-shrink:0;
+}
+
+/* Main info */
+.tl-main { flex:1; min-width:0; }
+.tl-client { font-family:'EB Garamond',serif; font-size:14.5px; font-weight:500; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tl-service { font-size:12.5px; color:var(--text-muted); font-weight:500; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tl-tags { display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap; }
+.tl-tag {
+  font-family:'Cormorant Garamond',serif; font-size:9px;
+  letter-spacing:.08em; text-transform:uppercase; font-weight:600;
+  padding:2px 7px; border-radius:99px; border:1px solid;
+}
+
+/* Right meta */
+.tl-meta { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.tl-duration { font-family:'EB Garamond',serif; font-size:14px; color:var(--text-primary); }
+.tl-dur-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.08em; color:var(--text-muted); font-weight:600; }
+.tl-pkg {
+  font-family:'Cormorant Garamond',serif; font-size:9px;
+  letter-spacing:.08em; text-transform:uppercase; font-weight:600;
+  padding:2px 8px; border-radius:99px;
+  background:rgba(122,104,86,.08); color:var(--text-muted); border:1px solid var(--border);
+}
+.tl-actions { display:flex; gap:5px; margin-top:2px; }
+.tl-action-btn {
+  font-family:'Cormorant Garamond',serif; font-size:9px;
+  letter-spacing:.08em; text-transform:uppercase; font-weight:600;
+  padding:3px 9px; border-radius:6px; border:1px solid var(--border);
+  background:transparent; color:var(--text-muted); cursor:pointer; transition:all .15s;
+}
+.tl-action-btn:hover { background:var(--surface-2); color:var(--shitake); }
+.tl-action-btn.primary { background:var(--shitake); color:#faf9f5; border-color:var(--shitake); }
+.tl-action-btn.primary:hover { background:var(--fallen-rock); }
+
+/* Status color system for cards */
+.tl-card.completed { background:var(--ab-completed-bg); border-color:var(--ab-completed-border); }
+.tl-card.completed .tl-accent { background:var(--ab-completed-border); }
+.tl-card.completed .tl-client { color:var(--ab-completed-text); }
+
+.tl-card.ongoing { background:var(--ab-ongoing-bg); border-color:var(--ab-ongoing-border); }
+.tl-card.ongoing .tl-accent { background:var(--ab-ongoing-border); }
+.tl-card.ongoing .tl-client { color:var(--ab-ongoing-text); }
+
+.tl-card.arrived { background:var(--ab-arrived-bg); border-color:var(--ab-arrived-border); }
+.tl-card.arrived .tl-accent { background:var(--ab-arrived-border); }
+.tl-card.arrived .tl-client { color:var(--ab-arrived-text); }
+
+.tl-card.confirmed { background:var(--ab-confirmed-bg); border-color:var(--ab-confirmed-border); }
+.tl-card.confirmed .tl-accent { background:var(--ab-confirmed-border); }
+.tl-card.confirmed .tl-client { color:var(--ab-confirmed-text); }
+
+.tl-card.booked { background:var(--ab-booked-bg); border-color:var(--ab-booked-border); }
+.tl-card.booked .tl-accent { background:var(--ab-booked-border); }
+.tl-card.booked .tl-client { color:var(--ab-booked-text); }
+
+.tl-card.late { background:var(--ab-late-bg); border-color:var(--ab-late-border); }
+.tl-card.late .tl-accent { background:var(--ab-late-border); }
+.tl-card.late .tl-client { color:var(--ab-late-text); }
+
+/* Empty slot */
+.tl-empty {
+  margin:4px 14px 8px;
+  padding:10px 16px;
+  border-radius:10px;
+  border:1px dashed var(--border);
+  display:flex; align-items:center; gap:10px;
+  cursor:pointer; transition:all .15s;
+  color:var(--text-placeholder);
+}
+.tl-empty:hover { background:var(--surface-2); border-color:var(--frosted-almond); color:var(--shitake); }
+.tl-empty-icon { font-size:13px; }
+.tl-empty-text { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
+
+/* ── RIGHT SIDEBAR PANEL ── */
+.side-panel { width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:14px; }
+
+/* Next up card */
+.panel-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px;
+}
+.pc-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:12px; }
+
+/* Next up */
+.next-up-card {
+  background:var(--shitake); border-radius:11px; padding:16px 18px;
+  position:relative; overflow:hidden;
+}
+.next-up-card::before {
+  content:''; position:absolute; right:-20px; top:-20px;
+  width:90px; height:90px; border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.nu-badge {
+  font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.14em;
+  text-transform:uppercase; font-weight:600; color:rgba(255,255,255,.6);
+  display:flex; align-items:center; gap:5px; margin-bottom:8px;
+}
+.nu-dot { width:6px; height:6px; border-radius:50%; background:#faf9f5; animation:pulse 2s infinite; }
+.nu-client { font-family:'EB Garamond',serif; font-size:17px; color:#faf9f5; font-weight:400; }
+.nu-service { font-size:12.5px; color:rgba(255,255,255,.7); margin-top:2px; }
+.nu-row { display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+.nu-time { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:.08em; color:rgba(255,255,255,.8); font-weight:600; }
+.nu-dur { font-family:'EB Garamond',serif; font-size:13px; color:#faf9f5; }
+.nu-action {
+  font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:.12em;
+  text-transform:uppercase; font-weight:600; color:var(--shitake);
+  background:#faf9f5; border:none; border-radius:6px; padding:5px 12px;
+  cursor:pointer; transition:all .15s; margin-top:12px; width:100%;
+}
+.nu-action:hover { background:var(--cloud-dancer); }
+
+/* Day progress */
+.progress-track { height:5px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin-bottom:8px; }
+.progress-fill  { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--frosted-almond),var(--mocha-mousse)); transition:width .6s ease; }
+.prog-row { display:flex; justify-content:space-between; align-items:center; }
+.prog-label { font-family:'Cormorant Garamond',serif; font-size:9.5px; letter-spacing:.08em; color:var(--text-muted); font-weight:600; }
+.prog-val { font-family:'EB Garamond',serif; font-size:13px; color:var(--text-secondary); }
+
+/* Treatment summary */
+.tx-list { display:flex; flex-direction:column; gap:8px; }
+.tx-item { display:flex; align-items:center; gap:10px; }
+.tx-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.tx-name { flex:1; font-size:13px; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tx-bar-wrap { width:60px; height:4px; background:var(--surface-2); border-radius:99px; overflow:hidden; }
+.tx-bar { height:100%; border-radius:99px; }
+.tx-count { font-family:'EB Garamond',serif; font-size:13px; color:var(--text-muted); min-width:18px; text-align:right; }
+
+/* Notes card */
+.note-area {
+  width:100%; font-family:'EB Garamond',serif; font-size:13px;
+  color:var(--text-secondary); background:var(--surface-3); border:1px solid var(--border);
+  border-radius:8px; padding:10px 12px; resize:none; outline:none; line-height:1.6;
+  transition:border-color .2s;
+}
+.note-area::placeholder { color:var(--text-placeholder); }
+.note-area:focus { border-color:var(--shitake); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+.pulse { animation:pulse 2s infinite; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <div class="nav-item active">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </div>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a><a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a><a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a></div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">C</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Chai Ting</div>
+        <div class="therapist-role">Facial Specialist</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>My Schedule</h1>
+      <p>Causeway Point · 03 Jun 2026</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-chip">Tue, 09 Dec 2025</div>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="#80756a" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+
+      <!-- Role Switcher -->
+      <div class="role-switcher" id="roleSwitcher">
+        <button class="role-trigger" id="roleTrigger">
+          <div class="role-trigger-icon" style="background:rgba(169,128,118,.12)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#a98076" stroke-width="1.3"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#a98076" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <span class="role-trigger-label" id="roleTriggerLabel">Therapist</span>
+          <span class="role-trigger-caret">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="role-dropdown" id="roleDropdown">
+          <span class="role-dropdown-label">Switch Demo Role</span>
+          <div class="role-option" data-role="Admin" data-desc="Full system access">
+            <div class="role-option-icon" style="background:var(--danger-bg)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="var(--danger)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Admin</div>
+              <div class="role-option-desc">Full system access</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Branch Manager" data-desc="Branch operations & reports">
+            <div class="role-option-icon" style="background:rgba(169,128,118,.12)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="6" width="13" height="8.5" rx="2" stroke="#a98076" stroke-width="1.3"/><path d="M4.5 6V4a3.5 3.5 0 017 0v2" stroke="#a98076" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Branch Manager</div>
+              <div class="role-option-desc">Branch operations & reports</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option selected" data-role="Therapist" data-desc="Treatments & schedule">
+            <div class="role-option-icon" style="background:rgba(169,128,118,.12)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#a98076" stroke-width="1.3"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#a98076" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Therapist</div>
+              <div class="role-option-desc">Treatments & schedule</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Front Desk" data-desc="Appointments & checkout">
+            <div class="role-option-icon" style="background:rgba(106,143,90,.1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#6a8f5a" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#6a8f5a" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Front Desk</div>
+              <div class="role-option-desc">Appointments & checkout</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Consultant" data-desc="Sales & customer service">
+            <div class="role-option-icon" style="background:rgba(90,122,158,.1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="#5a7a9e" stroke-width="1.3"/><path d="M1.5 13.5c0-2.21 2.01-4 4.5-4" stroke="#5a7a9e" stroke-width="1.2" stroke-linecap="round"/><path d="M11.5 8v5M9 10.5h5" stroke="#5a7a9e" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Consultant</div>
+              <div class="role-option-desc">Sales & customer service</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-avatar">C</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- HERO STRIP -->
+    <div class="hero-strip">
+      <div class="hero-avatar">C</div>
+      <div class="hero-info">
+        <div class="hero-name">Chai Ting</div>
+        <div class="hero-meta">Facial Specialist · Causeway Point</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-val">7</div>
+          <div class="hstat-label">Today's Appts</div>
+          <div class="hstat-sub up">↑ 2 vs yesterday</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">4</div>
+          <div class="hstat-label">Completed</div>
+          <div class="hstat-sub">3 remaining</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">181</div>
+          <div class="hstat-label">Service Points</div>
+          <div class="hstat-sub up">★ 5.0 rating</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-val">$2,840</div>
+          <div class="hstat-label">Revenue Today</div>
+          <div class="hstat-sub up">↑ 8% above avg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATE NAV -->
+    <div class="date-nav-bar">
+      <button class="dnav-btn">‹</button>
+      <button class="dnav-today">Today</button>
+      <button class="dnav-btn">›</button>
+      <div class="dnav-active">Tue, 09 Dec</div>
+      <div class="dnav-sep"></div>
+      <!-- week pills -->
+      <div class="day-pills">
+        <div class="day-pill"><div class="dp-day">Mon</div><div class="dp-num">08</div><div class="dp-dot hidden"></div></div>
+        <div class="day-pill active"><div class="dp-day">Tue</div><div class="dp-num">09</div><div class="dp-dot"></div></div>
+        <div class="day-pill"><div class="dp-day">Wed</div><div class="dp-num">10</div><div class="dp-dot"></div></div>
+        <div class="day-pill"><div class="dp-day">Thu</div><div class="dp-num">11</div><div class="dp-dot"></div></div>
+        <div class="day-pill"><div class="dp-day">Fri</div><div class="dp-num">12</div><div class="dp-dot hidden"></div></div>
+        <div class="day-pill"><div class="dp-day">Sat</div><div class="dp-num">13</div><div class="dp-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE + SIDE PANEL -->
+    <div class="timeline-wrap">
+
+      <!-- TIMELINE -->
+      <div class="timeline">
+        <div class="timeline-header">
+          <div class="tl-title">Today's Schedule</div>
+          <div class="tl-count">7 appointments · 4 completed · 3 remaining</div>
+        </div>
+        <div class="tl-body" id="tlBody"></div>
+      </div>
+
+      <!-- SIDE PANEL -->
+      <div class="side-panel">
+
+        <!-- Next up -->
+        <div class="panel-card">
+          <div class="pc-label">Up Next</div>
+          <div class="next-up-card">
+            <div class="nu-badge"><div class="nu-dot"></div>In 25 minutes</div>
+            <div class="nu-client">Victoria Tan</div>
+            <div class="nu-service">Intense Hydration HA Facial</div>
+            <div class="nu-row">
+              <div class="nu-time">14:00 – 15:15</div>
+              <div class="nu-dur">75 min</div>
+            </div>
+            <button class="nu-action">Mark as Arrived</button>
+          </div>
+        </div>
+
+        <!-- Day progress -->
+        <div class="panel-card">
+          <div class="pc-label">Day Progress</div>
+          <div class="progress-track"><div class="progress-fill" style="width:57%"></div></div>
+          <div class="prog-row">
+            <div class="prog-label">4 of 7 completed</div>
+            <div class="prog-val">57%</div>
+          </div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px">
+              <span style="color:var(--text-muted);font-weight:500">Est. finish time</span>
+              <span style="color:var(--text-secondary)">7:30 PM</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px">
+              <span style="color:var(--text-muted);font-weight:500">Avg session today</span>
+              <span style="color:var(--text-secondary)">68 min</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px">
+              <span style="color:var(--text-muted);font-weight:500">Break available</span>
+              <span style="color:var(--success)">13:00 – 14:00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Treatment breakdown -->
+        <div class="panel-card">
+          <div class="pc-label">Treatment Breakdown</div>
+          <div class="tx-list">
+            <div class="tx-item">
+              <div class="tx-dot" style="background:#d1baa2"></div>
+              <div class="tx-name">Gold Facial Treatment</div>
+              <div class="tx-bar-wrap"><div class="tx-bar" style="width:100%;background:#d1baa2"></div></div>
+              <div class="tx-count">2</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-dot" style="background:#8a9e7a"></div>
+              <div class="tx-name">Hydration HA Facial</div>
+              <div class="tx-bar-wrap"><div class="tx-bar" style="width:75%;background:#8a9e7a"></div></div>
+              <div class="tx-count">2</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-dot" style="background:#c8a89e"></div>
+              <div class="tx-name">Cryotherapy Facial</div>
+              <div class="tx-bar-wrap"><div class="tx-bar" style="width:50%;background:#c8a89e"></div></div>
+              <div class="tx-count">1</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-dot" style="background:#a98076"></div>
+              <div class="tx-name">LED Therapy</div>
+              <div class="tx-bar-wrap"><div class="tx-bar" style="width:50%;background:#a98076"></div></div>
+              <div class="tx-count">1</div>
+            </div>
+            <div class="tx-item">
+              <div class="tx-dot" style="background:#cec4b4"></div>
+              <div class="tx-name">Consultation</div>
+              <div class="tx-bar-wrap"><div class="tx-bar" style="width:25%;background:#cec4b4"></div></div>
+              <div class="tx-count">1</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="panel-card">
+          <div class="pc-label">Shift Notes</div>
+          <textarea class="note-area" rows="3" placeholder="Add notes for today's shift…"></textarea>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ── APPOINTMENT DATA ── */
+const appts = [
+  {
+    time:'09:00', endTime:'10:00', dur:'60 min',
+    client:'Wendy Goh', service:'Gold Facial Treatment',
+    id:'SB-004338', status:'completed',
+    color:'linear-gradient(135deg,#d1baa2,#a98076)',
+    tags:[{label:'Completed',c:'var(--ab-completed-text)',bg:'var(--ab-completed-bg)',border:'var(--ab-completed-border)'}],
+    actions:[]
+  },
+  {
+    time:'10:00', endTime:'11:30', dur:'90 min',
+    client:'Elisabeth Lee', service:'Gold Facial Treatment',
+    id:'SB-004339', status:'completed',
+    color:'linear-gradient(135deg,#c8a89e,#7a6856)',
+    tags:[{label:'Completed',c:'var(--ab-completed-text)',bg:'var(--ab-completed-bg)',border:'var(--ab-completed-border)'}],
+    actions:[]
+  },
+  {
+    time:'11:00', endTime:'11:45', dur:'45 min',
+    client:'Emily Singh', service:'Cryotherapy Facial',
+    id:'SB-000027', status:'completed',
+    color:'linear-gradient(135deg,#8a9e7a,#6a8f5a)',
+    tags:[{label:'Completed',c:'var(--ab-completed-text)',bg:'var(--ab-completed-bg)',border:'var(--ab-completed-border)'}],
+    actions:[]
+  },
+  {
+    time:'12:00', endTime:'13:00', dur:'60 min',
+    client:'Farah Chong', service:'LED Therapy',
+    id:'SB-009001', status:'completed',
+    color:'linear-gradient(135deg,#cec4b4,#80756a)',
+    tags:[{label:'Completed',c:'var(--ab-completed-text)',bg:'var(--ab-completed-bg)',border:'var(--ab-completed-border)'}],
+    actions:[]
+  },
+  {
+    time:'13:00', endTime:'14:00', dur:'–',
+    client:null, service:null, status:'break',
+  },
+  {
+    time:'14:00', endTime:'15:15', dur:'75 min',
+    client:'Victoria Tan', service:'Intense Hydration HA Facial',
+    id:'SB-102778', status:'arrived',
+    color:'linear-gradient(135deg,#d1baa2,#a98076)',
+    tags:[
+      {label:'★ VIP', c:'var(--warning)',bg:'var(--warning-bg)',border:'rgba(160,128,64,.25)'},
+      {label:'Arrived', c:'var(--ab-arrived-text)',bg:'var(--ab-arrived-bg)',border:'var(--ab-arrived-border)'},
+    ],
+    actions:['Start Treatment','Notes'],
+    pkg:'Package 2/5'
+  },
+  {
+    time:'15:30', endTime:'16:30', dur:'60 min',
+    client:'Angela Wong', service:'Intense Hydration HA Facial',
+    id:'SB-102900', status:'confirmed',
+    color:'linear-gradient(135deg,#8a9e7a,#6a8f5a)',
+    tags:[{label:'Confirmed',c:'var(--ab-confirmed-text)',bg:'var(--ab-confirmed-bg)',border:'var(--ab-confirmed-border)'}],
+    actions:['Confirm Arrival'],
+  },
+  {
+    time:'17:00', endTime:'18:00', dur:'60 min',
+    client:'Wendy Goh', service:'Gold Facial Treatment',
+    id:'SB-004400', status:'booked',
+    color:'linear-gradient(135deg,#d1baa2,#a98076)',
+    tags:[{label:'Booked',c:'var(--ab-booked-text)',bg:'var(--ab-booked-bg)',border:'var(--ab-booked-border)'}],
+    actions:['Confirm'],
+  },
+];
+
+/* ── WHICH ROW IS "NOW" ── */
+const NOW_AFTER = '14:00'; // simulate current time just after 14:00
+
+const body = document.getElementById('tlBody');
+
+// Group consecutive appts, inject "now" line after the right row
+let nowInjected = false;
+
+appts.forEach((a, idx) => {
+
+  // Inject "now" line BEFORE the first future appt
+  if (!nowInjected && isAfterNow(a.time)) {
+    nowInjected = true;
+    const nowRow = document.createElement('div');
+    nowRow.className = 'time-group';
+    nowRow.innerHTML = `
+      <div class="tg-label">
+        <span class="tg-time">Now</span>
+        <div style="flex:1;height:1px;background:var(--danger)"></div>
+        <span class="tg-now"><span class="tg-now-dot"></span>14:00</span>
+      </div>`;
+    body.appendChild(nowRow);
+  }
+
+  const group = document.createElement('div');
+  group.className = 'time-group';
+
+  // Break slot
+  if (a.status === 'break') {
+    group.innerHTML = `
+      <div class="tg-label" style="padding:10px 22px 0">
+        <span class="tg-time">${a.time}</span>
+        <div class="tg-line"></div>
+      </div>
+      <div class="tl-empty" style="margin:8px 14px">
+        <span class="tl-empty-icon">☕</span>
+        <div>
+          <div class="tl-empty-text">Lunch Break · 13:00 – 14:00</div>
+        </div>
+      </div>`;
+    body.appendChild(group);
+    return;
+  }
+
+  const tagsHtml = (a.tags || []).map(t =>
+    `<span class="tl-tag" style="color:${t.c};background:${t.bg};border-color:${t.border}">${t.label}</span>`
+  ).join('');
+
+  const actionsHtml = (a.actions || []).map((act, i) =>
+    `<button class="tl-action-btn ${i === 0 ? 'primary' : ''}">${act}</button>`
+  ).join('');
+
+  const pkgHtml = a.pkg ? `<span class="tl-pkg">${a.pkg}</span>` : '';
+
+  group.innerHTML = `
+    <div class="tg-label">
+      <span class="tg-time">${a.time}</span>
+      <div class="tg-line"></div>
+    </div>
+    <div class="tl-card ${a.status}">
+      <div class="tl-accent"></div>
+      <div class="tl-card-body">
+        <div class="tl-cavatar" style="background:${a.color}">${a.client ? a.client[0] : '?'}</div>
+        <div class="tl-main">
+          <div class="tl-client">${a.client}</div>
+          <div class="tl-service">${a.service} · <span style="color:var(--text-placeholder)">${a.id}</span></div>
+          <div class="tl-tags">${tagsHtml}</div>
+        </div>
+        <div class="tl-meta">
+          <div>
+            <div class="tl-duration">${a.dur}</div>
+            <div class="tl-dur-label">${a.time} – ${a.endTime}</div>
+          </div>
+          ${pkgHtml}
+          <div class="tl-actions">${actionsHtml}</div>
+        </div>
+      </div>
+    </div>`;
+
+  body.appendChild(group);
+});
+
+function isAfterNow(time) {
+  return time > NOW_AFTER;
+}
+
+/* ── THEME TOGGLE ── */
+const btn = document.getElementById('themeToggle');
+let dark = false;
+btn.addEventListener('click', () => {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+  btn.textContent = dark ? '☀️' : '🌙';
+});
+
+/* ── ROLE SWITCHER ── */
+const roleSwitcher = document.getElementById('roleSwitcher');
+const roleTrigger  = document.getElementById('roleTrigger');
+const roleTriggerLabel = document.getElementById('roleTriggerLabel');
+roleTrigger.addEventListener('click', e => { e.stopPropagation(); roleSwitcher.classList.toggle('open'); });
+document.addEventListener('click', () => roleSwitcher.classList.remove('open'));
+document.querySelectorAll('.role-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    roleTriggerLabel.textContent = opt.dataset.role;
+    roleSwitcher.classList.remove('open');
+  });
+});
+
+/* ── DAY PILLS ── */
+document.querySelectorAll('.day-pill').forEach(p => {
+  p.addEventListener('click', function() {
+    document.querySelectorAll('.day-pill').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

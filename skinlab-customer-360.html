@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Customer 360</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --whitecap-gray:#e1d7cb;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076; --accent-soft:#c8a89e;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+  --gold:#c8962a; --gold-bg:rgba(200,150,42,0.1);
+  --silver:#8a9aaa; --silver-bg:rgba(138,154,170,0.1);
+  --bronze:#a06040; --bronze-bg:rgba(160,96,64,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e; --accent-soft:#a98076;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+  --gold:#d4a830; --gold-bg:rgba(212,168,48,0.12);
+  --silver:#9aaabb; --silver-bg:rgba(154,170,187,0.12);
+  --bronze:#b07050; --bronze-bg:rgba(176,112,80,0.12);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s ease,color .3s ease;overflow-x:hidden}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-breadcrumb{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-muted);flex-shrink:0}
+.topbar-breadcrumb .crumb-link{cursor:pointer;transition:color .15s}
+.topbar-breadcrumb .crumb-link:hover{color:var(--text-primary)}
+.topbar-breadcrumb .crumb-sep{opacity:.4}
+.topbar-breadcrumb .crumb-current{color:var(--text-primary);font-weight:500}
+.topbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+
+/* search */
+.search-wrap{position:relative;flex:1;max-width:400px}
+.search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.search-in{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:0 12px 0 33px;height:34px;width:100%;outline:none;transition:all .2s}
+.search-in::placeholder{color:var(--text-placeholder)}
+.search-in:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+.search-kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:monospace;pointer-events:none}
+
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+/* directory toggle button */
+.dir-toggle{display:flex;align-items:center;gap:6px;padding:6px 13px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-secondary);font-weight:500;transition:all .15s;white-space:nowrap}
+.dir-toggle:hover{background:var(--surface-2);color:var(--text-primary)}
+.dir-toggle.active{background:var(--sidebar-active-bg);border-color:var(--accent);color:var(--accent)}
+.dir-count-badge{font-size:10px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);padding:1px 6px;border-radius:99px;font-weight:400}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;color:var(--text-muted)}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer;flex-shrink:0}
+
+/* ─── DIRECTORY DRAWER ─── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(33,35,34,.2);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(1px)}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.dir-drawer{position:fixed;top:64px;right:0;width:320px;height:calc(100vh - 64px);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:21;transform:translateX(100%);transition:transform .25s cubic-bezier(.32,.72,0,1);box-shadow:-8px 0 32px rgba(33,35,34,.08)}
+.dir-drawer.open{transform:translateX(0)}
+.dir-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.dir-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dir-title{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)}
+.dir-count{font-size:11px;color:var(--text-muted);font-weight:400}
+.dir-close{width:26px;height:26px;border:1px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;transition:all .15s}
+.dir-close:hover{background:var(--surface-2)}
+.dir-search{position:relative}
+.dir-search-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.dir-search-in{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0 9px 0 28px;height:32px;width:100%;outline:none;transition:all .2s}
+.dir-search-in::placeholder{color:var(--text-placeholder);font-size:12px}
+.dir-search-in:focus{border-color:var(--accent)}
+.dir-filters{padding:8px 18px;border-bottom:1px solid var(--border-soft);display:flex;gap:5px;flex-shrink:0}
+.tier-chip{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;cursor:pointer;transition:all .15s;border:1px solid var(--border);color:var(--text-muted);background:transparent}
+.tier-chip:hover{background:var(--surface-2)}
+.tier-chip.active{background:var(--surface-2);color:var(--text-primary);border-color:var(--border-mid)}
+.tier-chip.gold.active{background:var(--gold-bg);color:var(--gold);border-color:rgba(200,150,42,.3)}
+.tier-chip.silver.active{background:var(--silver-bg);color:var(--silver);border-color:rgba(138,154,170,.3)}
+.tier-chip.bronze.active{background:var(--bronze-bg);color:var(--bronze);border-color:rgba(160,96,64,.3)}
+.dir-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.dir-list::-webkit-scrollbar{width:3px}
+.dir-list::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.dir-item{display:flex;align-items:center;gap:11px;padding:11px 18px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border-soft)}
+.dir-item:hover{background:var(--surface-2)}
+.dir-item.active{background:rgba(122,104,86,.07);border-right:2px solid var(--accent)}
+.dir-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:15px;font-weight:500;color:white;flex-shrink:0}
+.dir-info{flex:1;min-width:0}
+.dir-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dir-sub{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px;margin-top:1px}
+.tier-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.dir-flags{display:flex;gap:2px;align-items:center;flex-shrink:0}
+.flag-ic{font-size:11px;line-height:1}
+.new-client-btn{margin:12px 18px;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:9px;border:1px dashed var(--border-mid);background:transparent;cursor:pointer;color:var(--text-muted);font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;transition:all .15s;flex-shrink:0}
+.new-client-btn:hover{background:var(--surface-2);color:var(--text-secondary);border-color:var(--accent)}
+
+/* ─── PROFILE AREA ─── */
+.profile-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.profile-area::-webkit-scrollbar{width:4px}
+.profile-area::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* allergy banner */
+.allergy-banner{background:rgba(160,96,96,.06);border-bottom:1px solid rgba(160,96,96,.14);padding:9px 28px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.allergy-banner svg{flex-shrink:0;color:var(--danger)}
+.allergy-text{font-size:12.5px;color:var(--danger);flex:1}
+.allergy-text strong{font-weight:600}
+.allergy-dismiss{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--danger);opacity:.6;cursor:pointer;border:none;background:transparent;font-weight:600;padding:3px 8px;border-radius:6px;border:1px solid rgba(160,96,96,.2);transition:opacity .15s}
+.allergy-dismiss:hover{opacity:1}
+
+/* profile header */
+.profile-header{background:var(--surface);border-bottom:1px solid var(--border);padding:22px 28px 0;flex-shrink:0}
+.ph-top{display:flex;align-items:flex-start;gap:18px;padding-bottom:18px}
+.ph-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:24px;font-weight:500;color:white;flex-shrink:0;position:relative}
+.ph-online-dot{position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#6a8f5a;border:2px solid var(--surface)}
+.ph-main{flex:1;min-width:0}
+.ph-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.ph-name{font-family:'DM Sans',system-ui,sans-serif;font-size:20px;font-weight:600;color:var(--text-primary);letter-spacing:-.02em}
+.tier-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.tier-badge.gold{color:var(--gold);background:var(--gold-bg);border:1px solid rgba(200,150,42,.25)}
+.tier-badge.silver{color:var(--silver);background:var(--silver-bg);border:1px solid rgba(138,154,170,.25)}
+.tier-badge.bronze{color:var(--bronze);background:var(--bronze-bg);border:1px solid rgba(160,96,64,.25)}
+.vip-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:99px;background:rgba(169,128,118,.12);color:var(--mocha-mousse);border:1px solid rgba(169,128,118,.25)}
+.allergy-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.25);display:flex;align-items:center;gap:4px}
+.ph-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-top:2px}
+.ph-meta-item{display:flex;align-items:center;gap:5px}
+.ph-meta-divider{width:3px;height:3px;border-radius:50%;background:var(--border-mid);flex-shrink:0}
+.ph-actions{display:flex;gap:7px;flex-shrink:0;align-items:flex-start;padding-top:2px}
+.act-btn{display:flex;align-items:center;gap:5px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.act-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.act-btn.primary{background:var(--accent);color:#faf8f4;border-color:transparent}
+.act-btn.primary:hover{background:var(--shitake);box-shadow:0 3px 10px rgba(122,104,86,.22)}
+
+/* stats strip */
+.ph-stats{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border)}
+.ph-stat{padding:12px 0 10px;text-align:center;border-right:1px solid var(--border)}
+.ph-stat:last-child{border-right:none}
+.ph-stat-val{font-family:'DM Sans',system-ui,sans-serif;font-size:17px;font-weight:600;color:var(--text-primary);line-height:1.1}
+.ph-stat-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:3px}
+.ph-stat-sub{font-size:10.5px;color:var(--text-muted);margin-top:1px}
+
+/* profile tabs */
+.profile-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0;flex-shrink:0;position:sticky;top:64px;z-index:5;overflow-x:auto;scrollbar-width:none}
+.profile-tabs::-webkit-scrollbar{display:none}
+.ptab{font-family:'Cormorant Garamond',serif;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:12px 16px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ptab:hover{color:var(--text-secondary)}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* profile body */
+.profile-body{padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px 12px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.card-action{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);cursor:pointer;border:none;background:transparent;transition:opacity .15s}
+.card-action:hover{opacity:.7}
+.card-body{padding:16px 18px}
+
+/* grids */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+/* info rows */
+.info-row{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
+.info-row:last-child{margin-bottom:0}
+.info-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+.info-val{font-size:13px;color:var(--text-primary)}
+.info-val.muted{color:var(--text-muted)}
+
+/* package table */
+.pkg-table{width:100%;border-collapse:collapse}
+.pkg-table th{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text-muted);padding:0 0 10px;text-align:left;border-bottom:1px solid var(--border)}
+.pkg-table td{padding:11px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px;vertical-align:middle}
+.pkg-table tr:last-child td{border-bottom:none}
+.pkg-name{font-weight:500;color:var(--text-primary);margin-bottom:2px}
+.pkg-code{font-size:10.5px;color:var(--text-muted)}
+.pkg-bar-wrap{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:5px;width:100%;max-width:100px}
+.pkg-bar{height:100%;border-radius:99px}
+.pkg-sessions{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.pkg-sessions strong{color:var(--text-primary);font-weight:500}
+.pkg-expiry{font-size:11px;white-space:nowrap}
+.pkg-expiry.ok{color:var(--success)}
+.pkg-expiry.warn{color:var(--warning)}
+.pkg-expiry.expired{color:var(--danger)}
+.pkg-status{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.pkg-status.active{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.pkg-status.expiring{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2)}
+.pkg-status.expired{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.pkg-use-btn{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:4px 11px;border-radius:7px;border:1px solid var(--border-mid);background:transparent;color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.pkg-use-btn:hover{background:var(--surface-2)}
+
+/* credit strip */
+.credit-strip{display:flex;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border-soft)}
+.credit-box{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px 14px;display:flex;flex-direction:column;gap:3px}
+.credit-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.credit-val{font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:600;color:var(--text-primary);line-height:1}
+.credit-sub{font-size:10.5px;color:var(--text-muted);margin-top:1px}
+
+/* appointment rows */
+.appt-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.appt-row:last-child{border-bottom:none}
+.appt-date-block{width:38px;text-align:center;flex-shrink:0}
+.appt-day{font-family:'EB Garamond',serif;font-size:20px;font-weight:400;color:var(--text-primary);line-height:1}
+.appt-mon{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.appt-line{width:1px;height:34px;background:var(--border);flex-shrink:0}
+.appt-info{flex:1;min-width:0}
+.appt-svc{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-therapist{font-size:11px;color:var(--text-muted);margin-top:1px}
+.appt-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;flex-shrink:0}
+.appt-badge.completed{background:rgba(106,143,90,.1);color:#4a7a3a;border:1px solid rgba(106,143,90,.2)}
+.appt-badge.cancelled{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+.appt-badge.noshow{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.appt-amount{font-size:12.5px;font-weight:500;color:var(--text-secondary);white-space:nowrap;flex-shrink:0}
+
+/* skin */
+.skin-grid{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;padding:16px 18px}
+.skin-metrics{display:flex;flex-direction:column;gap:9px;flex:1}
+.skin-metric{display:flex;flex-direction:column;gap:4px}
+.skin-metric-head{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.skin-metric-name{color:var(--text-secondary)}
+.skin-metric-val{font-weight:500;color:var(--text-primary)}
+.skin-track{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.skin-fill{height:100%;border-radius:99px}
+
+/* notes */
+.note-item{padding:14px 0;border-bottom:1px solid var(--border-soft)}
+.note-item:last-child{border-bottom:none}
+.note-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.note-author{font-size:12px;font-weight:500;color:var(--text-primary)}
+.note-date{font-size:11px;color:var(--text-muted)}
+.note-tag{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);margin-left:auto}
+.note-body{font-size:12.5px;color:var(--text-secondary);line-height:1.55}
+.note-add-area{padding:12px 18px 16px}
+.note-textarea{width:100%;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;resize:none;outline:none;transition:border-color .2s;min-height:68px}
+.note-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.07)}
+.note-textarea::placeholder{color:var(--text-placeholder)}
+.note-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.note-type-sel{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 10px;outline:none;cursor:pointer}
+.note-submit{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;padding:6px 16px;border-radius:8px;border:none;background:var(--accent);color:#faf8f4;cursor:pointer;transition:all .15s}
+.note-submit:hover{background:var(--shitake)}
+
+/* consent */
+.consent-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.consent-item:last-child{border-bottom:none}
+.consent-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.consent-icon.signed{background:var(--success-bg)}
+.consent-icon.pending{background:var(--warning-bg)}
+.consent-info{flex:1;min-width:0}
+.consent-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.consent-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.consent-action{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 11px;border-radius:7px;border:1px solid var(--border-mid);background:transparent;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}
+.consent-action:hover{background:var(--surface-2)}
+
+/* photos */
+.photo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;padding:16px 18px}
+.photo-cell{aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--surface-2);border:1px solid var(--border);cursor:pointer;position:relative}
+.photo-overlay{position:absolute;inset:0;background:rgba(33,35,34,.35);opacity:0;transition:opacity .15s;display:flex;align-items:flex-end;padding:8px}
+.photo-cell:hover .photo-overlay{opacity:1}
+.photo-date{font-size:10px;color:white;font-weight:500}
+.photo-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-muted);font-size:11px}
+.photo-add{border:1.5px dashed var(--border-mid);cursor:pointer;transition:background .15s}
+.photo-add:hover{background:var(--surface-2)}
+
+/* timeline */
+.timeline{padding:0 18px}
+.tl-item{display:flex;gap:12px;padding:13px 0;position:relative}
+.tl-item:not(:last-child)::after{content:'';position:absolute;left:14px;top:34px;bottom:-2px;width:1px;background:var(--border-soft)}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid var(--border)}
+.tl-dot.purchase{background:var(--gold-bg);border-color:rgba(200,150,42,.25);color:var(--gold)}
+.tl-dot.appt{background:var(--info-bg);border-color:rgba(90,122,158,.2);color:var(--info)}
+.tl-dot.note{background:var(--surface-2);border-color:var(--border);color:var(--text-muted)}
+.tl-dot.onboard{background:var(--success-bg);border-color:rgba(106,143,90,.2);color:var(--success)}
+.tl-body{flex:1;min-width:0;padding-top:3px}
+.tl-title{font-size:13px;font-weight:500;color:var(--text-primary)}
+.tl-desc{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.tl-time{font-size:10.5px;color:var(--text-muted);margin-top:3px}
+
+/* tabs */
+.tab-content{display:none}
+.tab-content.active{display:flex;flex-direction:column;gap:18px}
+
+/* animation */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.profile-header,.profile-tabs,.profile-body{animation:fadeUp .25s ease both}
+.profile-body{animation-delay:.04s}
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex">
+      <div class="nav-sub-item active">Directory</div>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-breadcrumb">
+      <span class="crumb-link">Customers</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-current">Wendy Goh</span>
+    </div>
+    <div class="topbar-sep"></div>
+    <div class="search-wrap">
+      <svg class="search-ic" width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <input class="search-in" type="text" placeholder="Search by name, mobile, NRIC, or Ref…">
+      <span class="search-kbd">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <button class="dir-toggle" id="dirToggle" onclick="toggleDrawer()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M13 5v4M11 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        All Clients
+        <span class="dir-count-badge">2,847</span>
+      </button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <!-- PROFILE AREA -->
+  <div class="profile-area">
+
+    <!-- ALLERGY BANNER -->
+    <div class="allergy-banner" id="allergyBanner">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13h13L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="allergy-text"><strong>Allergy Alert:</strong> Retinol, Benzoyl Peroxide — confirm before applying any actives. Patch test required.</div>
+      <button class="allergy-dismiss" id="allergyDismiss">Acknowledge</button>
+    </div>
+
+    <!-- PROFILE HEADER -->
+    <div class="profile-header">
+      <div class="ph-top">
+        <div class="ph-avatar" style="background:linear-gradient(135deg,#c8a89e,#7a6856)">
+          W
+          <div class="ph-online-dot"></div>
+        </div>
+        <div class="ph-main">
+          <div class="ph-name-row">
+            <span class="ph-name">Wendy Goh</span>
+            <span class="tier-badge gold">Gold</span>
+            <span class="vip-badge">VIP</span>
+            <span class="allergy-badge">
+              <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 1.5L1 10h10L6 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 5v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Allergy
+            </span>
+          </div>
+          <div class="ph-meta">
+            <span class="ph-meta-item">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><rect x="1" y="2.5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5.5h12" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+              +65 9087 1117
+            </span>
+            <span class="ph-meta-divider"></span>
+            <span class="ph-meta-item">Member since Mar 2021</span>
+            <span class="ph-meta-divider"></span>
+            <span class="ph-meta-item">NRIC: S8421047G · DOB: 12 Oct 1984</span>
+            <span class="ph-meta-divider"></span>
+            <span class="ph-meta-item" style="color:var(--text-muted)">Ref: SB-001234 · CWP</span>
+          </div>
+        </div>
+        <div class="ph-actions">
+          <button class="act-btn">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1a5 5 0 100 10A5 5 0 007 1z" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 5.5h5M4.5 7.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            Message
+          </button>
+          <button class="act-btn">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v8H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5 2V1m4 1V1M2 5h10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            New Booking
+          </button>
+          <button class="act-btn primary">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12M4 5v5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+            Checkout
+          </button>
+        </div>
+      </div>
+      <div class="ph-stats">
+        <div class="ph-stat">
+          <div class="ph-stat-val">$12,480</div>
+          <div class="ph-stat-label">Lifetime Value</div>
+          <div class="ph-stat-sub">+$840 this month</div>
+        </div>
+        <div class="ph-stat">
+          <div class="ph-stat-val">87</div>
+          <div class="ph-stat-label">Total Visits</div>
+          <div class="ph-stat-sub">Last: 3 days ago</div>
+        </div>
+        <div class="ph-stat">
+          <div class="ph-stat-val">4</div>
+          <div class="ph-stat-label">Active Packages</div>
+          <div class="ph-stat-sub">1 expiring soon</div>
+        </div>
+        <div class="ph-stat">
+          <div class="ph-stat-val">$320</div>
+          <div class="ph-stat-label">Store Credit</div>
+          <div class="ph-stat-sub">+ $120 contra</div>
+        </div>
+        <div class="ph-stat">
+          <div class="ph-stat-val" style="color:var(--success)">4.9★</div>
+          <div class="ph-stat-label">Satisfaction</div>
+          <div class="ph-stat-sub">34 reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE TABS -->
+    <div class="profile-tabs">
+      <div class="ptab active" data-tab="overview">Overview</div>
+      <div class="ptab" data-tab="packages">Packages &amp; Credits</div>
+      <div class="ptab" data-tab="history">Visit History</div>
+      <div class="ptab" data-tab="skin">Skin Profile</div>
+      <div class="ptab" data-tab="notes">Notes &amp; Memos</div>
+      <div class="ptab" data-tab="forms">Consents &amp; Forms</div>
+      <div class="ptab" data-tab="photos">Treatment Photos</div>
+      <div class="ptab" data-tab="timeline">Activity Log</div>
+    </div>
+
+    <!-- PROFILE BODY -->
+    <div class="profile-body">
+
+      <!-- OVERVIEW TAB -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Personal Information</div><div class="card-sub">Contact &amp; demographics</div></div>
+              <button class="card-action">Edit</button>
+            </div>
+            <div class="card-body">
+              <div class="two-col" style="gap:12px">
+                <div class="info-row"><span class="info-label">Display Name</span><span class="info-val">Wendy Goh</span></div>
+                <div class="info-row"><span class="info-label">NRIC / Passport</span><span class="info-val">S8421047G</span></div>
+                <div class="info-row"><span class="info-label">Date of Birth</span><span class="info-val">12 Oct 1984 (age 40)</span></div>
+                <div class="info-row"><span class="info-label">Contact No.</span><span class="info-val">+65 9087 1117</span></div>
+                <div class="info-row"><span class="info-label">Email</span><span class="info-val">wendy.goh@email.com</span></div>
+                <div class="info-row"><span class="info-label">Shopsie Name</span><span class="info-val muted">wendygoh88</span></div>
+                <div class="info-row" style="grid-column:span 2"><span class="info-label">Referred By</span><span class="info-val muted">Instagram · Campaign SL-2021-Q1</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="border-color:rgba(160,96,96,.2)">
+            <div class="card-head" style="background:rgba(160,96,96,.04)">
+              <div><div class="card-title" style="color:var(--danger)">Medical &amp; Allergies</div><div class="card-sub">Always verify before treatment</div></div>
+              <button class="card-action">Edit</button>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">Known Allergies</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+                  <span style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2);font-size:11.5px;padding:3px 10px;border-radius:99px;font-weight:500">Retinol</span>
+                  <span style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2);font-size:11.5px;padding:3px 10px;border-radius:99px;font-weight:500">Benzoyl Peroxide</span>
+                </div>
+              </div>
+              <div class="info-row" style="margin-top:12px"><span class="info-label">Medical Conditions</span><span class="info-val">Mild rosacea · Sensitive skin type</span></div>
+              <div class="info-row" style="margin-top:12px"><span class="info-label">Current Medications</span><span class="info-val muted">None declared</span></div>
+              <div class="info-row" style="margin-top:12px"><span class="info-label">Pregnancy / Nursing</span><span class="info-val">Not applicable</span></div>
+              <div class="info-row" style="margin-top:12px"><span class="info-label">Last Medical Update</span><span class="info-val muted" style="font-size:11.5px">Updated 14 Nov 2025 by Dr. Sarah Chen</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Active Packages</div><div class="card-sub">4 active · 1 expiring within 30 days</div></div>
+            <button class="card-action" onclick="switchTab('packages')">View all →</button>
+          </div>
+          <div class="credit-strip">
+            <div class="credit-box"><div class="credit-label">Store Credit</div><div class="credit-val">$320.00</div><div class="credit-sub">Available balance</div></div>
+            <div class="credit-box"><div class="credit-label">Contra Value</div><div class="credit-val">$120.00</div><div class="credit-sub">Cross-outlet usable</div></div>
+            <div class="credit-box"><div class="credit-label">Outstanding</div><div class="credit-val" style="color:var(--success)">$0.00</div><div class="credit-sub">No balance due</div></div>
+          </div>
+          <div class="card-body" style="padding-top:12px">
+            <table class="pkg-table">
+              <thead><tr><th style="width:38%">Package</th><th style="width:22%">Sessions</th><th style="width:18%">Expiry</th><th style="width:12%">Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="pkg-name">HydraFacial Platinum 6x</div><div class="pkg-code">PKG-HF-006 · 10 Jan 2025</div></td><td><div class="pkg-sessions"><strong>2</strong> of 6 left</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:33%;background:linear-gradient(90deg,#8a9e7a,#a8bc96)"></div></div></td><td><span class="pkg-expiry ok">10 Jan 2026</span></td><td><span class="pkg-status active">Active</span></td><td><button class="pkg-use-btn">Use</button></td></tr>
+                <tr><td><div class="pkg-name">LuminaLift 6x</div><div class="pkg-code">PKG-LL-003 · 3 Aug 2025</div></td><td><div class="pkg-sessions"><strong>4</strong> of 6 left</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:66%;background:linear-gradient(90deg,#d1baa2,#cec4b4)"></div></div></td><td><span class="pkg-expiry warn">3 Feb 2026</span></td><td><span class="pkg-status expiring">Expiring</span></td><td><button class="pkg-use-btn">Use</button></td></tr>
+                <tr><td><div class="pkg-name">Pico Rejuvenate 3x</div><div class="pkg-code">PKG-PR-009 · 15 Oct 2025</div></td><td><div class="pkg-sessions"><strong>3</strong> of 3 left</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:100%;background:var(--accent-soft)"></div></div></td><td><span class="pkg-expiry ok">15 Oct 2026</span></td><td><span class="pkg-status active">Active</span></td><td><button class="pkg-use-btn">Use</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Recent Visits</div><div class="card-sub">Last 5 appointments</div></div><button class="card-action" onclick="switchTab('history')">Full history →</button></div>
+          <div class="card-body">
+            <div class="appt-row"><div class="appt-date-block"><div class="appt-day">28</div><div class="appt-mon">May</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">HydraFacial Platinum · 75 min</div><div class="appt-therapist">Chai Ting · CWP</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$0 (PKG)</span></div>
+            <div class="appt-row"><div class="appt-date-block"><div class="appt-day">10</div><div class="appt-mon">May</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">LuminaLift Facial · 90 min</div><div class="appt-therapist">Ginli · CWP</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$0 (PKG)</span></div>
+            <div class="appt-row"><div class="appt-date-block"><div class="appt-day">22</div><div class="appt-mon">Apr</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Pico Rejuvenate · 45 min</div><div class="appt-therapist">Dr. Sarah Chen · CWP Clinic</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$380</span></div>
+            <div class="appt-row"><div class="appt-date-block"><div class="appt-day">08</div><div class="appt-mon">Apr</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Gold Facial Treatment · 60 min</div><div class="appt-therapist">Iris Tan · CWP</div></div><span class="appt-badge noshow">No Show</span><span class="appt-amount" style="color:var(--text-muted)">—</span></div>
+            <div class="appt-row"><div class="appt-date-block"><div class="appt-day">15</div><div class="appt-mon">Mar</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Botox Consultation · 30 min</div><div class="appt-therapist">Dr. Sarah Chen · CWP Clinic</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$80</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACKAGES TAB -->
+      <div class="tab-content" id="tab-packages">
+        <div class="card"><div class="card-head"><div><div class="card-title">Credit Balances</div></div></div><div class="credit-strip"><div class="credit-box"><div class="credit-label">Store Credit</div><div class="credit-val">$320.00</div><div class="credit-sub">Available · All outlets</div></div><div class="credit-box"><div class="credit-label">Contra Balance</div><div class="credit-val">$120.00</div><div class="credit-sub">Cross-outlet usable</div></div><div class="credit-box"><div class="credit-label">Unearned Revenue</div><div class="credit-val">$2,640</div><div class="credit-sub">4 active packages</div></div><div class="credit-box"><div class="credit-label">Outstanding Balance</div><div class="credit-val" style="color:var(--success)">$0.00</div><div class="credit-sub">No balance due</div></div></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">All Packages</div><div class="card-sub">4 active · 2 expired</div></div><button class="act-btn primary" style="font-size:11px;padding:6px 12px">+ Sell Package</button></div><div class="card-body"><table class="pkg-table"><thead><tr><th style="width:36%">Package</th><th style="width:20%">Sessions Used</th><th style="width:14%">Expiry</th><th style="width:12%">Outlet</th><th style="width:10%">Status</th><th></th></tr></thead><tbody><tr><td><div class="pkg-name">HydraFacial Platinum 6x</div><div class="pkg-code">PKG-HF-006 · $1,200 · 10 Jan 2025</div></td><td><div class="pkg-sessions"><strong>4</strong> used / 6 total</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:66%;background:linear-gradient(90deg,#8a9e7a,#a8bc96)"></div></div></td><td><span class="pkg-expiry ok">10 Jan 2026</span></td><td style="font-size:11.5px;color:var(--text-muted)">CWP</td><td><span class="pkg-status active">Active</span></td><td><button class="pkg-use-btn">Use</button></td></tr><tr><td><div class="pkg-name">LuminaLift 6x</div><div class="pkg-code">PKG-LL-003 · $2,199 · 3 Aug 2025</div></td><td><div class="pkg-sessions"><strong>2</strong> used / 6 total</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:33%;background:linear-gradient(90deg,#d1baa2,#cec4b4)"></div></div></td><td><span class="pkg-expiry warn">3 Feb 2026</span></td><td style="font-size:11.5px;color:var(--text-muted)">CWP</td><td><span class="pkg-status expiring">Expiring</span></td><td><button class="pkg-use-btn">Use</button></td></tr><tr><td><div class="pkg-name">Pico Rejuvenate 3x</div><div class="pkg-code">PKG-PR-009 · $980 · 15 Oct 2025</div></td><td><div class="pkg-sessions"><strong>0</strong> used / 3 total</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:100%;background:var(--accent-soft)"></div></div></td><td><span class="pkg-expiry ok">15 Oct 2026</span></td><td style="font-size:11.5px;color:var(--text-muted)">CWP Clinic</td><td><span class="pkg-status active">Active</span></td><td><button class="pkg-use-btn">Use</button></td></tr><tr><td><div class="pkg-name">Cryotherapy Facial 5x</div><div class="pkg-code">PKG-CF-012 · $460 · 2 Dec 2024</div></td><td><div class="pkg-sessions"><strong>5</strong> used / 5 total</div><div class="pkg-bar-wrap"><div class="pkg-bar" style="width:0%"></div></div></td><td><span class="pkg-expiry expired">2 Dec 2025</span></td><td style="font-size:11.5px;color:var(--text-muted)">CWP</td><td><span class="pkg-status expired">Expired</span></td><td></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="tab-content" id="tab-history">
+        <div class="card"><div class="card-head"><div><div class="card-title">Visit History</div><div class="card-sub">87 total visits · $12,480 lifetime value</div></div><div style="display:flex;gap:8px"><select style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text-secondary);outline:none"><option>All time</option><option>This year</option><option>Last 6 months</option></select><button class="card-action" style="font-size:10px;padding:6px 12px;border:1px solid var(--border);border-radius:8px">Export</button></div></div><div class="card-body"><div class="appt-row"><div class="appt-date-block"><div class="appt-day">28</div><div class="appt-mon">May</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">HydraFacial Platinum · 75 min</div><div class="appt-therapist">Chai Ting · CWP · #SB-008891</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$0 (PKG)</span></div><div class="appt-row"><div class="appt-date-block"><div class="appt-day">10</div><div class="appt-mon">May</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">LuminaLift Facial · 90 min</div><div class="appt-therapist">Ginli · CWP · #SB-008745</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$0 (PKG)</span></div><div class="appt-row"><div class="appt-date-block"><div class="appt-day">22</div><div class="appt-mon">Apr</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Pico Rejuvenate · 45 min</div><div class="appt-therapist">Dr. Sarah Chen · CWP Clinic · #SB-008611</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$380</span></div><div class="appt-row"><div class="appt-date-block"><div class="appt-day">08</div><div class="appt-mon">Apr</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Gold Facial Treatment · 60 min</div><div class="appt-therapist">Iris Tan · CWP · #SB-008490</div></div><span class="appt-badge noshow">No Show</span><span class="appt-amount" style="color:var(--text-muted)">—</span></div><div class="appt-row"><div class="appt-date-block"><div class="appt-day">15</div><div class="appt-mon">Mar</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">Botox Consultation · 30 min</div><div class="appt-therapist">Dr. Sarah Chen · CWP Clinic · #SB-008310</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$80</span></div><div class="appt-row"><div class="appt-date-block"><div class="appt-day">02</div><div class="appt-mon">Mar</div></div><div class="appt-line"></div><div class="appt-info"><div class="appt-svc">HydraFacial Platinum · 75 min</div><div class="appt-therapist">Chai Ting · CWP · #SB-008210</div></div><span class="appt-badge completed">Completed</span><span class="appt-amount">$0 (PKG)</span></div><div style="text-align:center;padding:14px 0;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;font-weight:600;cursor:pointer">Load more visits ↓</div></div></div>
+      </div>
+
+      <!-- SKIN PROFILE TAB -->
+      <div class="tab-content" id="tab-skin">
+        <div class="two-col">
+          <div class="card"><div class="card-head"><div><div class="card-title">Skin Health Index</div><div class="card-sub">Last assessed 28 May 2025</div></div><button class="card-action">New Assessment</button></div><div class="skin-grid"><svg width="90" height="90" viewBox="0 0 90 90"><circle cx="45" cy="45" r="36" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="45" cy="45" r="36" fill="none" stroke="#d1baa2" stroke-width="10" stroke-dasharray="162 226" stroke-dashoffset="56" stroke-linecap="round" transform="rotate(-90 45 45)"/><text x="45" y="49" text-anchor="middle" font-size="20" fill="var(--text-primary)" font-weight="500" font-family="DM Sans,system-ui,sans-serif">78</text><text x="45" y="62" text-anchor="middle" font-size="8" fill="var(--text-muted)" letter-spacing="1" font-family="DM Sans,system-ui,sans-serif">/ 100</text></svg><div class="skin-metrics"><div class="skin-metric"><div class="skin-metric-head"><span class="skin-metric-name">Hydration</span><span class="skin-metric-val">85</span></div><div class="skin-track"><div class="skin-fill" style="width:85%;background:linear-gradient(90deg,#8a9e7a,#a8bc96)"></div></div></div><div class="skin-metric"><div class="skin-metric-head"><span class="skin-metric-name">Elasticity</span><span class="skin-metric-val">72</span></div><div class="skin-track"><div class="skin-fill" style="width:72%;background:linear-gradient(90deg,#d1baa2,#cec4b4)"></div></div></div><div class="skin-metric"><div class="skin-metric-head"><span class="skin-metric-name">Texture</span><span class="skin-metric-val">78</span></div><div class="skin-track"><div class="skin-fill" style="width:78%;background:linear-gradient(90deg,#c8a89e,#d1baa2)"></div></div></div><div class="skin-metric"><div class="skin-metric-head"><span class="skin-metric-name">Brightness</span><span class="skin-metric-val">74</span></div><div class="skin-track"><div class="skin-fill" style="width:74%;background:linear-gradient(90deg,#a98076,#c8a89e)"></div></div></div><div class="skin-metric"><div class="skin-metric-head"><span class="skin-metric-name">Sensitivity</span><span class="skin-metric-val" style="color:var(--warning)">High</span></div><div class="skin-track"><div class="skin-fill" style="width:80%;background:linear-gradient(90deg,#a08040,#d4a85e)"></div></div></div></div></div><div style="padding:0 18px 6px;border-top:1px solid var(--border-soft)"><div class="info-label" style="padding-top:12px;display:block">Primary Concerns</div><div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 12px"><span style="font-size:11.5px;padding:4px 12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-secondary)">Rosacea</span><span style="font-size:11.5px;padding:4px 12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-secondary)">Uneven texture</span><span style="font-size:11.5px;padding:4px 12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-secondary)">Fine lines</span><span style="font-size:11.5px;padding:4px 12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-secondary)">Sensitivity</span></div></div></div>
+          <div class="card"><div class="card-head"><div><div class="card-title">Treatment Recommendations</div><div class="card-sub">Based on current skin profile</div></div></div><div class="card-body"><div class="info-row"><span class="info-label">Skin Type</span><span class="info-val">Combination · Sensitive</span></div><div class="info-row"><span class="info-label">Fitzpatrick Scale</span><span class="info-val">Type III — Medium</span></div><div class="info-row"><span class="info-label">Recommended Treatments</span><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"><span style="background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2);font-size:11.5px;padding:3px 10px;border-radius:99px">Calm Facial</span><span style="background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2);font-size:11.5px;padding:3px 10px;border-radius:99px">LED Red Light</span><span style="background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2);font-size:11.5px;padding:3px 10px;border-radius:99px">Gentle Peel</span></div></div><div class="info-row" style="margin-top:12px"><span class="info-label">Avoid</span><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"><span style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2);font-size:11.5px;padding:3px 10px;border-radius:99px">High-intensity laser</span><span style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2);font-size:11.5px;padding:3px 10px;border-radius:99px">Retinol products</span></div></div><div class="info-row" style="margin-top:12px"><span class="info-label">Therapist Notes</span><span class="info-val muted" style="font-size:12.5px;line-height:1.55">Rosacea flares triggered by heat — avoid steam. Mineral SPF post-treatment. Client responds well to hydrating protocols.</span></div></div></div>
+        </div>
+      </div>
+
+      <!-- NOTES TAB -->
+      <div class="tab-content" id="tab-notes">
+        <div class="card"><div class="card-head"><div><div class="card-title">Treatment Notes &amp; Memos</div><div class="card-sub">Internal staff notes — not visible to customer</div></div></div><div class="card-body"><div class="note-item"><div class="note-head"><div class="note-author">Dr. Sarah Chen</div><div class="note-date">28 May 2025 · 3:12 PM</div><span class="note-tag">Post-Treatment</span></div><div class="note-body">Pico session completed without complications. Client tolerated well, mild redness resolved within 20 mins. Advised to avoid actives for 5 days. Rebook in 6 weeks — suggest adding LED add-on next time.</div></div><div class="note-item"><div class="note-head"><div class="note-author">Chai Ting</div><div class="note-date">10 May 2025 · 11:45 AM</div><span class="note-tag">Treatment Note</span></div><div class="note-body">HydraFacial — client requested extra extraction. Skin looking brighter. Reminded her about the expiring LuminaLift package; she plans to book again next month.</div></div><div class="note-item"><div class="note-head"><div class="note-author">CSO Michelle</div><div class="note-date">15 Apr 2025 · 9:00 AM</div><span class="note-tag">Follow-up</span></div><div class="note-body">Called re: no-show on 8 Apr. Client apologised — had work emergency. Rebooked for 22 Apr. Waived late cancellation fee as first-time occurrence.</div></div></div><div class="note-add-area"><textarea class="note-textarea" placeholder="Add internal note or memo…"></textarea><div class="note-footer"><select class="note-type-sel"><option>Post-Treatment</option><option>Treatment Note</option><option>Follow-up</option><option>General Memo</option><option>Complaint</option></select><button class="note-submit">Save Note</button></div></div></div>
+      </div>
+
+      <!-- FORMS TAB -->
+      <div class="tab-content" id="tab-forms">
+        <div class="card"><div class="card-head"><div><div class="card-title">Consents &amp; Digital Forms</div><div class="card-sub">E-signed documents &amp; pending forms</div></div><button class="act-btn primary" style="font-size:11px;padding:6px 12px">Send Form</button></div><div class="card-body"><div class="consent-item"><div class="consent-icon signed"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="#6a8f5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="consent-info"><div class="consent-name">General Treatment Consent</div><div class="consent-meta">Signed digitally · 14 Nov 2025</div></div><button class="consent-action">View PDF</button></div><div class="consent-item"><div class="consent-icon signed"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="#6a8f5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="consent-info"><div class="consent-name">Laser Treatment Consent</div><div class="consent-meta">Signed digitally · 22 Apr 2025 · Pico Rejuvenate</div></div><button class="consent-action">View PDF</button></div><div class="consent-item"><div class="consent-icon signed"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="#6a8f5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="consent-info"><div class="consent-name">Medical History Form</div><div class="consent-meta">Completed · 14 Nov 2025 · Allergies declared</div></div><button class="consent-action">View PDF</button></div><div class="consent-item"><div class="consent-icon pending"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#a08040" stroke-width="1.2"/><path d="M8 5v3.5l2 1.5" stroke="#a08040" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="consent-info"><div class="consent-name">Botox Injectables Consent</div><div class="consent-meta" style="color:var(--warning)">Pending — required before next Botox appointment</div></div><button class="consent-action" style="color:var(--warning);border-color:rgba(160,128,64,.3)">Send to Client</button></div></div></div>
+      </div>
+
+      <!-- PHOTOS TAB -->
+      <div class="tab-content" id="tab-photos">
+        <div class="card"><div class="card-head"><div><div class="card-title">Treatment Photos</div><div class="card-sub">Before &amp; after documentation · 12 photos</div></div><button class="act-btn primary" style="font-size:11px;padding:6px 12px">+ Upload</button></div><div class="photo-grid"><div class="photo-cell"><div class="photo-placeholder"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.3"/></svg><span>28 May 25</span></div><div class="photo-overlay"><span class="photo-date">After HydraFacial</span></div></div><div class="photo-cell"><div class="photo-placeholder"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.3"/></svg><span>22 Apr 25</span></div></div><div class="photo-cell"><div class="photo-placeholder"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.3"/></svg><span>15 Mar 25</span></div></div><div class="photo-cell"><div class="photo-placeholder"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.3"/></svg><span>2 Jan 25</span></div></div><div class="photo-cell photo-add"><div class="photo-placeholder"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Add Photo</span></div></div></div></div>
+      </div>
+
+      <!-- ACTIVITY LOG TAB -->
+      <div class="tab-content" id="tab-timeline">
+        <div class="card"><div class="card-head"><div><div class="card-title">Activity Log</div><div class="card-sub">Full audit trail for this customer</div></div></div><div class="card-body" style="padding:0"><div class="timeline" style="padding:14px 18px"><div class="tl-item"><div class="tl-dot appt"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="tl-body"><div class="tl-title">Appointment Completed — HydraFacial Platinum</div><div class="tl-desc">Therapist: Chai Ting · CWP · Session #4 of 6 (PKG-HF-006)</div><div class="tl-time">28 May 2025 · 10:15 AM</div></div></div><div class="tl-item"><div class="tl-dot purchase"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 6.5h14" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="tl-body"><div class="tl-title">Package Purchased — Pico Rejuvenate 3x</div><div class="tl-desc">$980 · INV-20251015-089 · Paid via GrabPay + Store Credit</div><div class="tl-time">15 Oct 2025 · 2:30 PM</div></div></div><div class="tl-item"><div class="tl-dot note"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="tl-body"><div class="tl-title">Note Added — Post-Treatment Memo</div><div class="tl-desc">Added by Dr. Sarah Chen · "Pico session completed without complications…"</div><div class="tl-time">22 Apr 2025 · 3:12 PM</div></div></div><div class="tl-item"><div class="tl-dot" style="background:var(--danger-bg);border-color:rgba(160,96,96,.2);color:var(--danger)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div><div class="tl-body"><div class="tl-title">No Show — Gold Facial Treatment</div><div class="tl-desc">Scheduled 09:00 · Iris Tan · Late cancellation fee waived</div><div class="tl-time">8 Apr 2025 · 9:00 AM</div></div></div><div class="tl-item"><div class="tl-dot onboard"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tl-body"><div class="tl-title">Customer Onboarding Completed</div><div class="tl-desc">All forms signed · Medical history updated · First visit registered</div><div class="tl-time">14 Nov 2021 · 10:02 AM</div></div></div></div></div></div>
+      </div>
+
+    </div><!-- /profile-body -->
+  </div><!-- /profile-area -->
+</main>
+
+<!-- DIRECTORY DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="dir-drawer" id="dirDrawer">
+  <div class="dir-head">
+    <div class="dir-head-row">
+      <div class="dir-title">Customer Directory <span class="dir-count">2,847 clients</span></div>
+      <button class="dir-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="dir-search">
+      <svg class="dir-search-ic" width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input class="dir-search-in" type="text" placeholder="Filter clients…" id="dirSearchIn">
+    </div>
+  </div>
+  <div class="dir-filters">
+    <button class="tier-chip active" onclick="filterTier(this,'all')">All</button>
+    <button class="tier-chip gold" onclick="filterTier(this,'gold')">Gold</button>
+    <button class="tier-chip silver" onclick="filterTier(this,'silver')">Silver</button>
+    <button class="tier-chip bronze" onclick="filterTier(this,'bronze')">Bronze</button>
+  </div>
+  <div class="dir-list" id="dirList"></div>
+  <button class="new-client-btn">
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    New Customer
+  </button>
+</div>
+
+<script>
+// ── THEME ──
+const toggle = document.getElementById('themeToggle');
+let dark = false;
+toggle.addEventListener('click', () => {
+  dark = !dark;
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+  toggle.textContent = dark ? '☀️' : '🌙';
+});
+
+// ── DRAWER ──
+let drawerOpen = false;
+function toggleDrawer() {
+  drawerOpen ? closeDrawer() : openDrawer();
+}
+function openDrawer() {
+  drawerOpen = true;
+  document.getElementById('dirDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('dirToggle').classList.add('active');
+  setTimeout(() => document.getElementById('dirSearchIn').focus(), 260);
+}
+function closeDrawer() {
+  drawerOpen = false;
+  document.getElementById('dirDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('dirToggle').classList.remove('active');
+}
+
+// ── CLIENT DATA ──
+const clients = [
+  { name:'Wendy Goh',     phone:'+65 9087 1117', tier:'gold',   flags:['vip','allergy'], color:'#c8a89e,#7a6856' },
+  { name:'Elisabeth Lee', phone:'+65 8223 8493', tier:'silver', flags:['birthday'],      color:'#d1baa2,#a98076' },
+  { name:'Victoria Tan',  phone:'+65 8256 0254', tier:'gold',   flags:['vip'],           color:'#cec4b4,#80756a' },
+  { name:'Victoria Lim',  phone:'+65 9750 7515', tier:'gold',   flags:[],                color:'#a98076,#7a6856' },
+  { name:'Li Ying Kumar', phone:'+65 9002 1283', tier:'silver', flags:[],                color:'#d1baa2,#cec4b4' },
+  { name:'Zara Lim',      phone:'+65 8077 4116', tier:'bronze', flags:[],                color:'#80756a,#7a6856' },
+  { name:'Emily Singh',   phone:'+65 9154 9034', tier:'silver', flags:['allergy'],       color:'#c8a89e,#a98076' },
+  { name:'Mei Lin Chong', phone:'+65 8264 0784', tier:'bronze', flags:[],                color:'#cec4b4,#d1baa2' },
+  { name:'Farah Chong',   phone:'+65 9034 9937', tier:'silver', flags:[],                color:'#a98076,#c8a89e' },
+  { name:'Catherine Ong', phone:'+65 9050 7192', tier:'gold',   flags:['vip'],           color:'#d1baa2,#7a6856' },
+];
+const tierColors = { gold:'#c8962a', silver:'#8a9aaa', bronze:'#a06040' };
+const flagIcons  = { vip:'⭐', allergy:'⚠️', birthday:'🎂' };
+let currentTierFilter = 'all';
+
+function buildDir(filter = '') {
+  const list = document.getElementById('dirList');
+  list.innerHTML = '';
+  const filtered = clients.filter(c => {
+    if (currentTierFilter !== 'all' && c.tier !== currentTierFilter) return false;
+    if (filter && !c.name.toLowerCase().includes(filter.toLowerCase()) && !c.phone.includes(filter)) return false;
+    return true;
+  });
+  filtered.forEach((c, i) => {
+    const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    const flagHTML = c.flags.map(f=>`<span class="flag-ic">${flagIcons[f]||''}</span>`).join('');
+    const div = document.createElement('div');
+    div.className = 'dir-item' + (c.name === 'Wendy Goh' ? ' active' : '');
+    div.innerHTML = `
+      <div class="dir-av" style="background:linear-gradient(135deg,${c.color})">${initials}</div>
+      <div class="dir-info">
+        <div class="dir-name">${c.name}</div>
+        <div class="dir-sub"><div class="tier-dot" style="background:${tierColors[c.tier]}"></div>${c.phone}</div>
+      </div>
+      <div class="dir-flags">${flagHTML}</div>
+    `;
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.dir-item').forEach(el => el.classList.remove('active'));
+      div.classList.add('active');
+      closeDrawer();
+    });
+    list.appendChild(div);
+  });
+}
+buildDir();
+
+document.getElementById('dirSearchIn').addEventListener('input', e => buildDir(e.target.value));
+
+function filterTier(el, tier) {
+  currentTierFilter = tier;
+  document.querySelectorAll('.tier-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  buildDir(document.getElementById('dirSearchIn').value);
+}
+
+// ── TABS ──
+function switchTab(id) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const tab = document.querySelector(`[data-tab="${id}"]`);
+  const content = document.getElementById(`tab-${id}`);
+  if (tab) tab.classList.add('active');
+  if (content) content.classList.add('active');
+}
+document.querySelectorAll('.ptab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ── ALLERGY DISMISS ──
+document.getElementById('allergyDismiss').addEventListener('click', () => {
+  document.getElementById('allergyBanner').style.display = 'none';
+});
+
+// ── KEYBOARD SHORTCUT ──
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggleDrawer(); }
+  if (e.key === 'Escape' && drawerOpen) closeDrawer();
+});
+</script>
+</body>
+</html>

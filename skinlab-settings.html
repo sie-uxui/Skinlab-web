@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --whitecap-gray:#e1d7cb;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076; --accent-soft:#c8a89e;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e; --accent-soft:#a98076;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s,color .3s}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0;text-decoration:none}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit;}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-left{display:flex;flex-direction:column;gap:1px}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em;line-height:1.2}
+.topbar-left p{font-size:11.5px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;color:var(--text-muted)}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer}
+
+/* ─── SETTINGS LAYOUT ─── */
+.settings-wrap{flex:1;overflow-y:auto;background:var(--bg);scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.settings-wrap::-webkit-scrollbar{width:4px}
+.settings-wrap::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.settings-inner{display:flex;gap:48px;padding:36px 40px 80px;align-items:flex-start;max-width:1280px}
+
+/* ─── INLINE STICKY NAV ─── */
+.settings-nav{width:164px;flex-shrink:0;position:sticky;top:36px;align-self:flex-start;display:flex;flex-direction:column}
+.sn-group{margin-bottom:24px}
+.sn-group:last-child{margin-bottom:0}
+.sn-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding:0 8px 7px;display:block}
+.sn-item{display:flex;align-items:center;gap:7px;padding:6px 8px;font-size:12.5px;color:var(--text-muted);cursor:pointer;transition:all .15s;border-radius:7px;white-space:nowrap;margin-bottom:1px}
+.sn-item:hover{color:var(--text-primary);background:rgba(122,104,86,.05)}
+.sn-item.active{color:var(--text-primary);background:var(--surface);font-weight:500;box-shadow:0 1px 3px rgba(122,104,86,.07),0 0 0 1px var(--border)}
+.sn-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);transition:color .15s}
+.sn-item.active .sn-icon{color:var(--accent)}
+.sn-badge{margin-left:auto;font-size:9.5px;font-weight:500;color:var(--text-muted);line-height:1}
+.sn-item.active .sn-badge{color:var(--text-secondary)}
+
+/* ─── SETTINGS CONTENT ─── */
+.settings-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:0}
+
+.section-panel{display:none;animation:fadeUp .2s ease both}
+.section-panel.active{display:flex;flex-direction:column;gap:0}
+
+/* ─── PANEL HEADER ─── */
+.panel-head{padding:0 0 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.panel-head-left{display:flex;flex-direction:column;gap:2px}
+.panel-head-icon{display:none}
+.panel-title{font-family:'EB Garamond',serif;font-size:22px;font-weight:400;color:var(--text-primary);letter-spacing:.01em;line-height:1.1}
+.panel-sub{font-size:12px;color:var(--text-muted)}
+.panel-body{display:flex;flex-direction:column;gap:16px}
+
+/* ─── SEARCH BAR (in panel) ─── */
+.panel-search{position:relative;margin-bottom:4px}
+.panel-search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.panel-search-in{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:var(--text-primary);background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:0 12px 0 34px;height:36px;width:100%;max-width:320px;outline:none;transition:all .2s}
+.panel-search-in::placeholder{color:var(--text-placeholder)}
+.panel-search-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.card-body{padding:18px}
+
+/* ─── BUTTON ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.btn-primary:hover{background:var(--shitake);box-shadow:0 3px 10px rgba(122,104,86,.2)}
+.btn-danger{background:transparent;color:var(--danger);border-color:rgba(160,96,96,.3)}
+.btn-danger:hover{background:var(--danger-bg)}
+.btn-sm{font-size:11.5px;padding:5px 11px}
+
+/* ─── PAYMENT TYPES ─── */
+.pt-group{display:flex;flex-direction:column;gap:4px}
+.pt-group-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding:4px 0 2px;display:flex;align-items:center;gap:8px}
+.pt-group-label::after{content:'';flex:1;height:1px;background:var(--border-soft)}
+.pt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pt-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;transition:all .15s;cursor:pointer}
+.pt-item:hover{border-color:var(--border-mid);background:var(--surface-2)}
+.pt-item-name{font-size:12.5px;color:var(--text-primary);font-weight:500}
+.pt-item-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.pt-item:hover .pt-item-actions{opacity:1}
+.pt-icon-btn{width:22px;height:22px;border-radius:5px;border:1px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .15s}
+.pt-icon-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.pt-icon-btn.del:hover{background:var(--danger-bg);color:var(--danger);border-color:rgba(160,96,96,.3)}
+.pt-item.disabled .pt-item-name{color:var(--text-muted);text-decoration:line-through;opacity:.5}
+
+/* ─── TAX ROWS ─── */
+.tax-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+.tax-row:last-child{border-bottom:none}
+.tax-name{font-size:13px;font-weight:500;color:var(--text-primary);flex:1}
+.tax-code{font-size:11px;color:var(--text-muted);margin-top:1px}
+.tax-rate{font-family:'DM Sans',system-ui,sans-serif;font-size:15px;font-weight:600;color:var(--text-primary);min-width:44px;text-align:right}
+.tax-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.tax-badge.active{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.tax-badge.legacy{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+
+/* ─── MARKETING ACTIVITIES ─── */
+.ma-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.ma-item:last-child{border-bottom:none}
+.ma-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ma-name{font-size:13px;font-weight:500;color:var(--text-primary);flex:1}
+.ma-count{font-size:11px;color:var(--text-muted);margin-right:8px}
+.ma-toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.ma-toggle input{opacity:0;width:0;height:0;position:absolute}
+.ma-toggle-track{position:absolute;inset:0;background:var(--surface-2);border:1px solid var(--border);border-radius:99px;cursor:pointer;transition:all .2s}
+.ma-toggle input:checked+.ma-toggle-track{background:var(--accent);border-color:var(--accent)}
+.ma-toggle-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:white;border-radius:50%;transition:transform .2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.ma-toggle input:checked~.ma-toggle-thumb{transform:translateX(16px)}
+
+/* ─── MEDIA SOURCES ─── */
+.ms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ms-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;transition:all .15s}
+.ms-item:hover{border-color:var(--border-mid)}
+.ms-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ms-name{font-size:13px;font-weight:500;color:var(--text-primary);flex:1}
+.ms-count{font-size:11px;color:var(--text-muted)}
+
+/* ─── OUTLET CARDS ─── */
+.outlet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.outlet-card{background:#ffffff;border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s;cursor:pointer}
+.outlet-card:hover{border-color:var(--border-mid)}
+.outlet-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.outlet-name{font-size:13.5px;font-weight:600;color:var(--text-primary)}
+.outlet-brand{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px;margin-top:2px;display:inline-block}
+.outlet-brand.sl{background:rgba(169,128,118,.1);color:var(--mocha-mousse);border:1px solid rgba(169,128,118,.2)}
+.outlet-brand.sc{background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2)}
+.outlet-brand.tl{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.outlet-status{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.outlet-status.open{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.outlet-status.closed{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+.outlet-meta{font-size:11.5px;color:var(--text-muted);line-height:1.5}
+.outlet-meta strong{color:var(--text-secondary);font-weight:500}
+.outlet-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border-soft)}
+.outlet-hours{font-size:11px;color:var(--text-muted)}
+
+/* ─── USER ROLES ─── */
+.role-card{background:#ffffff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s;cursor:pointer}
+.role-card:hover{border-color:var(--border-mid)}
+.role-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.role-info{flex:1;min-width:0}
+.role-name{font-size:13px;font-weight:600;color:var(--text-primary)}
+.role-desc{font-size:11.5px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.role-staff-count{font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:4px}
+.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.perm-chip{font-size:11px;padding:3px 9px;border-radius:6px;background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.15);font-weight:500}
+.perm-chip.no{background:var(--surface-2);color:var(--text-muted);border-color:var(--border)}
+
+/* ─── FORM ELEMENTS ─── */
+.form-row{display:flex;flex-direction:column;gap:5px}
+.form-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+.form-input{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;width:100%;outline:none;transition:all .2s}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+.form-input::placeholder{color:var(--text-placeholder)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' stroke='%2380756a' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.form-hint{font-size:11px;color:var(--text-muted)}
+.divider{height:1px;background:var(--border-soft);margin:4px 0}
+
+/* ─── TOGGLE SWITCH ─── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info{flex:1}
+.toggle-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.toggle-desc{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--surface-2);border:1px solid var(--border-mid);border-radius:99px;cursor:pointer;transition:all .2s}
+.toggle input:checked+.toggle-track{background:var(--accent);border-color:var(--accent)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:white;border-radius:50%;transition:transform .2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.toggle input:checked~.toggle-thumb{transform:translateX(18px)}
+
+/* ─── SESSION / SECURITY ─── */
+.security-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+.security-row:last-child{border-bottom:none}
+.security-icon{width:32px;height:32px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted)}
+.security-info{flex:1}
+.security-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.security-desc{font-size:11.5px;color:var(--text-muted);margin-top:1px}
+.security-val{font-size:13px;font-weight:600;color:var(--text-primary);flex-shrink:0}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a><a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a><a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a></div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <div class="nav-item active">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Settings</h1>
+      <p>System configuration &amp; preferences</p>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="settings-wrap">
+    <div class="settings-inner">
+
+    <!-- INLINE STICKY NAV -->
+    <nav class="settings-nav">
+      <div class="sn-group">
+        <span class="sn-label">POS &amp; Sales</span>
+        <div class="sn-item active" data-section="payment-types" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 6.5h14" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+          Payment Types<span class="sn-badge">43</span>
+        </div>
+        <div class="sn-item" data-section="taxes" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M6 4h-3v3M10 12h3v-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Taxes<span class="sn-badge">2</span>
+        </div>
+        <div class="sn-item" data-section="marketing" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+          Marketing<span class="sn-badge">14</span>
+        </div>
+        <div class="sn-item" data-section="media" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1a7 7 0 100 14A7 7 0 008 1z" stroke="currentColor" stroke-width="1.2"/><path d="M1 8h14" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+          Media Sources<span class="sn-badge">10</span>
+        </div>
+      </div>
+      <div class="sn-group">
+        <span class="sn-label">Organisation</span>
+        <div class="sn-item" data-section="outlets" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.52 1.5 3.5 3.52 3.5 6c0 3.37 4.5 8.5 4.5 8.5S12.5 9.37 12.5 6c0-2.48-2.02-4.5-4.5-4.5zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" stroke="currentColor" stroke-width="1.2"/></svg></div>
+          Outlets<span class="sn-badge">18</span>
+        </div>
+        <div class="sn-item" data-section="brands" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+          Brands<span class="sn-badge">3</span>
+        </div>
+      </div>
+      <div class="sn-group">
+        <span class="sn-label">Access &amp; Security</span>
+        <div class="sn-item" data-section="roles" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 13.5c0-2.21 2.01-4 4.5-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11.5 8v5M9 10.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+          User Roles<span class="sn-badge">6</span>
+        </div>
+        <div class="sn-item" data-section="security" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+          Security
+        </div>
+        <div class="sn-item" data-section="notifications" onclick="switchSection(this)">
+          <div class="sn-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+          Notifications
+        </div>
+      </div>
+    </nav>
+
+    <!-- SETTINGS CONTENT -->
+    <div class="settings-content">
+
+      <!-- ── PAYMENT TYPES ── -->
+      <div class="section-panel active" id="section-payment-types">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="var(--text-secondary)" stroke-width="1.3"/><path d="M1 6.5h14" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+            <div>
+              <div class="panel-title">Payment Types</div>
+              <div class="panel-sub">Manage accepted payment methods at POS</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="panel-search">
+              <svg class="panel-search-ic" width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              <input class="panel-search-in" type="text" placeholder="Search payment types…" id="ptSearch">
+            </div>
+            <button class="btn btn-primary btn-sm">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              Add New
+            </button>
+          </div>
+        </div>
+        <div class="panel-body" id="ptBody"></div>
+      </div>
+
+      <!-- ── TAXES ── -->
+      <div class="section-panel" id="section-taxes">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14l12-12M5 5h.01M11 11h.01" stroke="var(--text-secondary)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">Taxes</div><div class="panel-sub">GST rates applied at point of sale</div></div>
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Add Rate
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">GST Rates</div><div class="card-sub">Historical and current rates — auto-applied by year of purchase</div></div></div>
+            <div class="card-body" style="padding:0 18px">
+              <div class="tax-row">
+                <div class="security-icon" style="background:var(--success-bg)"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="tax-info" style="flex:1">
+                  <div class="tax-name">GST 9%</div>
+                  <div class="tax-code">Effective 1 Jan 2024 · Standard rate</div>
+                </div>
+                <div class="tax-rate">9%</div>
+                <span class="tax-badge active">Current</span>
+                <button class="btn btn-sm">Edit</button>
+              </div>
+              <div class="tax-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+                <div class="tax-info" style="flex:1">
+                  <div class="tax-name">GST 8%</div>
+                  <div class="tax-code">1 Jan 2023 – 31 Dec 2023 · Legacy</div>
+                </div>
+                <div class="tax-rate">8%</div>
+                <span class="tax-badge legacy">Legacy</span>
+                <button class="btn btn-sm">View</button>
+              </div>
+              <div class="tax-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div>
+                <div class="tax-info" style="flex:1">
+                  <div class="tax-name">GST 7%</div>
+                  <div class="tax-code">Pre-2023 · Legacy — used for old credit packages</div>
+                </div>
+                <div class="tax-rate">7%</div>
+                <span class="tax-badge legacy">Legacy</span>
+                <button class="btn btn-sm">View</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">GST Auto-Apply Rules</div><div class="card-sub">How the system determines which rate to use</div></div></div>
+            <div class="card-body">
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Apply current GST to new packages</div><div class="toggle-desc">New package sales always use the active rate (9%)</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Preserve year-of-purchase GST for credits</div><div class="toggle-desc">Credit package redemptions use the GST rate from the purchase year</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Show GST warning for pre-2023 credits</div><div class="toggle-desc">Flag legacy credit packages at checkout to prompt staff verification</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MARKETING ACTIVITIES ── -->
+      <div class="section-panel" id="section-marketing">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="var(--text-secondary)" stroke-width="1.3" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">Marketing Activities</div><div class="panel-sub">Sources and campaigns tracked at booking &amp; checkout</div></div>
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Add Activity
+          </button>
+        </div>
+        <div class="panel-body" id="maBody"></div>
+      </div>
+
+      <!-- ── MEDIA SOURCES ── -->
+      <div class="section-panel" id="section-media">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a7 7 0 100 14A7 7 0 008 1z" stroke="var(--text-secondary)" stroke-width="1.3"/><path d="M1 8h14" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">Media Sources</div><div class="panel-sub">How customers hear about SkinLab — tracked at customer creation</div></div>
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Add Source
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">Referral Channels</div><div class="card-sub">10 active sources</div></div></div>
+            <div class="card-body">
+              <div class="ms-grid" id="msGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── OUTLETS ── -->
+      <div class="section-panel" id="section-outlets">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.52 1.5 3.5 3.52 3.5 6c0 3.37 4.5 8.5 4.5 8.5S12.5 9.37 12.5 6c0-2.48-2.02-4.5-4.5-4.5zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" stroke="var(--text-secondary)" stroke-width="1.3"/></svg></div>
+            <div><div class="panel-title">Outlets</div><div class="panel-sub">18 active · 29 total including historical</div></div>
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Add Outlet
+          </button>
+        </div>
+        <div class="panel-body">
+          <div class="outlet-grid" id="outletGrid"></div>
+        </div>
+      </div>
+
+      <!-- ── BRANDS ── -->
+      <div class="section-panel" id="section-brands">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="var(--text-secondary)" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+            <div><div class="panel-title">Brands &amp; Entities</div><div class="panel-sub">Legal entities and brand configuration for invoicing &amp; reporting</div></div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="card">
+              <div class="card-head"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">💆</span><div><div class="card-title">SkinLab Medical Spa</div><div class="card-sub">Spa entity · Facial &amp; body treatments</div></div></div><button class="btn btn-sm">Edit</button></div>
+              <div class="card-body">
+                <div class="three-col">
+                  <div class="form-row"><span class="form-label">Invoice Prefix</span><div style="font-size:13px;color:var(--text-primary);font-weight:500">SL-</div></div>
+                  <div class="form-row"><span class="form-label">GST Registered</span><div style="font-size:13px;color:var(--success);font-weight:500">Yes · 200812345A</div></div>
+                  <div class="form-row"><span class="form-label">Entity Type</span><div style="font-size:13px;color:var(--text-primary)">Spa</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">🏥</span><div><div class="card-title">SL Aesthetic Clinic</div><div class="card-sub">Clinic entity · Medical &amp; injectable services</div></div></div><button class="btn btn-sm">Edit</button></div>
+              <div class="card-body">
+                <div class="three-col">
+                  <div class="form-row"><span class="form-label">Invoice Prefix</span><div style="font-size:13px;color:var(--text-primary);font-weight:500">SC-</div></div>
+                  <div class="form-row"><span class="form-label">GST Registered</span><div style="font-size:13px;color:var(--success);font-weight:500">Yes · 201923456B</div></div>
+                  <div class="form-row"><span class="form-label">Entity Type</span><div style="font-size:13px;color:var(--text-primary)">Clinic</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">✂️</span><div><div class="card-title">TrichoLab</div><div class="card-sub">Clinic entity · Hair &amp; scalp treatments</div></div></div><button class="btn btn-sm">Edit</button></div>
+              <div class="card-body">
+                <div class="three-col">
+                  <div class="form-row"><span class="form-label">Invoice Prefix</span><div style="font-size:13px;color:var(--text-primary);font-weight:500">TL-</div></div>
+                  <div class="form-row"><span class="form-label">GST Registered</span><div style="font-size:13px;color:var(--success);font-weight:500">Yes · 202034567C</div></div>
+                  <div class="form-row"><span class="form-label">Entity Type</span><div style="font-size:13px;color:var(--text-primary)">Clinic</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── USER ROLES ── -->
+      <div class="section-panel" id="section-roles">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="var(--text-secondary)" stroke-width="1.3"/><path d="M1.5 13.5c0-2.21 2.01-4 4.5-4" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round"/><path d="M11.5 8v5M9 10.5h5" stroke="var(--text-secondary)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">User Roles</div><div class="panel-sub">Predefined roles with permission scopes</div></div>
+          </div>
+          <button class="btn btn-sm">+ Custom Role</button>
+        </div>
+        <div class="panel-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="rolesGrid"></div>
+        </div>
+      </div>
+
+      <!-- ── SECURITY ── -->
+      <div class="section-panel" id="section-security">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7.5" rx="1.5" stroke="var(--text-secondary)" stroke-width="1.3"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="var(--text-secondary)" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">Security &amp; Sessions</div><div class="panel-sub">Authentication, session management &amp; access logs</div></div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">Session Policy</div><div class="card-sub">Controls how long staff stay logged in</div></div><button class="btn btn-sm">Edit</button></div>
+            <div class="card-body" style="padding:0 18px">
+              <div class="security-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                <div class="security-info"><div class="security-name">Session Timeout</div><div class="security-desc">Auto-logout after inactivity</div></div>
+                <div class="security-val">8 hours</div>
+              </div>
+              <div class="security-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                <div class="security-info"><div class="security-name">Failed Login Lockout</div><div class="security-desc">Account locked after consecutive failures</div></div>
+                <div class="security-val">5 attempts</div>
+              </div>
+              <div class="security-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+                <div class="security-info"><div class="security-name">Lockout Duration</div><div class="security-desc">How long before the account auto-unlocks</div></div>
+                <div class="security-val">30 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">Security Settings</div></div></div>
+            <div class="card-body">
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Login audit log</div><div class="toggle-desc">Record all login and logout events with IP address and timestamp</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Failed login tracking</div><div class="toggle-desc">Track failed attempts and trigger lockout policy</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Manager override audit trail</div><div class="toggle-desc">Log all manager override actions (discounts, fee waivers, etc.)</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Shared role logins (Phase 1)</div><div class="toggle-desc">Allow shared login per role per outlet — migrates to individual accounts in Phase 2</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── NOTIFICATIONS ── -->
+      <div class="section-panel" id="section-notifications">
+        <div class="panel-head" style="border:none;background:transparent;padding-top:0">
+          <div class="panel-head-left">
+            <div class="panel-head-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="var(--text-secondary)" stroke-width="1.3"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="var(--text-secondary)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+            <div><div class="panel-title">Alerts &amp; Reminders</div><div class="panel-sub">Automated WhatsApp and system alerts</div></div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">WhatsApp Reminders</div><div class="card-sub">Sent via Envoy integration</div></div></div>
+            <div class="card-body">
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Appointment reminder (24h before)</div><div class="toggle-desc">Auto-send customer name, date, time, outlet, treatment via WhatsApp</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Package expiry alert (30 days)</div><div class="toggle-desc">Notify customers with packages expiring within 30 days</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Package expiry alert (60 days)</div><div class="toggle-desc">Earlier reminder for customers with packages expiring in 60 days</div></div>
+                <label class="toggle"><input type="checkbox"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="toggle-name">Birthday greeting</div><div class="toggle-desc">Automated birthday message to VIP and Gold customers</div></div>
+                <label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">No-Show &amp; Cancellation Fees</div><div class="card-sub">Auto-calculated at time of marking</div></div><button class="btn btn-sm">Edit</button></div>
+            <div class="card-body" style="padding:0 18px">
+              <div class="security-row">
+                <div class="security-icon" style="background:var(--danger-bg);color:var(--danger)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                <div class="security-info"><div class="security-name">No-show fee</div><div class="security-desc">Applied when appointment marked as No Show</div></div>
+                <div class="security-val">$200 + GST</div>
+              </div>
+              <div class="security-row">
+                <div class="security-icon" style="background:var(--warning-bg);color:var(--warning)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13h13L8 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6v3.5M8 11v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                <div class="security-info"><div class="security-name">Late cancellation fee</div><div class="security-desc">Applied when cancelled within the grace period</div></div>
+                <div class="security-val">$100 + GST</div>
+              </div>
+              <div class="security-row">
+                <div class="security-icon"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+                <div class="security-info"><div class="security-name">Grace period</div><div class="security-desc">Cancellations within this window trigger the late fee</div></div>
+                <div class="security-val">24 hours</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /settings-content -->
+    </div><!-- /settings-inner -->
+  </div><!-- /settings-wrap -->
+</main>
+
+<script>
+// ── THEME ──
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+});
+
+// ── SECTION SWITCH ──
+function switchSection(el) {
+  document.querySelectorAll('.sn-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const id = el.dataset.section;
+  document.getElementById('section-' + id)?.classList.add('active');
+}
+
+// ── PAYMENT TYPES DATA ──
+const PT = {
+  'Cash':    ['Cash','Cash (SGD)','Cash (USD)'],
+  'Debit':   ['NETS','NETS FlashPay','VISA Debit','MasterCard Debit'],
+  'Credit':  ['VISA','MasterCard','AMEX','Diners Club','JCB','UnionPay'],
+  'Digital': ['PayNow','DBS PayLah!','GrabPay','ShopeePay','Fave','Alipay','WeChat Pay','Apple Pay','Google Pay'],
+  'BNPL':    ['Atome','Grab PayLater','Shopee PayLater','hoolah'],
+  'Voucher': ['Gift Voucher','Store Credit','E-Voucher','SL Voucher'],
+  'Transfer':['Bank Transfer','GIRO'],
+  'Instalment':['OCBC 3M','OCBC 6M','OCBC 12M','DBS 6M','DBS 12M','UOB 6M','UOB 12M','CITI 6M','CITI 12M'],
+  'Other':   ['Contra','FOC','Insurance'],
+};
+
+function buildPaymentTypes(filter='') {
+  const body = document.getElementById('ptBody');
+  body.innerHTML = '';
+  Object.entries(PT).forEach(([group, items]) => {
+    const filtered = items.filter(i => i.toLowerCase().includes(filter.toLowerCase()));
+    if (!filtered.length) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'pt-group';
+    wrap.innerHTML = `<div class="pt-group-label">${group}</div><div class="pt-grid">` +
+      filtered.map(name => `
+        <div class="pt-item">
+          <span class="pt-item-name">${name}</span>
+          <div class="pt-item-actions">
+            <button class="pt-icon-btn" title="Edit"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M1 11l2.5-.5L10 4 8 2 1.5 8.5 1 11z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+            <button class="pt-icon-btn del" title="Remove"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4.5 5v4M7.5 5v4M3 3l.5 7h5L9 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </div>
+        </div>`).join('') + '</div>';
+    body.appendChild(wrap);
+  });
+}
+buildPaymentTypes();
+
+document.getElementById('ptSearch').addEventListener('input', e => buildPaymentTypes(e.target.value));
+
+// ── MARKETING ACTIVITIES ──
+const MA = [
+  {name:'Post-Treatment Follow-up (Day 3)', color:'#8a9e7a', count:156, on:true},
+  {name:'Package Expiry Alert (30 days)',    color:'#d1baa2', count:89,  on:true},
+  {name:'Birthday Promotion',               color:'#c8a89e', count:45,  on:true},
+  {name:'Dormant Customer Re-engagement',   color:'#80756a', count:67,  on:false},
+  {name:'New Customer Welcome',             color:'#a98076', count:34,  on:true},
+  {name:'VIP Exclusive Campaign',           color:'#c8962a', count:22,  on:true},
+  {name:'Roadshow — Jurong Point Oct 2025', color:'#5a7a9e', count:18,  on:false},
+  {name:'Walk-in Conversion',              color:'#7a6856', count:203, on:true},
+  {name:'Referral Programme',              color:'#6a8f5a', count:91,  on:true},
+  {name:'Social Media — Instagram',        color:'#9e7a9e', count:142, on:true},
+  {name:'Social Media — TikTok',           color:'#9e6060', count:88,  on:true},
+  {name:'Google Search / Ads',             color:'#5a8a9e', count:56,  on:true},
+  {name:'Website Enquiry',                 color:'#7a9e7a', count:39,  on:true},
+  {name:'Corporate Partnership',           color:'#9e9060', count:14,  on:false},
+];
+
+function buildMarketing() {
+  const body = document.getElementById('maBody');
+  body.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<div class="card-head"><div><div class="card-title">Campaign &amp; Activity List</div><div class="card-sub">Compulsory field at every new booking. Staff must select one.</div></div></div><div class="card-body" style="padding:0 18px">` +
+    MA.map((m,i) => `
+      <div class="ma-item">
+        <div class="ma-dot" style="background:${m.color}"></div>
+        <div class="ma-name">${m.name}</div>
+        <div class="ma-count">${m.count} uses</div>
+        <label class="ma-toggle">
+          <input type="checkbox" ${m.on?'checked':''}>
+          <div class="ma-toggle-track"></div>
+          <div class="ma-toggle-thumb"></div>
+        </label>
+        <button class="btn btn-sm" style="margin-left:4px">Edit</button>
+      </div>`).join('') + '</div>';
+  body.appendChild(card);
+}
+buildMarketing();
+
+// ── MEDIA SOURCES ──
+const MS = [
+  {name:'Walk-in',     icon:'🚶', count:203},
+  {name:'Instagram',   icon:'📸', count:142},
+  {name:'Referral',    icon:'👥', count:91},
+  {name:'Google',      icon:'🔍', count:56},
+  {name:'TikTok',      icon:'🎵', count:88},
+  {name:'Facebook',    icon:'💬', count:34},
+  {name:'Website',     icon:'🌐', count:39},
+  {name:'Roadshow',    icon:'🎪', count:18},
+  {name:'Call In',     icon:'📞', count:27},
+  {name:'Corporate',   icon:'🏢', count:14},
+];
+const msGrid = document.getElementById('msGrid');
+MS.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'ms-item';
+  div.innerHTML = `<div class="ms-icon">${m.icon}</div><div class="ms-name">${m.name}</div><div class="ms-count">${m.count} refs</div><button class="btn btn-sm" style="margin-left:auto">Edit</button>`;
+  msGrid.appendChild(div);
+});
+
+// ── OUTLETS ──
+const OUTLETS = [
+  {name:'Causeway Point',      code:'CWP', brand:'sl',  hours:'10:00 – 22:00', status:'open',  addr:'1 Woodlands Sq, #03-12'},
+  {name:'Jurong Point',        code:'JP',  brand:'sl',  hours:'10:00 – 22:00', status:'open',  addr:'1 Jurong West Central 2, #02-45'},
+  {name:'Westgate',            code:'WGT', brand:'sl',  hours:'10:00 – 22:00', status:'open',  addr:'3 Gateway Dr, #03-28'},
+  {name:'Nicolás Wheelock',    code:'NWL', brand:'sl',  hours:'10:00 – 22:00', status:'open',  addr:'238 Thomson Rd, #01-05'},
+  {name:'Mall of Asia',        code:'MOA', brand:'sc',  hours:'10:00 – 21:00', status:'open',  addr:'Mall of Asia, Building C'},
+  {name:'CWP Clinic',          code:'CWPC',brand:'sc',  hours:'10:00 – 20:00', status:'open',  addr:'1 Woodlands Sq, #03-14'},
+  {name:'Sengkang',            code:'SKG', brand:'tl',  hours:'10:00 – 21:00', status:'open',  addr:'Compass One, #04-18'},
+  {name:'Tampines',            code:'TAM', brand:'tl',  hours:'10:00 – 21:00', status:'closed', addr:'Tampines Mall, #02-30'},
+];
+const outletGrid = document.getElementById('outletGrid');
+const brandLabels = {sl:'SkinLab Medical Spa', sc:'SL Aesthetic Clinic', tl:'TrichoLab'};
+OUTLETS.forEach(o => {
+  const div = document.createElement('div');
+  div.className = 'outlet-card';
+  div.innerHTML = `
+    <div class="outlet-card-head">
+      <div>
+        <div class="outlet-name">${o.name}</div>
+        <span class="outlet-brand ${o.brand}">${brandLabels[o.brand]}</span>
+      </div>
+      <span class="outlet-status ${o.status}">${o.status === 'open' ? 'Active' : 'Inactive'}</span>
+    </div>
+    <div class="outlet-meta">${o.addr}</div>
+    <div class="outlet-footer">
+      <div class="outlet-hours">⏰ ${o.hours}</div>
+      <button class="btn btn-sm">Edit</button>
+    </div>`;
+  outletGrid.appendChild(div);
+});
+
+// ── USER ROLES ──
+const ROLES = [
+  {name:'Super Admin',    icon:'🛡️', bg:'var(--danger-bg)',   desc:'Full system access across all outlets and brands',                 staff:2,  perms:['All modules','All outlets','User management','Audit access']},
+  {name:'Outlet Manager', icon:'🏪', bg:'rgba(169,128,118,.12)', desc:'Full access within assigned outlet; cross-outlet appt visibility', staff:18, perms:['Appointments','Checkout','Reports','Roster']},
+  {name:'Consultant',     icon:'💼', bg:'var(--info-bg)',     desc:'Sales, customer service and package operations',                   staff:24, perms:['Appointments','Checkout','Customers','No finance']},
+  {name:'Therapist',      icon:'💆', bg:'rgba(138,158,122,.15)', desc:'Own schedule view, treatment delivery, no financial data',         staff:86, perms:['My Schedule','Customers (view)','No checkout $']},
+  {name:'Front Desk',     icon:'🖥️', bg:'rgba(200,168,158,.18)', desc:'Appointment management and checkout operations',                   staff:31, perms:['Appointments','Checkout','Customers','No reports']},
+  {name:'Doctor',         icon:'🩺', bg:'var(--success-bg)',  desc:'Clinical access, case notes, treatment consent forms',             staff:12, perms:['Clinic patients','Case notes','Consents','No spa POS']},
+];
+const rolesGrid = document.getElementById('rolesGrid');
+ROLES.forEach(r => {
+  const div = document.createElement('div');
+  div.className = 'role-card';
+  div.innerHTML = `
+    <div class="role-icon" style="background:${r.bg}">${r.icon}</div>
+    <div class="role-info">
+      <div class="role-name">${r.name}</div>
+      <div class="role-desc">${r.desc}</div>
+      <div class="role-staff-count"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="4" r="2" stroke="currentColor" stroke-width="1.1"/><path d="M1.5 11c0-1.93 1.57-3.5 3.5-3.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="9.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.1"/></svg>${r.staff} staff assigned</div>
+      <div class="perm-grid">${r.perms.map(p=>`<span class="perm-chip">${p}</span>`).join('')}</div>
+    </div>
+    <button class="btn btn-sm" style="flex-shrink:0;align-self:flex-start">Edit</button>`;
+  rolesGrid.appendChild(div);
+});
+
+// ── SIDEBAR CHEVRONS ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (item.querySelector('.nav-chevron')) {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Package Usage</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060; --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e; --info-bg:rgba(90,122,158,0.1);
+  --gold:#c8962a; --gold-bg:rgba(200,150,42,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+  --gold:#d4a830; --gold-bg:rgba(212,168,48,0.12);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s,color .3s}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0;text-decoration:none}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px;text-decoration:none;display:block}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-left{display:flex;flex-direction:column;gap:1px;flex:1}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:11.5px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-muted);position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer}
+.topbar-btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.topbar-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.topbar-btn.primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.topbar-btn.primary:hover{background:var(--shitake)}
+
+/* ─── LAYOUT ─── */
+.page-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.page-body::-webkit-scrollbar{width:4px}
+.page-body::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* ─── CUSTOMER DRAWER ─── */
+.cust-toggle{display:flex;align-items:center;gap:6px;padding:6px 13px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-secondary);font-weight:500;transition:all .15s;white-space:nowrap}
+.cust-toggle:hover{background:var(--surface-2);color:var(--text-primary)}
+.cust-toggle.active{background:var(--sidebar-active-bg);border-color:var(--accent);color:var(--accent)}
+.cust-count-badge{font-size:10px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);padding:1px 6px;border-radius:99px;font-weight:400}
+.cust-toggle.active .cust-count-badge{background:rgba(122,104,86,.1);border-color:rgba(122,104,86,.2);color:var(--text-secondary)}
+.drawer-overlay{position:fixed;inset:0;background:rgba(33,35,34,.2);z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(1px)}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.cust-drawer{position:fixed;top:64px;right:0;width:320px;height:calc(100vh - 64px);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;z-index:21;transform:translateX(100%);transition:transform .25s cubic-bezier(.32,.72,0,1);box-shadow:-8px 0 32px rgba(33,35,34,.08)}
+.cust-drawer.open{transform:translateX(0)}
+.sp-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sp-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sp-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.sp-close{width:26px;height:26px;border:1px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;transition:all .15s}
+.sp-close:hover{background:var(--surface-2)}
+.sp-search{position:relative}
+.sp-search-ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.sp-search-in{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0 9px 0 28px;height:32px;width:100%;outline:none;transition:all .2s}
+.sp-search-in::placeholder{color:var(--text-placeholder);font-size:12px}
+.sp-search-in:focus{border-color:var(--accent)}
+.sp-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.sp-list::-webkit-scrollbar{width:3px}
+.sp-list::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.sp-item{display:flex;align-items:center;gap:11px;padding:11px 18px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border-soft)}
+.sp-item:hover{background:var(--surface-2)}
+.sp-item.active{background:rgba(122,104,86,.07);border-right:2px solid var(--accent)}
+.sp-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:15px;font-weight:500;color:white;flex-shrink:0}
+.sp-info{flex:1;min-width:0}
+.sp-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-meta{font-size:11px;color:var(--text-muted);margin-top:1px;display:flex;align-items:center;gap:5px}
+.sp-flags{display:flex;gap:3px;flex-shrink:0}
+.sp-flag{font-size:10px;line-height:1}
+
+/* ─── PACKAGE PANEL ─── */
+.pkg-panel{flex:1;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.pkg-panel::-webkit-scrollbar{width:4px}
+.pkg-panel::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* empty state */
+.pkg-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:60px 40px}
+.pkg-empty svg{opacity:.2}
+.pkg-empty-title{font-family:'EB Garamond',serif;font-size:20px;font-weight:400;color:var(--text-muted);letter-spacing:.01em}
+.pkg-empty-sub{font-size:12.5px;color:var(--text-muted);text-align:center;line-height:1.6;max-width:280px}
+
+/* customer header */
+.cust-header{padding:20px 28px 0;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.cust-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:16px}
+.cust-av-wrap{display:flex;align-items:center;gap:14px}
+.cust-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:20px;font-weight:500;color:white;flex-shrink:0;position:relative}
+.cust-online{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:#6a8f5a;border:2px solid var(--surface)}
+.cust-name{font-size:18px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em;line-height:1.1}
+.cust-meta{font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cust-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--border-mid);flex-shrink:0}
+.badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.badge.gold{color:var(--gold);background:var(--gold-bg);border:1px solid rgba(200,150,42,.25)}
+.badge.vip{background:rgba(169,128,118,.12);color:var(--mocha-mousse);border:1px solid rgba(169,128,118,.25)}
+.badge.allergy{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.25);display:flex;align-items:center;gap:3px}
+.cust-actions{display:flex;gap:7px;flex-shrink:0}
+
+/* credit summary strip */
+.credit-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.cs-cell{padding:12px 0;text-align:center;border-right:1px solid var(--border)}
+.cs-cell:last-child{border-right:none}
+.cs-val{font-family:'DM Sans',system-ui,sans-serif;font-size:17px;font-weight:600;color:var(--text-primary);line-height:1.1}
+.cs-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:3px}
+.cs-sub{font-size:10.5px;color:var(--text-muted);margin-top:1px}
+
+/* package content */
+.pkg-content{padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+/* section label */
+.section-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border-soft)}
+
+/* package card */
+.pkg-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s}
+.pkg-card:hover{border-color:var(--border-mid)}
+.pkg-card-head{padding:14px 18px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--border-soft)}
+.pkg-card-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pkg-card-info{flex:1;min-width:0}
+.pkg-card-name{font-size:13.5px;font-weight:600;color:var(--text-primary);line-height:1.2}
+.pkg-card-code{font-size:11px;color:var(--text-muted);margin-top:2px}
+.pkg-card-actions{display:flex;gap:6px;flex-shrink:0;align-items:flex-start}
+.pkg-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.pkg-badge.active{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.pkg-badge.expiring{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2)}
+.pkg-badge.expired{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.pkg-badge.used{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+.pkg-card-body{padding:14px 18px;display:flex;align-items:center;gap:20px}
+.pkg-sessions{display:flex;flex-direction:column;gap:4px;flex:1}
+.pkg-sess-row{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+.pkg-sess-label{color:var(--text-muted)}
+.pkg-sess-val{font-weight:600;color:var(--text-primary)}
+.pkg-bar-wrap{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:4px}
+.pkg-bar{height:100%;border-radius:99px;transition:width .4s ease}
+.pkg-bar.green{background:linear-gradient(90deg,#8a9e7a,#a8bc96)}
+.pkg-bar.amber{background:linear-gradient(90deg,#c8962a,#d4a85e)}
+.pkg-bar.red{background:linear-gradient(90deg,#a06060,#c08080)}
+.pkg-meta-col{display:flex;flex-direction:column;gap:3px;text-align:right;flex-shrink:0}
+.pkg-meta-val{font-size:12px;color:var(--text-secondary);font-weight:500}
+.pkg-meta-label{font-size:10.5px;color:var(--text-muted)}
+.pkg-use-btn{display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--accent);background:var(--accent);color:#faf9f5;white-space:nowrap}
+.pkg-use-btn:hover{background:var(--shitake)}
+.pkg-use-btn.secondary{background:transparent;color:var(--text-secondary);border-color:var(--border)}
+.pkg-use-btn.secondary:hover{background:var(--surface-2);color:var(--text-primary)}
+.pkg-use-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* usage history inside card */
+.pkg-history{border-top:1px solid var(--border-soft);padding:10px 18px 14px}
+.pkg-history-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;display:block}
+.usage-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-soft)}
+.usage-row:last-child{border-bottom:none}
+.usage-date{font-family:'EB Garamond',serif;font-size:16px;color:var(--text-primary);line-height:1;min-width:26px;text-align:center}
+.usage-month{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;text-align:center}
+.usage-line{width:1px;height:28px;background:var(--border);flex-shrink:0}
+.usage-info{flex:1;min-width:0}
+.usage-svc{font-size:12.5px;font-weight:500;color:var(--text-primary)}
+.usage-therapist{font-size:11px;color:var(--text-muted);margin-top:1px}
+.usage-deduct{font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0}
+
+/* credit package card */
+.credit-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;gap:16px;align-items:flex-start}
+.credit-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.credit-card-body{flex:1;min-width:0}
+.credit-card-name{font-size:13.5px;font-weight:600;color:var(--text-primary)}
+.credit-card-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.credit-card-val{font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:var(--text-primary);margin-top:8px;line-height:1}
+.credit-card-sub{font-size:11.5px;color:var(--text-muted);margin-top:3px}
+.credit-card-actions{display:flex;gap:6px;margin-top:10px}
+
+/* redeem modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(33,35,34,.3);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(2px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:480px;box-shadow:0 20px 60px rgba(33,35,34,.15);transform:translateY(10px) scale(.97);transition:transform .2s ease;display:flex;flex-direction:column;gap:20px}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-title{font-family:'EB Garamond',serif;font-size:22px;font-weight:400;color:var(--text-primary);line-height:1.1}
+.modal-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.modal-close{width:28px;height:28px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;flex-shrink:0;transition:all .15s}
+.modal-close:hover{background:var(--surface-2)}
+.modal-pkg-strip{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.modal-pkg-name{font-size:13px;font-weight:600;color:var(--text-primary)}
+.modal-pkg-meta{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+.modal-pkg-balance{margin-left:auto;text-align:right;flex-shrink:0}
+.modal-pkg-bal-val{font-size:16px;font-weight:600;color:var(--text-primary);line-height:1}
+.modal-pkg-bal-label{font-size:10.5px;color:var(--text-muted)}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+.field-input{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;width:100%;outline:none;transition:all .2s}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08);background:var(--surface)}
+.field-input::placeholder{color:var(--text-placeholder)}
+.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' stroke='%2380756a' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
+.served-row{display:flex;gap:8px;align-items:center}
+.served-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:var(--bg);cursor:pointer;transition:all .15s}
+.served-chip:hover{border-color:var(--border-mid)}
+.served-chip.active{border-color:var(--accent);background:rgba(122,104,86,.06)}
+.served-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:10px;color:white;flex-shrink:0}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:9px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.btn-primary:hover{background:var(--shitake);box-shadow:0 3px 10px rgba(122,104,86,.22)}
+
+/* type tabs */
+.type-tabs{display:flex;gap:4px;padding:0 20px 0;margin-bottom:-1px}
+.type-tab{font-family:'Cormorant Garamond',serif;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:10px 14px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.type-tab:hover{color:var(--text-secondary)}
+.type-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.pkg-content{animation:fadeUp .25s ease both}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Package Usage</h1>
+      <p>Redeem sessions or contra package value · Causeway Point</p>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="openModal(null)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Create Usage
+      </button>
+      <button class="cust-toggle" id="custToggle" onclick="toggleDrawer()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        All Customers
+        <span class="cust-count-badge">2,847</span>
+      </button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <div class="pkg-panel" id="pkgPanel">
+      <!-- empty state by default -->
+      <div class="pkg-empty" id="pkgEmpty">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="12" width="32" height="28" rx="4" stroke="var(--text-muted)" stroke-width="1.8"/><path d="M16 12V9a8 8 0 0116 0v3" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"/><path d="M18 24h12M18 30h8" stroke="var(--text-muted)" stroke-width="1.6" stroke-linecap="round" opacity=".5"/></svg>
+        <div class="pkg-empty-title">Select a customer</div>
+        <div class="pkg-empty-sub">Search for a customer on the left to view their active packages and redeem sessions</div>
+      </div>
+
+      <!-- customer view (hidden until selected) -->
+      <div id="custView" style="display:none;flex-direction:column">
+
+        <!-- customer header -->
+        <div class="cust-header">
+          <div class="cust-header-top">
+            <div class="cust-av-wrap">
+              <div class="cust-av" id="cvAv" style="background:linear-gradient(135deg,#c8a89e,#7a6856)">W
+                <div class="cust-online"></div>
+              </div>
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+                  <div class="cust-name" id="cvName">Wendy Goh</div>
+                  <span class="badge gold">Gold</span>
+                  <span class="badge vip">VIP</span>
+                  <span class="badge allergy"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 1.5L1 10h10L6 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 5v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Allergy</span>
+                </div>
+                <div class="cust-meta" id="cvMeta">
+                  <span>+65 9087 1117</span>
+                  <span class="cust-meta-dot"></span>
+                  <span>Ref: SB-001234</span>
+                  <span class="cust-meta-dot"></span>
+                  <span>Member since Mar 2021</span>
+                </div>
+              </div>
+            </div>
+            <div class="cust-actions">
+              <button class="topbar-btn" onclick="openModal(null)">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                Redeem Session
+              </button>
+              <a class="topbar-btn" href="skinlab-customer-360.html">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                Full Profile
+              </a>
+            </div>
+          </div>
+
+          <!-- credit strip -->
+          <div class="credit-strip">
+            <div class="cs-cell">
+              <div class="cs-val">4</div>
+              <div class="cs-label">Active Packages</div>
+              <div class="cs-sub">1 expiring soon</div>
+            </div>
+            <div class="cs-cell">
+              <div class="cs-val">$320</div>
+              <div class="cs-label">Store Credit</div>
+              <div class="cs-sub">Available balance</div>
+            </div>
+            <div class="cs-cell">
+              <div class="cs-val">$120</div>
+              <div class="cs-label">Contra Value</div>
+              <div class="cs-sub">Cross-outlet</div>
+            </div>
+            <div class="cs-cell">
+              <div class="cs-val" style="color:var(--success)">$0</div>
+              <div class="cs-label">Outstanding</div>
+              <div class="cs-sub">No balance due</div>
+            </div>
+          </div>
+
+          <!-- type tabs -->
+          <div class="type-tabs">
+            <div class="type-tab active" onclick="switchTab(this,'active')">Active Packages</div>
+            <div class="type-tab" onclick="switchTab(this,'credits')">Credits</div>
+            <div class="type-tab" onclick="switchTab(this,'history')">Usage History</div>
+            <div class="type-tab" onclick="switchTab(this,'expired')">Expired</div>
+          </div>
+        </div>
+
+        <!-- pkg content -->
+        <div class="pkg-content" id="pkgContent"></div>
+
+      </div><!-- /custView -->
+    </div><!-- /pkgPanel -->
+  </div><!-- /page-body -->
+</main>
+
+<!-- CUSTOMER DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="cust-drawer" id="custDrawer">
+  <div class="sp-head">
+    <div class="sp-head-row">
+      <div class="sp-title">Customer Directory <span style="font-size:11px;color:var(--text-muted);font-weight:400">2,847 clients</span></div>
+      <button class="sp-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="sp-search">
+      <svg class="sp-search-ic" width="11" height="11" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input class="sp-search-in" type="text" placeholder="Search by name, mobile, or Ref No…" id="custSearch">
+    </div>
+  </div>
+  <div class="sp-list" id="custList"></div>
+</div>
+
+<!-- REDEEM MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Redeem Session</div>
+        <div class="modal-sub" id="modalSub">Select a package to redeem from</div>
+      </div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+
+    <!-- pkg selector -->
+    <div class="field-group">
+      <label class="field-label">Package</label>
+      <select class="field-input field-select" id="modalPkgSelect" onchange="updateModalPkg()">
+        <option value="">Select package…</option>
+        <option value="0">HydraFacial Platinum 6x — 2 sessions left</option>
+        <option value="1">LuminaLift 6x — 4 sessions left ⚠ Expiring soon</option>
+        <option value="2">Pico Rejuvenate 3x — 3 sessions left</option>
+      </select>
+    </div>
+
+    <!-- selected pkg strip -->
+    <div class="modal-pkg-strip" id="modalPkgStrip" style="display:none">
+      <div>
+        <div class="modal-pkg-name" id="mPkgName">HydraFacial Platinum 6x</div>
+        <div class="modal-pkg-meta" id="mPkgMeta">PKG-HF-006 · Purchased 10 Jan 2025</div>
+      </div>
+      <div class="modal-pkg-balance">
+        <div class="modal-pkg-bal-val" id="mPkgBal">2</div>
+        <div class="modal-pkg-bal-label">sessions left</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Treatment / Service</label>
+      <select class="field-input field-select">
+        <option value="">Select treatment…</option>
+        <option>HydraFacial Platinum (75 min)</option>
+        <option>HydraFacial Express (45 min)</option>
+        <option>LuminaLift Facial (90 min)</option>
+        <option>Pico Rejuvenate (45 min)</option>
+        <option>Gold Facial (60 min)</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Served By</label>
+      <div class="served-row" id="servedRow"></div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Notes (optional)</label>
+      <input class="field-input" type="text" placeholder="e.g. customer requested extra extraction…">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmRedeem()">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Confirm Redemption
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── THEME ──
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+});
+
+// ── DRAWER ──
+let drawerOpen = false;
+function toggleDrawer() { drawerOpen ? closeDrawer() : openDrawer(); }
+function openDrawer() {
+  drawerOpen = true;
+  document.getElementById('custDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('custToggle').classList.add('active');
+  setTimeout(() => document.getElementById('custSearch').focus(), 260);
+}
+function closeDrawer() {
+  drawerOpen = false;
+  document.getElementById('custDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('custToggle').classList.remove('active');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawerOpen) closeDrawer(); });
+
+// ── SIDEBAR CHEVRONS ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (item.querySelector('.nav-chevron')) {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  }
+});
+</script>
+</body>
+</html>

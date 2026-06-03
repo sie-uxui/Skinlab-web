@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --whitecap-gray:#e1d7cb;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --accent:#7a6856; --accent-warm:#a98076; --accent-soft:#c8a89e;
+
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --accent:#d1baa2; --accent-warm:#c8a89e; --accent-soft:#a98076;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070;  --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe;    --info-bg:rgba(122,154,190,0.12);
+}
+
+/* ─── BASE ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s ease,color .3s ease}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:81px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+/* Scrollbar — on-theme, barely visible */
+.nav-section{padding:22px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-track{background:transparent}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-section::-webkit-scrollbar-thumb:hover{background:rgba(122,104,86,.35)}
+[data-theme="dark"] .nav-section{scrollbar-color:rgba(209,186,162,.12) transparent}
+[data-theme="dark"] .nav-section::-webkit-scrollbar-thumb{background:rgba(209,186,162,.15)}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 10px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit;}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+/* Badge — DM Sans numerals, clean pill */
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;letter-spacing:0;min-width:20px;text-align:center}
+/* Chevron — SVG caret, not a text character */
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease,opacity .2s}
+.nav-chevron svg{display:block}
+.nav-item:hover .nav-chevron,.nav-item.open .nav-chevron{opacity:.7}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+/* Sub-nav items — indented with a small dot indicator */
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px;gap:0}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--sidebar-muted);padding:6px 12px;cursor:pointer;transition:all .15s;border-radius:8px;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.sidebar-footer{padding:20px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:white;flex-shrink:0}
+.therapist-info{flex:1;min-width:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN + TOPBAR ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:81px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-left h1{font-family:'DM Sans',system-ui,sans-serif;font-size:19px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.date-chip{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:transparent}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px;line-height:1}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;flex-shrink:0}
+
+/* ─── ROLE SWITCHER ─── */
+.role-switcher{position:relative}
+.role-trigger{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--border);border-radius:99px;background:transparent;cursor:pointer;transition:all .2s;font-family:'DM Sans',system-ui,sans-serif}
+.role-trigger:hover{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-trigger-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.role-trigger-label{font-size:12.5px;font-weight:500;color:var(--text-primary);letter-spacing:.01em}
+.role-trigger-caret{width:14px;height:14px;display:flex;align-items:center;justify-content:center;opacity:.45;transition:transform .2s,opacity .2s;flex-shrink:0}
+.role-switcher.open .role-trigger-caret{transform:rotate(180deg);opacity:.7}
+.role-switcher.open .role-trigger{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.role-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:248px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(58,47,36,.1),0 2px 8px rgba(58,47,36,.06);padding:8px;z-index:100;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:opacity .18s ease,transform .18s ease;transform-origin:top right}
+.role-switcher.open .role-dropdown{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.role-dropdown-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);font-weight:600;padding:6px 10px 8px;display:block}
+.role-option{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
+.role-option:hover{background:var(--surface-2)}
+.role-option.selected{background:var(--sidebar-active-bg)}
+.role-option-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.role-option-text{flex:1;min-width:0}
+.role-option-name{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.2}
+.role-option.selected .role-option-name{color:var(--accent)}
+.role-option-desc{font-size:11px;color:var(--text-muted);margin-top:1px}
+.role-check{width:14px;height:14px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.role-option.selected .role-check{opacity:1}
+
+/* ─── CONTENT ─── */
+.content{padding:32px 36px;display:flex;flex-direction:column;gap:24px}
+
+/* ─── STAT CARDS ─── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 22px 18px;position:relative;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(122,104,86,.09);border-color:rgba(122,104,86,.22)}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--frosted-almond),transparent);opacity:0;transition:opacity .2s}
+.stat-card:hover::after{opacity:1}
+.stat-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.stat-label{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.stat-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-value{font-family:'EB Garamond',serif;font-size:32px;font-weight:400;color:var(--text-primary);line-height:1;letter-spacing:-.01em;margin-bottom:8px}
+.stat-foot{display:flex;align-items:center;justify-content:space-between}
+.stat-change{font-size:11.5px;font-weight:500;display:flex;align-items:center;gap:4px}
+.stat-change.up{color:#7a9e68} .stat-change.down{color:var(--misty-rose)} .stat-change.neutral{color:var(--text-muted)}
+.stat-spark{height:28px;opacity:.7}
+
+/* ─── SECTION DIVIDER ─── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.section-action{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--shitake);cursor:pointer;opacity:.7;transition:opacity .15s;background:none;border:none;padding:0}
+.section-action:hover{opacity:1}
+
+/* ─── CARD BASE ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;position:relative;overflow:hidden}
+.card-title{font-family:'DM Sans',system-ui,sans-serif;font-size:14.5px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.card-sub{font-size:11.5px;color:var(--text-muted);letter-spacing:.02em;margin-top:2px}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.view-all{font-family:'Cormorant Garamond',serif;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--shitake);cursor:pointer;display:flex;align-items:center;gap:4px;margin-top:14px;opacity:.75;transition:opacity .15s;background:none;border:none;padding:0}
+.view-all:hover{opacity:1}
+
+/* ─── SCHEDULE LIST ─── */
+.schedule-list{display:flex;flex-direction:column;gap:3px}
+.schedule-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;border:1px solid transparent;transition:all .15s;cursor:pointer}
+.schedule-item:hover{background:var(--surface-2);border-color:var(--border)}
+.schedule-item.active-row{background:rgba(90,122,158,0.05);border:1px solid rgba(90,122,158,0.14)}
+.sch-time{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.1em;color:var(--oatmeal);min-width:38px;font-weight:600;text-transform:uppercase}
+.sch-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sch-info{flex:1;min-width:0}
+.sch-who{font-size:13px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.sch-what{font-size:10.5px;color:var(--oatmeal)}
+.appt-badge{font-size:9px;letter-spacing:.07em;padding:2px 9px;border-radius:10px;font-family:'Cormorant Garamond',serif;font-weight:600;white-space:nowrap}
+.badge-done    {background:rgba(138,158,122,.13);color:#6a9058}
+.badge-ongoing {background:rgba(90,122,158,.13); color:var(--info)}
+.badge-upcoming{background:rgba(201,168,158,.18);color:var(--mocha-mousse)}
+.outlet-tag{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag-orchard{background:rgba(106,143,90,.1);color:var(--success)}
+.tag-bugis   {background:rgba(90,122,158,.1); color:var(--info)}
+.tag-raffles {background:rgba(169,128,118,.12);color:var(--mocha-mousse)}
+.tag-tampines{background:rgba(160,128,64,.1);color:var(--warning)}
+
+/* ─── NOTIFICATION FEED ─── */
+.notif-feed{display:flex;flex-direction:column;gap:0}
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:all .15s;border-radius:0;position:relative}
+.notif-item:last-child{border-bottom:none;padding-bottom:0}
+.notif-item:hover{padding:13px 10px 13px 10px;margin:0 -10px;background:var(--surface-2);border-radius:10px;border-color:transparent}
+.notif-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ni-danger {background:var(--danger-bg)}
+.ni-warning{background:var(--warning-bg)}
+.ni-info   {background:var(--info-bg)}
+.ni-success{background:var(--success-bg)}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13px;color:var(--text-primary);font-weight:500;line-height:1.3}
+.notif-desc{font-size:11.5px;color:var(--text-muted);margin-top:2px;line-height:1.5}
+.notif-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.notif-time{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.08em;color:var(--oatmeal);font-weight:600}
+.notif-cta{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:3px;background:none}
+.cta-danger{color:var(--danger);border-color:rgba(160,96,96,.3);background:var(--danger-bg)}
+.cta-warning{color:var(--warning);border-color:rgba(160,128,64,.3);background:var(--warning-bg)}
+.cta-info{color:var(--info);border-color:rgba(90,122,158,.3);background:var(--info-bg)}
+.cta-muted{color:var(--text-muted);border-color:var(--border)}
+.notif-unread{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+
+/* ─── OUTLET PERFORMANCE ─── */
+.perf-toggle{display:flex;gap:4px}
+.perf-btn{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:4px 13px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-muted);transition:all .15s}
+.perf-btn.active{background:var(--jet-stream);border-color:transparent;color:var(--shitake)}
+.outlet-table{width:100%}
+.outlet-thead th{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--oatmeal);font-weight:600;padding:0 8px 10px;text-align:left}
+.outlet-thead th:last-child,.outlet-thead th:nth-last-child(2){text-align:right}
+.outlet-row{cursor:pointer;transition:background .15s;border-radius:10px}
+.outlet-row:hover td{background:var(--surface-2)}
+.outlet-row td{padding:12px 8px;vertical-align:middle}
+.outlet-row td:first-child{border-radius:10px 0 0 10px}
+.outlet-row td:last-child{border-radius:0 10px 10px 0}
+.outlet-rank{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:600}
+.rank-gold  {background:rgba(160,128,64,.14);color:var(--warning)}
+.rank-silver{background:var(--surface-2);color:var(--text-muted)}
+.rank-bronze{background:rgba(169,128,118,.14);color:var(--mocha-mousse)}
+.rank-other {background:transparent;color:var(--oatmeal);font-size:12px}
+.outlet-name{font-size:13.5px;color:var(--text-secondary);font-weight:500}
+.outlet-appts{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.04em;color:var(--oatmeal)}
+.bar-wrap{min-width:120px}
+.bar-track{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:2px}
+.bar-fill{height:100%;border-radius:99px;transition:width .8s ease}
+.bar-green{background:linear-gradient(90deg,#6a8f5a,#8ab070)}
+.bar-teal {background:linear-gradient(90deg,#7a9e6a,#9ab880)}
+.bar-amber{background:linear-gradient(90deg,#a08040,#c0a060)}
+.bar-red  {background:linear-gradient(90deg,#a06060,#c08080)}
+.outlet-rev{font-family:'EB Garamond',serif;font-size:14px;color:var(--text-primary);text-align:right;white-space:nowrap}
+.outlet-pct{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:600;letter-spacing:.04em;text-align:right;white-space:nowrap}
+.pct-high{color:var(--success)} .pct-mid{color:var(--warning)} .pct-low{color:var(--danger)}
+
+/* ─── BOTTOM ROW ─── */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* Quick actions */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+.qa-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 10px;border:1px solid var(--border);border-radius:12px;background:transparent;cursor:pointer;transition:all .2s}
+.qa-btn:hover{background:var(--surface-2);border-color:rgba(122,104,86,.24);transform:translateY(-1px);box-shadow:0 4px 12px rgba(122,104,86,.07)}
+.qa-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.qa-label{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);text-align:center;line-height:1.3}
+
+/* Therapist rows */
+.therapist-list{display:flex;flex-direction:column;gap:2px}
+.therapist-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
+.therapist-row:hover{background:var(--surface-2)}
+.t-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;color:white;flex-shrink:0}
+.t-name{font-size:13px;color:var(--text-secondary);font-weight:500}
+.t-meta{font-size:10.5px;color:var(--oatmeal)}
+.t-score{margin-left:auto;text-align:right;font-family:'EB Garamond',serif;font-size:14px;color:var(--text-primary);line-height:1.2}
+.t-pts{font-family:'Cormorant Garamond',serif;font-size:9.5px;color:var(--oatmeal);letter-spacing:.04em}
+.t-rank{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:600;flex-shrink:0}
+
+/* Low stock */
+.inv-list{display:flex;flex-direction:column;gap:9px}
+.inv-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(241,240,234,.6);border:1px solid var(--border-soft);transition:border-color .15s}
+[data-theme="dark"] .inv-item{background:rgba(37,33,24,.5)}
+.inv-item:hover{border-color:var(--border)}
+.inv-thumb{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.inv-info{flex:1;min-width:0}
+.inv-name{font-size:12.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.inv-sku{font-size:10px;color:var(--oatmeal);letter-spacing:.04em}
+.inv-stock{font-family:'EB Garamond',serif;font-size:13px;min-width:36px;text-align:right;font-weight:400}
+.inv-stock.low{color:var(--mocha-mousse)} .inv-stock.ok{color:var(--shitake)}
+
+/* Status pill */
+.status-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;display:inline-flex;align-items:center;gap:4px}
+.pill-danger{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.pill-warning{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2)}
+.pill-success{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.pill-info{background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2)}
+
+/* Footer */
+.page-footer{padding:20px 36px;border-top:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.footer-note{font-size:11px;color:var(--oatmeal);letter-spacing:.02em}
+
+/* ─── ANIMATIONS ─── */
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.pulse{animation:pulse 2s infinite}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.stat-card{animation:fadeUp .4s ease both}
+.stat-card:nth-child(1){animation-delay:.04s}
+.stat-card:nth-child(2){animation-delay:.09s}
+.stat-card:nth-child(3){animation-delay:.14s}
+.stat-card:nth-child(4){animation-delay:.19s}
+.card{animation:fadeUp .4s ease both;animation-delay:.24s}
+@keyframes barIn{from{width:0}to{width:var(--w)}}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <div class="nav-item active">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </div>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Dashboard Overview</h1>
+      <p>Welcome back — here's what's happening across all outlets today</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-chip">Tue, 09 Dec 2025</div>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="#80756a" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+
+      <!-- Role Switcher -->
+      <div class="role-switcher" id="roleSwitcher">
+        <button class="role-trigger" id="roleTrigger">
+          <div class="role-trigger-icon" style="background:var(--danger-bg)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="var(--danger)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="role-trigger-label" id="roleTriggerLabel">Admin</span>
+          <span class="role-trigger-caret">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="role-dropdown" id="roleDropdown">
+          <span class="role-dropdown-label">Switch Demo Role</span>
+          <div class="role-option selected" data-role="Admin" data-desc="Full system access" data-icon="🛡️" data-color="var(--danger-bg)" data-stroke="var(--danger)">
+            <div class="role-option-icon" style="background:var(--danger-bg)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="var(--danger)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Admin</div>
+              <div class="role-option-desc">Full system access</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Branch Manager" data-desc="Branch operations & reports">
+            <div class="role-option-icon" style="background:rgba(169,128,118,.12)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="6" width="13" height="8.5" rx="2" stroke="#a98076" stroke-width="1.3"/><path d="M4.5 6V4a3.5 3.5 0 017 0v2" stroke="#a98076" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Branch Manager</div>
+              <div class="role-option-desc">Branch operations & reports</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Consultant" data-desc="Sales & customer service">
+            <div class="role-option-icon" style="background:rgba(90,122,158,.1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="#5a7a9e" stroke-width="1.3"/><path d="M1.5 13.5c0-2.21 2.01-4 4.5-4" stroke="#5a7a9e" stroke-width="1.2" stroke-linecap="round"/><path d="M11.5 8v5M9 10.5h5" stroke="#5a7a9e" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Consultant</div>
+              <div class="role-option-desc">Sales & customer service</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="Front Desk" data-desc="Appointments & checkout">
+            <div class="role-option-icon" style="background:rgba(106,143,90,.1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#6a8f5a" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#6a8f5a" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">Front Desk</div>
+              <div class="role-option-desc">Appointments & checkout</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="role-option" data-role="HR" data-desc="Employee management">
+            <div class="role-option-icon" style="background:rgba(160,128,64,.1)">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#a08040" stroke-width="1.3"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#a08040" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="role-option-text">
+              <div class="role-option-name">HR</div>
+              <div class="role-option-desc">Employee management</div>
+            </div>
+            <svg class="role-check" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── STAT CARDS ── -->
+    <div class="stat-row">
+
+      <div class="stat-card">
+        <div class="stat-card-head">
+          <span class="stat-label">Today's Appointments</span>
+          <div class="stat-icon" style="background:rgba(169,128,118,.12)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2.5" stroke="#a98076" stroke-width="1.3"/><path d="M5 2V1m6 1V1M1 5.5h14" stroke="#a98076" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="stat-value">47</div>
+        <div class="stat-foot">
+          <span class="stat-change up">↑ 12% vs yesterday</span>
+          <svg class="stat-spark" width="60" height="28" viewBox="0 0 60 28"><polyline points="0,20 10,16 20,18 30,10 40,12 50,6 60,8" fill="none" stroke="#8a9e7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-head">
+          <span class="stat-label">Active Customers</span>
+          <div class="stat-icon" style="background:rgba(209,186,162,.18)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="#d1baa2" stroke-width="1.3"/><path d="M1 14c0-2.21 2.24-4 5-4" stroke="#d1baa2" stroke-width="1.2" stroke-linecap="round"/><circle cx="11.5" cy="5.5" r="2" stroke="#d1baa2" stroke-width="1.2"/><path d="M9.5 14c0-1.66 1.57-3 3.5-3" stroke="#d1baa2" stroke-width="1.1" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="stat-value">2,847</div>
+        <div class="stat-foot">
+          <span class="stat-change up">+127 this month</span>
+          <svg class="stat-spark" width="60" height="28" viewBox="0 0 60 28"><polyline points="0,22 10,20 20,16 30,14 40,11 50,9 60,7" fill="none" stroke="#d1baa2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-head">
+          <span class="stat-label">Today's Revenue</span>
+          <div class="stat-icon" style="background:rgba(122,104,86,.1)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#7a6856" stroke-width="1.3"/><path d="M8 4.5v7M6 6c0-1 .9-1.5 2-1.5s2 .5 2 1.5S9 7.5 8 7.5s-2 .5-2 1.5S6.9 10.5 8 10.5s2-.5 2-1.5" stroke="#7a6856" stroke-width="1.1" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="stat-value">$18,420</div>
+        <div class="stat-foot">
+          <span class="stat-change up">↑ 8% above avg</span>
+          <svg class="stat-spark" width="60" height="28" viewBox="0 0 60 28"><polyline points="0,22 10,18 20,20 30,12 40,14 50,8 60,10" fill="none" stroke="#7a6856" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-card-head">
+          <span class="stat-label">Active Packages</span>
+          <div class="stat-icon" style="background:rgba(200,168,158,.14)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L1.5 4v4c0 3.5 2.9 6.3 6.5 6.3S14.5 11.5 14.5 8V4L8 1z" stroke="#c8a89e" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="stat-value">342</div>
+        <div class="stat-foot">
+          <span class="stat-change down">24 expiring soon</span>
+          <svg class="stat-spark" width="60" height="28" viewBox="0 0 60 28"><polyline points="0,8 10,10 20,8 30,12 40,14 50,16 60,18" fill="none" stroke="#c8a89e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SCHEDULE + NOTIFICATIONS ── -->
+    <div style="display:grid;grid-template-columns:1.65fr 1fr;gap:14px">
+
+      <!-- Schedule -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Today's Schedule Highlights</div>
+            <div class="card-sub">Causeway Point · 9 appointments confirmed</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="sch-dot pulse" style="background:var(--success);width:7px;height:7px;border-radius:50%"></div>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--success);font-weight:600">Live</span>
+          </div>
+        </div>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <span class="sch-time">10:00</span>
+            <div class="sch-dot" style="background:var(--success)"></div>
+            <div class="sch-info">
+              <div class="sch-who">Dr. Sarah Chen — Mrs. Tan Li Ming</div>
+              <div class="sch-what">Botox Consultation · 60 min</div>
+            </div>
+            <span class="appt-badge badge-done">Done</span>
+            <span class="outlet-tag tag-orchard">Orchard</span>
+          </div>
+          <div class="schedule-item active-row">
+            <span class="sch-time" style="color:var(--info)">14:00</span>
+            <div class="sch-dot pulse" style="background:var(--info)"></div>
+            <div class="sch-info">
+              <div class="sch-who">Therapist Amy Wong — Jessica Lim</div>
+              <div class="sch-what">HydraFacial Package 3/5 · 75 min</div>
+            </div>
+            <span class="appt-badge badge-ongoing">In Progress</span>
+            <span class="outlet-tag tag-bugis">Bugis</span>
+          </div>
+          <div class="schedule-item">
+            <span class="sch-time">16:30</span>
+            <div class="sch-dot" style="background:var(--mocha-mousse)"></div>
+            <div class="sch-info">
+              <div class="sch-who">Therapist Lisa Tan — Rachel Wong</div>
+              <div class="sch-what">Body Contouring · 90 min</div>
+            </div>
+            <span class="appt-badge badge-upcoming">Upcoming</span>
+            <span class="outlet-tag tag-raffles">Raffles</span>
+          </div>
+          <div class="schedule-item">
+            <span class="sch-time">17:00</span>
+            <div class="sch-dot" style="background:var(--oatmeal)"></div>
+            <div class="sch-info">
+              <div class="sch-who">Therapist Mei Lin — Diana Koh</div>
+              <div class="sch-what">Pico Laser Treatment · 45 min</div>
+            </div>
+            <span class="appt-badge badge-upcoming">Upcoming</span>
+            <span class="outlet-tag tag-tampines">Tampines</span>
+          </div>
+          <div class="schedule-item">
+            <span class="sch-time">18:30</span>
+            <div class="sch-dot" style="background:var(--lily-white)"></div>
+            <div class="sch-info">
+              <div class="sch-who">Dr. Chen — Mrs. Lim Wei Ling <span style="color:var(--warning);font-size:11px">★ VIP</span></div>
+              <div class="sch-what">Filler Consultation · 30 min</div>
+            </div>
+            <span class="appt-badge badge-upcoming">Upcoming</span>
+            <span class="outlet-tag tag-orchard">Orchard</span>
+          </div>
+        </div>
+        <button class="view-all">View Full Schedule →</button>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Alerts & Notifications</div>
+            <div class="card-sub">3 items need attention</div>
+          </div>
+          <span class="status-pill pill-danger">3 Urgent</span>
+        </div>
+        <div class="notif-feed">
+          <div class="notif-item">
+            <div class="notif-unread" style="background:var(--danger)"></div>
+            <div class="notif-icon ni-danger">⚠️</div>
+            <div class="notif-body">
+              <div class="notif-title">Low Inventory Alert</div>
+              <div class="notif-desc">Vitamin C Serum at Tampines — 3 units remaining</div>
+              <div class="notif-meta">
+                <span class="notif-time">2 min ago</span>
+                <button class="notif-cta cta-danger">Restock Now</button>
+              </div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-unread" style="background:var(--warning)"></div>
+            <div class="notif-icon ni-warning">📦</div>
+            <div class="notif-body">
+              <div class="notif-title">Package Expiry Warning</div>
+              <div class="notif-desc">12 packages expiring within 7 days across all outlets</div>
+              <div class="notif-meta">
+                <span class="notif-time">18 min ago</span>
+                <button class="notif-cta cta-warning">Follow Up</button>
+              </div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-unread" style="background:var(--info)"></div>
+            <div class="notif-icon ni-info">🕐</div>
+            <div class="notif-body">
+              <div class="notif-title">Pending Confirmations</div>
+              <div class="notif-desc">8 appointments for tomorrow awaiting confirmation</div>
+              <div class="notif-meta">
+                <span class="notif-time">1 hr ago</span>
+                <button class="notif-cta cta-info">Send SMS</button>
+              </div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-unread" style="background:transparent"></div>
+            <div class="notif-icon ni-success">✅</div>
+            <div class="notif-body">
+              <div class="notif-title" style="color:var(--text-secondary)">EOD Report Generated</div>
+              <div class="notif-desc">Yesterday's report is ready to review and export</div>
+              <div class="notif-meta">
+                <span class="notif-time">Yesterday · 11:58 PM</span>
+                <button class="notif-cta cta-muted">Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="view-all">View All Notifications →</button>
+      </div>
+    </div>
+
+    <!-- ── OUTLET PERFORMANCE ── -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Outlet Performance</div>
+          <div class="card-sub">Revenue vs target across all 7 outlets</div>
+        </div>
+        <div class="perf-toggle">
+          <button class="perf-btn active">This Week</button>
+          <button class="perf-btn">MTD</button>
+        </div>
+      </div>
+      <table class="outlet-table" cellspacing="0">
+        <thead class="outlet-thead">
+          <tr>
+            <th style="width:42px"></th>
+            <th style="width:160px">Outlet</th>
+            <th>Target Attainment</th>
+            <th style="width:110px">Revenue</th>
+            <th style="width:52px">%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-gold">1</div></td>
+            <td><div class="outlet-name">Orchard</div><div class="outlet-appts">127 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-green" style="width:92%"></div></div></td>
+            <td class="outlet-rev">$42,350</td>
+            <td class="outlet-pct pct-high">92%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-silver">2</div></td>
+            <td><div class="outlet-name">Bugis</div><div class="outlet-appts">115 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-green" style="width:88%"></div></div></td>
+            <td class="outlet-rev">$38,920</td>
+            <td class="outlet-pct pct-high">88%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-bronze">3</div></td>
+            <td><div class="outlet-name">Raffles Place</div><div class="outlet-appts">102 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-teal" style="width:85%"></div></div></td>
+            <td class="outlet-rev">$35,480</td>
+            <td class="outlet-pct pct-high">85%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-other">4</div></td>
+            <td><div class="outlet-name">Tampines</div><div class="outlet-appts">94 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-amber" style="width:78%"></div></div></td>
+            <td class="outlet-rev">$31,200</td>
+            <td class="outlet-pct pct-mid">78%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-other">5</div></td>
+            <td><div class="outlet-name">Jurong East</div><div class="outlet-appts">89 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-amber" style="width:75%"></div></div></td>
+            <td class="outlet-rev">$29,850</td>
+            <td class="outlet-pct pct-mid">75%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-other">6</div></td>
+            <td><div class="outlet-name">Bedok</div><div class="outlet-appts">82 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-red" style="width:71%"></div></div></td>
+            <td class="outlet-rev">$27,640</td>
+            <td class="outlet-pct pct-low">71%</td>
+          </tr>
+          <tr class="outlet-row">
+            <td><div class="outlet-rank rank-other">7</div></td>
+            <td><div class="outlet-name">Woodlands</div><div class="outlet-appts">76 appts</div></td>
+            <td class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-red" style="width:68%"></div></div></td>
+            <td class="outlet-rev">$24,560</td>
+            <td class="outlet-pct pct-low">68%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── BOTTOM ROW ── -->
+    <div class="bottom-row">
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-head" style="margin-bottom:4px">
+          <div>
+            <div class="card-title">Quick Actions</div>
+            <div class="card-sub">Common tasks</div>
+          </div>
+        </div>
+        <div class="qa-grid">
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(169,128,118,.12)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--mocha-mousse)"><rect x="2" y="3" width="16" height="14" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M6 3V1.5M14 3V1.5M2 7.5h16M10 11.5v4M8 13.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qa-label">New Booking</div>
+          </button>
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(200,168,158,.14)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--misty-rose)"><circle cx="10" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 12v1M3.5 18c0-3.31 2.91-6 6.5-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14 15v4M12 17h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qa-label">Add Client</div>
+          </button>
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(209,186,162,.16)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--frosted-almond)"><rect x="1.5" y="4" width="17" height="11" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 8h17M5.5 12h3M12.5 12h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="qa-label">Checkout</div>
+          </button>
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(206,196,180,.2)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--oatmeal)"><path d="M10 2L3 5.5V10c0 4 3.13 7.5 7 7.5S17 14 17 10V5.5L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="qa-label">Package Usage</div>
+          </button>
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(138,158,122,.12)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:#8a9e7a"><path d="M3 14l4-4 3 3 6-7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.5" y="1.5" width="17" height="17" rx="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+            </div>
+            <div class="qa-label">Reports</div>
+          </button>
+          <button class="qa-btn">
+            <div class="qa-icon-wrap" style="background:rgba(122,104,86,.1)">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--shitake)"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 5v5.5l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="qa-label">End of Day</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Therapists -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Top Therapists</div>
+            <div class="card-sub">By service points · This week</div>
+          </div>
+        </div>
+        <div class="therapist-list">
+          <div class="therapist-row">
+            <div class="t-rank rank-gold" style="width:18px;height:18px;font-size:9px">1</div>
+            <div class="t-avatar" style="background:linear-gradient(135deg,#d1baa2,#a98076)">C</div>
+            <div><div class="t-name">Chai Ting</div><div class="t-meta">CWP · 2 sessions</div></div>
+            <div class="t-score">181<div class="t-pts">pts · ★ 5.0</div></div>
+          </div>
+          <div class="therapist-row">
+            <div class="t-rank rank-silver" style="width:18px;height:18px;font-size:9px">2</div>
+            <div class="t-avatar" style="background:linear-gradient(135deg,#c8a89e,#7a6856)">E</div>
+            <div><div class="t-name">Estee</div><div class="t-meta">CWP · 6 sessions</div></div>
+            <div class="t-score">174<div class="t-pts">pts · ★ 4.2</div></div>
+          </div>
+          <div class="therapist-row">
+            <div class="t-rank rank-bronze" style="width:18px;height:18px;font-size:9px">3</div>
+            <div class="t-avatar" style="background:linear-gradient(135deg,#8a9e7a,#6a8f5a)">T</div>
+            <div><div class="t-name">TCL Y Anne</div><div class="t-meta">WL3 · 4 sessions</div></div>
+            <div class="t-score">173<div class="t-pts">pts · ★ 4.5</div></div>
+          </div>
+          <div class="therapist-row">
+            <div class="t-rank rank-other" style="width:18px;height:18px;font-size:10px">4</div>
+            <div class="t-avatar" style="background:linear-gradient(135deg,#cec4b4,#80756a)">A</div>
+            <div><div class="t-name">Ailie</div><div class="t-meta">CWP · 2 sessions</div></div>
+            <div class="t-score">172<div class="t-pts">pts · ★ 5.0</div></div>
+          </div>
+          <div class="therapist-row">
+            <div class="t-rank rank-other" style="width:18px;height:18px;font-size:10px">5</div>
+            <div class="t-avatar" style="background:linear-gradient(135deg,#5a7a9e,#7a9abe)">I</div>
+            <div><div class="t-name">Iris Tan</div><div class="t-meta">CWP · 7 sessions</div></div>
+            <div class="t-score">170<div class="t-pts">pts · ★ 4.3</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Low Stock -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Low Stock Alert</div>
+            <div class="card-sub">3 products need attention</div>
+          </div>
+          <span class="status-pill pill-danger">Reorder</span>
+        </div>
+        <div class="inv-list">
+          <div class="inv-item">
+            <div class="inv-thumb" style="background:rgba(209,186,162,.2)">🧴</div>
+            <div class="inv-info"><div class="inv-name">Vitamin C Serum 30ml</div><div class="inv-sku">Tampines · SKU-SL-042</div></div>
+            <div class="inv-stock low">3 left</div>
+          </div>
+          <div class="inv-item">
+            <div class="inv-thumb" style="background:rgba(200,168,158,.15)">✨</div>
+            <div class="inv-info"><div class="inv-name">Hyaluronic Serum 30ml</div><div class="inv-sku">Bugis · SKU-SL-018</div></div>
+            <div class="inv-stock low">5 left</div>
+          </div>
+          <div class="inv-item">
+            <div class="inv-thumb" style="background:rgba(231,229,220,.5)">💧</div>
+            <div class="inv-info"><div class="inv-name">Peptide Repair Cream</div><div class="inv-sku">Orchard · SKU-SL-031</div></div>
+            <div class="inv-stock ok">12 left</div>
+          </div>
+        </div>
+        <button class="view-all">Manage Inventory →</button>
+      </div>
+
+    </div>
+
+    <!-- footer -->
+    <div class="page-footer">
+      <span class="footer-note">Interactive Mockup · For Demonstration Purposes Only</span>
+      <span class="footer-note">© 2025 SkinLab Medical Spa · All rights reserved</span>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Theme toggle
+  const btn = document.getElementById('themeToggle');
+  let dark = false;
+  btn.addEventListener('click', () => {
+    dark = !dark;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+    btn.textContent = dark ? '☀️' : '🌙';
+  });
+
+  // Perf toggle
+  document.querySelectorAll('.perf-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.perf-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

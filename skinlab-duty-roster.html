@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Duty Roster</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS (exact from dashboard file) ── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc; --jet-stream:#e9e0d7;
+  --oatmeal:#cec4b4; --frosted-almond:#d1baa2; --misty-rose:#c8a89e;
+  --mocha-mousse:#a98076; --fallen-rock:#80756a; --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a; --text-placeholder:#b0a090;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060;  --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e;    --info-bg:rgba(90,122,158,0.1);
+  /* shift colours */
+  --shift-morning-bg:#e8f2e4; --shift-morning-border:#a8c8a0; --shift-morning-text:#3a6030;
+  --shift-full-bg:#e4edf7;    --shift-full-border:#90aed0;    --shift-full-text:#2a5278;
+  --shift-pm-bg:#f5ede0;      --shift-pm-border:#d4a860;      --shift-pm-text:#8a5e20;
+  --shift-off-bg:#f0ece8;     --shift-off-border:#c0b0a0;     --shift-off-text:#806858;
+  --shift-leave-bg:#faf0f0;   --shift-leave-border:#d4a0a0;   --shift-leave-text:#904040;
+  --shift-mc-bg:#f4f0fa;      --shift-mc-border:#b8a0d0;      --shift-mc-text:#5a3a7a;
+  --shift-ph-bg:#fdf4e0;      --shift-ph-border:#d4c060;      --shift-ph-text:#786020;
+  --shift-doc-bg:#e4f0f8;     --shift-doc-border:#80b8d8;     --shift-doc-text:#1a5078;
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a; --text-placeholder:#5a4e42;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --shift-morning-bg:#1a2c18; --shift-morning-border:#3a6030; --shift-morning-text:#80b070;
+  --shift-full-bg:#182030;    --shift-full-border:#3a6090;    --shift-full-text:#7aaad8;
+  --shift-pm-bg:#2a2010;      --shift-pm-border:#8a6020;      --shift-pm-text:#d4a060;
+  --shift-off-bg:#262220;     --shift-off-border:#6a5848;     --shift-off-text:#9a8878;
+  --shift-leave-bg:#2a1a1a;   --shift-leave-border:#804040;   --shift-leave-text:#d08080;
+  --shift-mc-bg:#201828;      --shift-mc-border:#6a4890;      --shift-mc-text:#b090d8;
+  --shift-ph-bg:#2a2408;      --shift-ph-border:#907830;      --shift-ph-text:#d4b840;
+  --shift-doc-bg:#102030;     --shift-doc-border:#305878;     --shift-doc-text:#60a8d0;
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'EB Garamond',Georgia,serif;
+  background:var(--bg); color:var(--text-primary);
+  min-height:100vh; display:flex; font-size:15px; line-height:1.6;
+  transition:background .3s ease, color .3s ease;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s ease}
+.logo-wrap{padding:0 26px;height:81px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:3px;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:22px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 10px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;font-family:'DM Sans',system-ui,sans-serif;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s ease;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+a.nav-item{text-decoration:none;color:inherit}
+a.nav-sub-item{text-decoration:none;color:inherit;}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:500;line-height:1;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s ease}
+.nav-item.open .nav-chevron{transform:rotate(180deg);opacity:.7}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px;gap:0}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--sidebar-muted);padding:6px 12px;cursor:pointer;transition:all .15s;border-radius:8px}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:20px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+
+/* ── MAIN + TOPBAR ── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:81px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-left h1{font-family:'DM Sans',system-ui,sans-serif;font-size:19px;font-weight:500;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:36px;height:36px;border:1px solid var(--border);border-radius:50%;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px;line-height:1}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8a9e7a,#6a8f5a);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer}
+
+/* ── CONTENT ── */
+.content{padding:32px 36px;display:flex;flex-direction:column;gap:24px}
+
+/* ── TOOLBAR ROW ── */
+.toolbar{display:flex;align-items:center;gap:10px;animation:fadeUp .35s ease both}
+.month-nav{display:flex;align-items:center;gap:4px}
+.mnav-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all .15s}
+.mnav-btn:hover{background:var(--surface-2);color:var(--shitake)}
+.month-label{font-family:'EB Garamond',serif;font-size:18px;font-weight:400;color:var(--text-primary);letter-spacing:.01em;padding:0 10px;min-width:160px;text-align:center}
+.today-btn{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--text-secondary);border:1px solid var(--border);border-radius:8px;background:transparent;padding:0 13px;height:32px;cursor:pointer;transition:all .15s}
+.today-btn:hover{background:var(--surface-2)}
+.toolbar-sep{flex:1}
+.outlet-selector{display:flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border);border-radius:99px;background:transparent;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-secondary);transition:all .15s}
+.outlet-selector:hover{background:var(--surface-2)}
+.tool-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-secondary);transition:all .15s;font-weight:500;white-space:nowrap}
+.tool-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.tool-btn.primary{background:var(--shitake);color:#faf9f5;border-color:var(--shitake)}
+.tool-btn.primary:hover{background:var(--fallen-rock)}
+
+/* ── SUMMARY STRIP ── */
+.summary-strip{display:flex;gap:12px;animation:fadeUp .35s ease .05s both}
+.scard{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:3px}
+.scard-val{font-family:'EB Garamond',serif;font-size:22px;color:var(--text-primary);line-height:1}
+.scard-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.scard-sub{font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ── LEGEND ── */
+.legend-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;animation:fadeUp .35s ease .08s both}
+.legend-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-right:4px}
+.legend-chip{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;cursor:pointer;transition:all .15s;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:500;border:1px solid}
+.legend-chip.morning{background:var(--shift-morning-bg);border-color:var(--shift-morning-border);color:var(--shift-morning-text)}
+.legend-chip.full{background:var(--shift-full-bg);border-color:var(--shift-full-border);color:var(--shift-full-text)}
+.legend-chip.pm{background:var(--shift-pm-bg);border-color:var(--shift-pm-border);color:var(--shift-pm-text)}
+.legend-chip.off{background:var(--shift-off-bg);border-color:var(--shift-off-border);color:var(--shift-off-text)}
+.legend-chip.leave{background:var(--shift-leave-bg);border-color:var(--shift-leave-border);color:var(--shift-leave-text)}
+.legend-chip.mc{background:var(--shift-mc-bg);border-color:var(--shift-mc-border);color:var(--shift-mc-text)}
+.legend-chip.ph{background:var(--shift-ph-bg);border-color:var(--shift-ph-border);color:var(--shift-ph-text)}
+.legend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.legend-chip.morning .legend-dot{background:var(--shift-morning-text)}
+.legend-chip.full .legend-dot{background:var(--shift-full-text)}
+.legend-chip.pm .legend-dot{background:var(--shift-pm-text)}
+.legend-chip.off .legend-dot{background:var(--shift-off-text)}
+.legend-chip.leave .legend-dot{background:var(--shift-leave-text)}
+.legend-chip.mc .legend-dot{background:var(--shift-mc-text)}
+.legend-chip.ph .legend-dot{background:var(--shift-ph-text)}
+
+/* ── ROSTER TABLE ── */
+.roster-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;animation:fadeUp .35s ease .1s both}
+.roster-table{width:100%;border-collapse:collapse;font-family:'DM Sans',system-ui,sans-serif}
+/* header */
+.rt-head{background:var(--surface-3)}
+.rt-head th{padding:10px 0;font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border);text-align:center}
+.rt-head th.staff-col{text-align:left;padding-left:20px;width:180px;min-width:160px}
+.rt-head th.day-col{width:56px;min-width:48px}
+.rt-head .day-num{font-family:'EB Garamond',serif;font-size:16px;font-weight:400;color:var(--text-primary);display:block;line-height:1;margin-bottom:1px}
+.rt-head .day-name{display:block}
+.rt-head th.today-col .day-num{color:var(--mocha-mousse)}
+.rt-head th.today-col .day-name{color:var(--mocha-mousse)}
+.rt-head th.weekend-col{opacity:.65}
+/* staff row */
+.rt-row td{padding:0;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+.rt-row:last-child td{border-bottom:none}
+.rt-row:hover .staff-cell{background:var(--surface-2)}
+.rt-row:hover .shift-cell{background:rgba(122,104,86,.03)}
+.staff-cell{padding:10px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
+.staff-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;font-weight:500}
+.staff-info{flex:1;min-width:0}
+.staff-name{font-size:13px;font-weight:500;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.staff-role{font-size:10px;color:var(--text-muted);letter-spacing:.02em;margin-top:1px}
+.shift-cell{text-align:center;padding:6px 3px;cursor:pointer;transition:background .15s;position:relative}
+.shift-cell:hover{background:rgba(169,128,118,.06) !important}
+.shift-pill{display:inline-flex;align-items:center;justify-content:center;min-width:40px;padding:4px 6px;border-radius:6px;font-size:10.5px;font-weight:600;letter-spacing:.02em;border:1px solid;line-height:1;transition:all .15s;cursor:pointer;white-space:nowrap}
+.shift-pill:hover{transform:scale(1.05);filter:brightness(1.04)}
+.shift-pill.morning{background:var(--shift-morning-bg);border-color:var(--shift-morning-border);color:var(--shift-morning-text)}
+.shift-pill.full{background:var(--shift-full-bg);border-color:var(--shift-full-border);color:var(--shift-full-text)}
+.shift-pill.pm{background:var(--shift-pm-bg);border-color:var(--shift-pm-border);color:var(--shift-pm-text)}
+.shift-pill.off{background:var(--shift-off-bg);border-color:var(--shift-off-border);color:var(--shift-off-text);opacity:.6}
+.shift-pill.leave{background:var(--shift-leave-bg);border-color:var(--shift-leave-border);color:var(--shift-leave-text)}
+.shift-pill.mc{background:var(--shift-mc-bg);border-color:var(--shift-mc-border);color:var(--shift-mc-text)}
+.shift-pill.ph{background:var(--shift-ph-bg);border-color:var(--shift-ph-border);color:var(--shift-ph-text)}
+.shift-empty{color:var(--text-placeholder);font-size:10px}
+/* summary row */
+.summary-row td{padding:8px 3px;background:var(--surface-3);border-top:1px solid var(--border);text-align:center}
+.summary-row td.summary-label{text-align:left;padding-left:20px;font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.day-count{font-family:'EB Garamond',serif;font-size:14px;font-weight:400;color:var(--text-primary)}
+.day-count-sub{font-size:9px;color:var(--text-muted);font-family:'DM Sans',system-ui,sans-serif;display:block;margin-top:1px}
+.today-col-highlight{background:rgba(169,128,118,.05)}
+
+/* ── SHIFT EDIT POPUP ── */
+.popup-overlay{position:fixed;inset:0;background:rgba(33,35,34,.35);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(2px)}
+.popup-overlay.open{opacity:1;pointer-events:all}
+.popup{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(33,35,34,.18);transform:translateY(8px) scale(.97);transition:transform .2s ease;display:flex;flex-direction:column;gap:16px}
+.popup-overlay.open .popup{transform:translateY(0) scale(1)}
+.popup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.popup-title{font-family:'EB Garamond',serif;font-size:18px;font-weight:400;color:var(--text-primary);line-height:1.1}
+.popup-sub{font-size:11.5px;color:var(--text-muted);margin-top:3px;font-family:'DM Sans',system-ui,sans-serif}
+.popup-close{width:28px;height:28px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;flex-shrink:0;transition:all .15s}
+.popup-close:hover{background:var(--surface-2)}
+.shift-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.shift-option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;background:transparent}
+.shift-option:hover{background:var(--surface-2);border-color:rgba(122,104,86,.24)}
+.shift-option.selected{border-color:var(--shitake)}
+.shift-option-label{font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:.03em}
+.shift-option-time{font-family:'DM Sans',system-ui,sans-serif;font-size:9.5px;color:var(--text-muted)}
+.popup-actions{display:flex;gap:8px}
+.btn{padding:9px 18px;border-radius:8px;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border)}
+.btn-ghost{background:transparent;color:var(--text-secondary)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-primary{background:var(--shitake);color:#faf9f5;border-color:var(--shitake);flex:1}
+.btn-primary:hover{background:var(--fallen-rock)}
+.btn-danger{background:transparent;color:var(--danger);border-color:rgba(160,96,96,.3)}
+.btn-danger:hover{background:var(--danger-bg)}
+.note-field{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);resize:none;outline:none;transition:border .15s;height:60px}
+.note-field:focus{border-color:var(--shitake)}
+.note-field::placeholder{color:var(--text-placeholder)}
+.field-label{font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:500;color:var(--text-muted);margin-bottom:5px;display:block}
+
+/* ── IMPORT/EXPORT PANEL ── */
+.io-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;display:flex;align-items:center;gap:14px;animation:fadeUp .35s ease .12s both}
+.io-icon{width:38px;height:38px;border-radius:10px;background:rgba(122,104,86,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.io-text{flex:1}
+.io-title{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;color:var(--text-primary)}
+.io-desc{font-size:11.5px;color:var(--text-muted);margin-top:1px;font-family:'DM Sans',system-ui,sans-serif}
+.io-actions{display:flex;gap:8px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub"><a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a><a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a><a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a></div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </div>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><div class="nav-sub-item active">Roster</div></div>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">M</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Melissa Tan</div>
+        <div class="therapist-role">Outlet Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Duty Roster</h1>
+      <p id="topbarSub">Causeway Point · December 2025</p>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="#80756a" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">M</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="month-nav">
+        <button class="mnav-btn" id="prevMonth">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5L4 6l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="month-label" id="monthLabel">December 2025</div>
+        <button class="mnav-btn" id="nextMonth">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5L8 6l-3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <button class="today-btn" id="todayBtn">This Month</button>
+      <div class="toolbar-sep"></div>
+      <div class="outlet-selector">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.52 1.5 3.5 3.52 3.5 6c0 3.37 4.5 8.5 4.5 8.5S12.5 9.37 12.5 6c0-2.48-2.02-4.5-4.5-4.5zm0 6a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" stroke="#80756a" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        Causeway Point ▾
+      </div>
+      <button class="tool-btn" onclick="document.getElementById('importInput').click()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v1.5A1.5 1.5 0 003.5 14h9a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Import Excel
+      </button>
+      <input type="file" id="importInput" style="display:none" accept=".xlsx,.xls,.csv">
+      <button class="tool-btn" onclick="exportRoster()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 11V2M5 5L8 2l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v1.5A1.5 1.5 0 003.5 14h9a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Export
+      </button>
+      <button class="tool-btn primary" onclick="copyWeek()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="4.5" y="4.5" width="9" height="9" rx="1.5" stroke="#faf9f5" stroke-width="1.3"/><path d="M2.5 11.5V3A1.5 1.5 0 014 1.5h8.5" stroke="#faf9f5" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Copy Week
+      </button>
+    </div>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip" id="summaryStrip"></div>
+
+    <!-- LEGEND -->
+    <div class="legend-row">
+      <span class="legend-label">Shifts</span>
+      <div class="legend-chip morning"><div class="legend-dot"></div>Morning 10–7</div>
+      <div class="legend-chip full"><div class="legend-dot"></div>Full 10–9</div>
+      <div class="legend-chip pm"><div class="legend-dot"></div>PM 12–9</div>
+      <div class="legend-chip off"><div class="legend-dot"></div>Off</div>
+      <div class="legend-chip leave"><div class="legend-dot"></div>Leave</div>
+      <div class="legend-chip mc"><div class="legend-dot"></div>MC</div>
+      <div class="legend-chip ph"><div class="legend-dot"></div>PH</div>
+    </div>
+
+    <!-- ROSTER TABLE -->
+    <div class="roster-wrap">
+      <table class="roster-table" id="rosterTable"></table>
+    </div>
+
+    <!-- IMPORT/EXPORT INFO -->
+    <div class="io-panel">
+      <div class="io-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="1.5" width="10" height="13" rx="2" stroke="#7a6856" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="#7a6856" stroke-width="1.1" stroke-linecap="round"/><rect x="9" y="8" width="5" height="5" rx="1" fill="rgba(122,104,86,.15)" stroke="#7a6856" stroke-width="1"/><path d="M11.5 10v1.5M11.5 12.5v.1" stroke="#7a6856" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div class="io-text">
+        <div class="io-title">Excel Import/Export</div>
+        <div class="io-desc">Download the template, fill shifts in Excel, then upload to populate the roster. Invalid codes or conflicts will be flagged.</div>
+      </div>
+      <div class="io-actions">
+        <button class="tool-btn">Download Template</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- SHIFT EDIT POPUP -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup">
+    <div class="popup-header">
+      <div>
+        <div class="popup-title" id="popupTitle">Edit Shift</div>
+        <div class="popup-sub" id="popupSub">—</div>
+      </div>
+      <button class="popup-close" onclick="closePopupDirect()">✕</button>
+    </div>
+    <div class="shift-grid" id="shiftGrid"></div>
+    <div>
+      <label class="field-label">Notes (optional)</label>
+      <textarea class="note-field" id="popupNote" placeholder="e.g. covering for Nadiah, approved by manager…"></textarea>
+    </div>
+    <div class="popup-actions">
+      <button class="btn btn-danger" onclick="clearShift()">Clear</button>
+      <button class="btn btn-ghost" onclick="closePopupDirect()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveShift()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const SHIFTS = [
+  { key:'morning', label:'Morning', time:'10:00 – 19:00', short:'M' },
+  { key:'full',    label:'Full Day', time:'10:00 – 21:00', short:'F' },
+  { key:'pm',      label:'PM',      time:'12:00 – 21:00', short:'PM' },
+  { key:'off',     label:'Off',     time:'Rest Day',       short:'OFF' },
+  { key:'leave',   label:'Leave',   time:'Annual Leave',   short:'AL' },
+  { key:'mc',      label:'MC',      time:'Medical Leave',  short:'MC' },
+  { key:'ph',      label:'PH',      time:'Public Holiday', short:'PH' },
+];
+
+const STAFF = [
+  { name:'Melissa Tan',    role:'Outlet Manager',   color:'#8a9e7a', initials:'M' },
+  { name:'Chai Ting',      role:'Facial Specialist',color:'#a98076', initials:'C' },
+  { name:'Nadiah Binte',   role:'Therapist',        color:'#9a8a9e', initials:'N' },
+  { name:'Priya Menon',    role:'Therapist',        color:'#7a9e8a', initials:'P' },
+  { name:'Rachel Koh',     role:'Therapist',        color:'#c8a89e', initials:'R' },
+  { name:'Siti Zubaidah',  role:'Senior Therapist', color:'#9e7a7a', initials:'S' },
+  { name:'Tammy Lim',      role:'Consultant',       color:'#7a8a9e', initials:'T' },
+  { name:'Dr. Lin Wei',    role:'Medical Officer',  color:'#5a7a9e', initials:'D' },
+  { name:'Jessie Ong',     role:'Front Desk',       color:'#b0a080', initials:'J' },
+  { name:'Amirah Harun',   role:'Therapist',        color:'#9e8a6a', initials:'A' },
+];
+
+// Seed roster data — keyed as rosterData[staffIndex][dayIndex]
+let currentYear  = 2025;
+let currentMonth = 11; // 0-indexed, 11 = December
+
+function daysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function firstDayOfMonth(y, m) { return new Date(y, m, 1).getDay(); } // 0=Sun
+
+// Generate seeded roster
+function seedRoster(y, m) {
+  const days = daysInMonth(y, m);
+  const data = {};
+  const patterns = [
+    ['full','full','morning','morning','off','pm','full'],
+    ['morning','morning','pm','off','full','full','morning'],
+    ['pm','full','full','morning','morning','off','pm'],
+    ['off','morning','full','full','pm','morning','full'],
+    ['full','pm','morning','off','morning','full','pm'],
+    ['morning','full','off','pm','full','morning','morning'],
+    ['pm','morning','morning','full','off','pm','full'],
+    ['full','full','pm','morning','morning','leave','leave'],
+    ['morning','off','full','pm','morning','morning','full'],
+    ['pm','full','morning','morning','off','full','pm'],
+  ];
+  STAFF.forEach((s, si) => {
+    data[si] = {};
+    for (let d = 1; d <= days; d++) {
+      const dow = new Date(y, m, d).getDay(); // 0=Sun
+      // Sundays: most staff off
+      if (dow === 0 && si < 7) { data[si][d] = { shift: 'off' }; continue; }
+      const pat = patterns[si % patterns.length];
+      const idx = (d + si) % 7;
+      data[si][d] = { shift: pat[idx] };
+    }
+    // Sprinkle some MC/leave
+    if (si === 2) { data[si][5] = { shift:'mc' }; data[si][6] = { shift:'mc' }; }
+    if (si === 7) { data[si][15] = { shift:'leave' }; data[si][16] = { shift:'leave' }; data[si][17] = { shift:'leave' }; }
+  });
+  return data;
+}
+
+let rosterData = seedRoster(currentYear, currentMonth);
+
+/* ── POPUP STATE ── */
+let popupStaff = null;
+let popupDay   = null;
+let popupSelected = null;
+
+/* ── RENDER ── */
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAY_NAMES   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function render() {
+  const days   = daysInMonth(currentYear, currentMonth);
+  const today  = new Date();
+  const isCurrentMonth = today.getFullYear() === currentYear && today.getMonth() === currentMonth;
+
+  // Labels
+  document.getElementById('monthLabel').textContent = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
+  document.getElementById('topbarSub').textContent  = `Causeway Point · ${MONTH_NAMES[currentMonth]} ${currentYear}`;
+
+  // Summary
+  renderSummary(days);
+
+  // Table
+  const table = document.getElementById('rosterTable');
+  table.innerHTML = '';
+
+  // Header
+  let headHTML = `<thead class="rt-head"><tr><th class="staff-col">Staff</th>`;
+  for (let d = 1; d <= days; d++) {
+    const dow     = new Date(currentYear, currentMonth, d).getDay();
+    const isToday = isCurrentMonth && d === today.getDate();
+    const cls     = isToday ? 'day-col today-col' : (dow === 0 || dow === 6 ? 'day-col weekend-col' : 'day-col');
+    headHTML += `<th class="${cls}"><span class="day-num">${d}</span><span class="day-name">${DAY_NAMES[dow]}</span></th>`;
+  }
+  headHTML += `</tr></thead>`;
+
+  // Body
+  let bodyHTML = '<tbody>';
+  STAFF.forEach((staff, si) => {
+    bodyHTML += `<tr class="rt-row">`;
+    bodyHTML += `<td><div class="staff-cell"><div class="staff-avatar" style="background:${staff.color}">${staff.initials}</div><div class="staff-info"><div class="staff-name">${staff.name}</div><div class="staff-role">${staff.role}</div></div></div></td>`;
+    for (let d = 1; d <= days; d++) {
+      const dow     = new Date(currentYear, currentMonth, d).getDay();
+      const isToday = isCurrentMonth && d === today.getDate();
+      const cellData = rosterData[si] && rosterData[si][d];
+      const shift    = cellData ? cellData.shift : null;
+      const tdCls    = isToday ? 'shift-cell today-col-highlight' : 'shift-cell';
+      if (shift) {
+        const s = SHIFTS.find(x => x.key === shift);
+        bodyHTML += `<td class="${tdCls}" onclick="openPopup(${si},${d})"><span class="shift-pill ${shift}" title="${s ? s.time : ''}">${s ? s.short : shift.toUpperCase()}</span></td>`;
+      } else {
+        bodyHTML += `<td class="${tdCls}" onclick="openPopup(${si},${d})"><span class="shift-empty">+</span></td>`;
+      }
+    }
+    bodyHTML += `</tr>`;
+  });
+
+  // Summary row
+  bodyHTML += `<tr class="summary-row"><td class="summary-label">Staff on duty</td>`;
+  for (let d = 1; d <= days; d++) {
+    const dow = new Date(currentYear, currentMonth, d).getDay();
+    let count = 0;
+    STAFF.forEach((_, si) => {
+      const sh = rosterData[si] && rosterData[si][d] && rosterData[si][d].shift;
+      if (sh && sh !== 'off' && sh !== 'leave' && sh !== 'mc' && sh !== 'ph') count++;
+    });
+    const isToday = isCurrentMonth && d === today.getDate();
+    const low = count <= 3;
+    bodyHTML += `<td class="${isToday ? 'today-col-highlight' : ''}"><span class="day-count" style="${low ? 'color:var(--danger)' : ''}">${count}</span><span class="day-count-sub">${low ? '⚠' : ''}</span></td>`;
+  }
+  bodyHTML += `</tr></tbody>`;
+
+  table.innerHTML = headHTML + bodyHTML;
+}
+
+function renderSummary(days) {
+  let totalShifts = 0, leaves = 0, mc = 0, offDays = 0;
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === currentYear && today.getMonth() === currentMonth;
+
+  STAFF.forEach((_, si) => {
+    for (let d = 1; d <= days; d++) {
+      const sh = rosterData[si] && rosterData[si][d] && rosterData[si][d].shift;
+      if (!sh || sh === 'off') { offDays++; continue; }
+      if (sh === 'leave') { leaves++; continue; }
+      if (sh === 'mc')    { mc++; continue; }
+      totalShifts++;
+    }
+  });
+
+  // Today's count
+  let todayCount = 0;
+  if (isCurrentMonth) {
+    const td = today.getDate();
+    STAFF.forEach((_, si) => {
+      const sh = rosterData[si] && rosterData[si][td] && rosterData[si][td].shift;
+      if (sh && sh !== 'off' && sh !== 'leave' && sh !== 'mc' && sh !== 'ph') todayCount++;
+    });
+  }
+
+  const strip = document.getElementById('summaryStrip');
+  strip.innerHTML = `
+    <div class="scard">
+      <div class="scard-val">${STAFF.length}</div>
+      <div class="scard-label">Total Staff</div>
+      <div class="scard-sub">Causeway Point outlet</div>
+    </div>
+    <div class="scard">
+      <div class="scard-val">${isCurrentMonth ? todayCount : '—'}</div>
+      <div class="scard-label">On Duty Today</div>
+      <div class="scard-sub">${isCurrentMonth ? `of ${STAFF.length} staff` : 'Not current month'}</div>
+    </div>
+    <div class="scard">
+      <div class="scard-val">${leaves}</div>
+      <div class="scard-label">Leave Days</div>
+      <div class="scard-sub">This month</div>
+    </div>
+    <div class="scard">
+      <div class="scard-val">${mc}</div>
+      <div class="scard-label">MC Days</div>
+      <div class="scard-sub">This month</div>
+    </div>
+    <div class="scard">
+      <div class="scard-val">${totalShifts}</div>
+      <div class="scard-label">Shifts Scheduled</div>
+      <div class="scard-sub">Across all staff</div>
+    </div>
+  `;
+}
+
+/* ── POPUP ── */
+function openPopup(si, day) {
+  popupStaff = si;
+  popupDay   = day;
+  const staff   = STAFF[si];
+  const dow     = new Date(currentYear, currentMonth, day).getDay();
+  const cellData = rosterData[si] && rosterData[si][day];
+  popupSelected  = cellData ? cellData.shift : null;
+
+  document.getElementById('popupTitle').textContent = staff.name;
+  document.getElementById('popupSub').textContent   = `${DAY_NAMES[dow]}, ${day} ${MONTH_NAMES[currentMonth]} ${currentYear} · ${staff.role}`;
+  document.getElementById('popupNote').value        = (cellData && cellData.note) || '';
+
+  // Build shift options
+  const grid = document.getElementById('shiftGrid');
+  grid.innerHTML = SHIFTS.map(s => `
+    <div class="shift-option ${popupSelected === s.key ? 'selected' : ''}" onclick="selectShiftOption('${s.key}',this)">
+      <span class="shift-pill ${s.key}" style="margin-bottom:2px">${s.short}</span>
+      <span class="shift-option-label">${s.label}</span>
+      <span class="shift-option-time">${s.time}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('popupOverlay').classList.add('open');
+}
+
+function selectShiftOption(key, el) {
+  popupSelected = key;
+  document.querySelectorAll('.shift-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveShift() {
+  if (popupStaff === null || popupDay === null) return;
+  if (!rosterData[popupStaff]) rosterData[popupStaff] = {};
+  if (popupSelected) {
+    rosterData[popupStaff][popupDay] = {
+      shift: popupSelected,
+      note:  document.getElementById('popupNote').value.trim() || null
+    };
+  }
+  closePopupDirect();
+  render();
+}
+
+function clearShift() {
+  if (popupStaff === null || popupDay === null) return;
+  if (rosterData[popupStaff]) delete rosterData[popupStaff][popupDay];
+  closePopupDirect();
+  render();
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('popupOverlay')) closePopupDirect();
+}
+function closePopupDirect() {
+  document.getElementById('popupOverlay').classList.remove('open');
+  popupStaff = popupSelected = null;
+}
+
+/* ── NAV ── */
+document.getElementById('prevMonth').addEventListener('click', () => {
+  currentMonth--;
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  rosterData = seedRoster(currentYear, currentMonth);
+  render();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+  currentMonth++;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  rosterData = seedRoster(currentYear, currentMonth);
+  render();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  const now = new Date();
+  currentYear  = now.getFullYear();
+  currentMonth = now.getMonth();
+  rosterData = seedRoster(currentYear, currentMonth);
+  render();
+});
+
+/* ── COPY WEEK ── */
+function copyWeek() {
+  const today = new Date();
+  alert('Copy Week: copies shifts from this week to the next available week. (Full implementation ties to backend.)');
+}
+function exportRoster() {
+  alert('Export: generates an Excel/CSV file of the current roster. (Full implementation ties to backend.)');
+}
+
+/* ── THEME ── */
+const toggle = document.getElementById('themeToggle');
+toggle.addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  toggle.textContent = dark ? '🌙' : '☀️';
+});
+
+/* ── INIT ── */
+render();
+
+// Scroll today's column into view
+setTimeout(() => {
+  const todayCol = document.querySelector('.today-col-highlight');
+  if (todayCol) todayCol.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+}, 200);
+</script>
+</body>
+</html>
