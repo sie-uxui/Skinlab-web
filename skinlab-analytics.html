@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08); --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a; --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076; --mocha-mousse:#a98076; --shitake:#7a6856; --fallen-rock:#80756a;
+  --misty-rose:#c8a89e; --frosted-almond:#d1baa2; --oatmeal:#cec4b4;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060; --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e; --info-bg:rgba(90,122,158,0.1);
+  --gold:#c8962a; --gold-bg:rgba(200,150,42,0.1);
+  --chart-spa:#a98076; --chart-clinic:#5a7a9e; --chart-total:#7a6856;
+  --chart-bar1:#c8a89e; --chart-bar2:#8a9aae;
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06); --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a; --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+  --gold:#d4a830; --gold-bg:rgba(212,168,48,0.12);
+  --chart-spa:#c8a89e; --chart-clinic:#7a9abe; --chart-total:#d1baa2;
+  --chart-bar1:#a98076; --chart-bar2:#5a7a9e;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s,color .3s}
+
+/* SIDEBAR */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0;text-decoration:none}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px;text-decoration:none;display:block}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* MAIN */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;gap:10px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-left{display:flex;flex-direction:column;gap:1px;flex:1}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:11.5px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-muted);position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;transition:all .2s;font-size:15px;display:flex;align-items:center;justify-content:center}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.btn-primary:hover{background:var(--shitake)}
+.btn-sm{font-size:11.5px;padding:5px 11px}
+
+/* PERIOD TABS */
+.period-tabs{display:flex;gap:2px;background:var(--surface-2);border-radius:9px;padding:3px}
+.period-tab{font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;padding:5px 13px;border-radius:7px;cursor:pointer;color:var(--text-muted);transition:all .15s}
+.period-tab:hover{color:var(--text-primary)}
+.period-tab.active{background:var(--surface);color:var(--text-primary);box-shadow:0 1px 4px rgba(122,104,86,.1)}
+
+/* PAGE */
+.page-body{flex:1;overflow-y:auto;padding:24px 28px 60px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.page-body::-webkit-scrollbar{width:4px}
+.page-body::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* ENTITY SPLIT BANNER */
+.entity-banner{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.entity-banner-head{padding:16px 22px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between}
+.entity-banner-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.entity-banner-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+/* two entity columns */
+.entity-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.entity-cell{padding:0;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.entity-cell:last-child{border-right:none}
+/* coloured header strip per entity */
+.entity-cell-header{padding:16px 22px 14px;border-bottom:1px solid var(--border-soft)}
+.entity-cell-header.clinic{background:rgba(90,122,158,.05);border-left:3px solid var(--info)}
+.entity-cell-header.spa{background:rgba(169,128,118,.05);border-left:3px solid var(--mocha-mousse)}
+.entity-tag{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:4px;margin-bottom:10px}
+.entity-tag.spa{background:rgba(169,128,118,.12);color:var(--mocha-mousse);border:1px solid rgba(169,128,118,.25)}
+.entity-tag.clinic{background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.25)}
+.entity-type{font-size:11.5px;color:var(--text-muted);margin-bottom:10px}
+.entity-rev{font-family:'DM Sans',system-ui,sans-serif;font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.entity-rev.clinic{color:var(--info)}
+.entity-rev.spa{color:var(--mocha-mousse)}
+.entity-rev-inc{font-size:12px;color:var(--text-muted);margin-top:4px}
+.entity-rev-inc strong{color:var(--text-primary);font-weight:600}
+/* GST breakdown block */
+.entity-gst-block{padding:14px 22px;border-bottom:1px solid var(--border-soft);display:flex;flex-direction:column;gap:5px}
+.entity-gst-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px}
+.entity-gst-row-label{color:var(--text-muted)}
+.entity-gst-row-val{font-weight:500;color:var(--text-primary)}
+.entity-gst-row-val.gst{color:var(--gold);font-weight:600}
+.entity-gst-row.total-row{padding-top:6px;border-top:1px solid var(--border-soft);margin-top:2px;font-size:13px;font-weight:600}
+.entity-gst-row.total-row .entity-gst-row-label{color:var(--text-primary)}
+/* top services */
+.entity-svcs{padding:14px 22px;flex:1}
+.entity-svcs-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-bottom:8px;display:block}
+.entity-svc-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border-soft)}
+.entity-svc-row:last-child{border-bottom:none}
+.entity-svc-name{font-size:12.5px;color:var(--text-secondary)}
+.entity-svc-val{font-size:12.5px;font-weight:600;color:var(--text-primary)}
+/* footer */
+.entity-banner-footer{padding:14px 22px;background:var(--surface-3);border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.banner-footer-label{font-size:12.5px;color:var(--text-muted)}
+.banner-footer-val{display:flex;align-items:baseline;gap:8px}
+.banner-footer-big{font-family:'DM Sans',system-ui,sans-serif;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:-.01em}
+.banner-footer-breakdown{font-size:11px;color:var(--text-muted);font-weight:400}
+
+/* STAT STRIP */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stat-cell{padding:16px 20px;border-right:1px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-val{font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:var(--text-primary);line-height:1;letter-spacing:-.02em}
+.stat-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:3px}
+.stat-trend{font-size:11px;font-weight:500;margin-top:4px;display:flex;align-items:center;gap:3px}
+.stat-trend.up{color:var(--success)}
+.stat-trend.dn{color:var(--danger)}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.card-action{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);cursor:pointer;border:none;background:transparent;transition:opacity .15s}
+.card-action:hover{opacity:.7}
+.card-body{padding:18px}
+
+/* GRIDS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* CHART LEGEND */
+.chart-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* SVG CHART HELPERS */
+canvas{display:block;width:100%}
+.chart-wrap{position:relative}
+.chart-y-labels{position:absolute;left:0;top:0;bottom:24px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none}
+.chart-y-label{font-size:10px;color:var(--text-muted);text-align:right;line-height:1}
+
+/* TOP TREATMENTS BAR CHART */
+.h-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.h-bar-row:last-child{margin-bottom:0}
+.h-bar-label{font-size:12px;color:var(--text-secondary);width:160px;flex-shrink:0;text-align:right;line-height:1.2}
+.h-bar-track{flex:1;height:18px;background:var(--surface-2);border-radius:4px;overflow:hidden;position:relative}
+.h-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10.5px;font-weight:600;color:white;transition:width .6s ease}
+.h-bar-count{font-size:11px;color:var(--text-muted);width:28px;text-align:right;flex-shrink:0}
+
+/* OUTLET COMPARISON */
+.outlet-bar-group{display:flex;flex-direction:column;gap:10px}
+.outlet-bar-row{display:flex;align-items:center;gap:10px}
+.outlet-bar-name{font-size:12px;color:var(--text-secondary);width:130px;flex-shrink:0}
+.outlet-bar-track{flex:1;height:14px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.outlet-bar-fill{height:100%;border-radius:3px}
+.outlet-bar-val{font-size:12px;font-weight:600;color:var(--text-primary);width:64px;flex-shrink:0;text-align:right}
+
+/* RETENTION DONUT */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.donut-label{font-family:'EB Garamond',serif;font-size:28px;font-weight:400;color:var(--text-primary)}
+.donut-sub{font-size:11px;color:var(--text-muted)}
+
+/* LEADERBOARD */
+.lb-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.lb-pod{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.lb-pod.first{border-color:rgba(200,150,42,.3);background:rgba(200,150,42,.04)}
+.lb-medal{font-size:20px;line-height:1}
+.lb-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:16px;font-weight:500;color:white}
+.lb-name{font-size:12.5px;font-weight:600;color:var(--text-primary)}
+.lb-title{font-size:10.5px;color:var(--text-muted)}
+.lb-rev{font-family:'DM Sans',system-ui,sans-serif;font-size:15px;font-weight:600;color:var(--text-primary)}
+.lb-meta{display:flex;gap:8px;font-size:10.5px;color:var(--text-muted)}
+
+/* LEADERBOARD TABLE */
+.lb-table{width:100%;border-collapse:collapse}
+.lb-table td{padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px;vertical-align:middle}
+.lb-table tr:last-child td{border-bottom:none}
+.lb-rank{font-family:'EB Garamond',serif;font-size:16px;color:var(--text-muted);width:28px;text-align:center}
+.lb-staff-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:11px;color:white;flex-shrink:0}
+
+/* AUTOMATED REPORTS */
+.auto-report-card{background:var(--surface-3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.auto-report-card:last-child{margin-bottom:0}
+.auto-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.auto-time{font-size:11px;color:var(--text-muted);margin-left:auto}
+.report-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);margin-top:4px}
+.report-check svg{flex-shrink:0;color:var(--success)}
+
+/* PAIN POINT CALLOUT */
+.callout{background:rgba(160,128,64,.06);border:1px solid rgba(160,128,64,.18);border-radius:10px;padding:14px 16px}
+.callout-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.callout-title{font-size:13px;font-weight:600;color:var(--warning)}
+.callout-body{font-size:12px;color:var(--text-secondary);line-height:1.6}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page-body>*{animation:fadeUp .25s ease both}
+.page-body>*:nth-child(2){animation-delay:.04s}
+.page-body>*:nth-child(3){animation-delay:.08s}
+.page-body>*:nth-child(4){animation-delay:.12s}
+.page-body>*:nth-child(5){animation-delay:.16s}
+.page-body>*:nth-child(6){animation-delay:.20s}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory &amp; Profiles</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </a>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex">
+      <a class="nav-sub-item" href="skinlab-cso-dashboard.html">CSO Dashboard</a>
+      <a class="nav-sub-item" href="skinlab-reports.html">Reports</a>
+      <a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a>
+    </div>
+    <a class="nav-item active" href="skinlab-analytics.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#7a6856" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Analytics Dashboard</h1>
+      <p>Business insights &amp; performance metrics</p>
+    </div>
+    <div class="topbar-right">
+      <div class="period-tabs" id="periodTabs">
+        <div class="period-tab" onclick="setPeriod(this,'week')">This Week</div>
+        <div class="period-tab active" onclick="setPeriod(this,'month')">This Month</div>
+        <div class="period-tab" onclick="setPeriod(this,'custom')">Custom</div>
+      </div>
+      <button class="btn btn-primary btn-sm">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 11V2M4 8l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export
+      </button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- ENTITY SPLIT BANNER -->
+    <div class="entity-banner">
+      <div class="entity-banner-head">
+        <div>
+          <div class="entity-banner-title">Operations Dashboard: Clinic vs Spa Split</div>
+          <div class="entity-banner-sub">Separate entity tracking for accounting &amp; GST purposes</div>
+        </div>
+      </div>
+      <div class="entity-grid">
+
+        <!-- CLINIC -->
+        <div class="entity-cell">
+          <div class="entity-cell-header clinic">
+            <span class="entity-tag clinic">🏥 Clinic</span>
+            <div class="entity-type">Medical &amp; Injectable Services</div>
+            <div class="entity-rev clinic">$79,400</div>
+            <div class="entity-rev-inc">excl. GST &nbsp;·&nbsp; Total inc. GST: <strong>$86,546</strong></div>
+          </div>
+          <div class="entity-gst-block">
+            <div class="entity-gst-row">
+              <span class="entity-gst-row-label">Subtotal</span>
+              <span class="entity-gst-row-val">$79,400</span>
+            </div>
+            <div class="entity-gst-row">
+              <span class="entity-gst-row-label">GST 9%</span>
+              <span class="entity-gst-row-val gst">$7,146</span>
+            </div>
+            <div class="entity-gst-row total-row">
+              <span class="entity-gst-row-label">Total Inc. GST</span>
+              <span class="entity-gst-row-val">$86,546</span>
+            </div>
+          </div>
+          <div class="entity-svcs">
+            <span class="entity-svcs-label">Top Services</span>
+            <div class="entity-svc-row"><span class="entity-svc-name">Pico Laser</span><span class="entity-svc-val">$44,080</span></div>
+            <div class="entity-svc-row"><span class="entity-svc-name">Dermal Fillers</span><span class="entity-svc-val">$36,720</span></div>
+            <div class="entity-svc-row"><span class="entity-svc-name">Botox Injections</span><span class="entity-svc-val">$33,060</span></div>
+          </div>
+        </div>
+
+        <!-- SPA -->
+        <div class="entity-cell">
+          <div class="entity-cell-header spa">
+            <span class="entity-tag spa">💆 Spa</span>
+            <div class="entity-type">Facial &amp; Body Treatments</div>
+            <div class="entity-rev spa">$116,900</div>
+            <div class="entity-rev-inc">excl. GST &nbsp;·&nbsp; Total inc. GST: <strong>$127,421</strong></div>
+          </div>
+          <div class="entity-gst-block">
+            <div class="entity-gst-row">
+              <span class="entity-gst-row-label">Subtotal</span>
+              <span class="entity-gst-row-val">$116,900</span>
+            </div>
+            <div class="entity-gst-row">
+              <span class="entity-gst-row-label">GST 9%</span>
+              <span class="entity-gst-row-val gst">$10,521</span>
+            </div>
+            <div class="entity-gst-row total-row">
+              <span class="entity-gst-row-label">Total Inc. GST</span>
+              <span class="entity-gst-row-val">$127,421</span>
+            </div>
+          </div>
+          <div class="entity-svcs">
+            <span class="entity-svcs-label">Top Services</span>
+            <div class="entity-svc-row"><span class="entity-svc-name">Laser Hair Removal</span><span class="entity-svc-val">$44,100</span></div>
+            <div class="entity-svc-row"><span class="entity-svc-name">Hydrafacial</span><span class="entity-svc-val">$40,600</span></div>
+            <div class="entity-svc-row"><span class="entity-svc-name">Anti-Aging Treatment</span><span class="entity-svc-val">$20,250</span></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="entity-banner-footer">
+        <div class="banner-footer-label">Total GST to be remitted to IRAS this quarter</div>
+        <div class="banner-footer-val">
+          <span class="banner-footer-big">$17,667</span>
+          <span class="banner-footer-breakdown">Clinic: $7,146 &nbsp;·&nbsp; Spa: $10,521</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="stat-val">$196,300</div>
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-trend up">↑ 8.3% from last week</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">342</div>
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-trend up">↑ 6.2% from last week</div>
+        <div class="stat-sub" style="margin-top:2px;font-size:10.5px;display:flex;align-items:center;gap:5px">
+          Completion <span style="margin-left:4px">
+            <span style="display:inline-block;width:60px;height:4px;background:var(--surface-2);border-radius:99px;vertical-align:middle;overflow:hidden"><span style="display:block;width:94%;height:100%;background:var(--success);border-radius:99px"></span></span>
+          </span> 94%
+        </div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">$573.98</div>
+        <div class="stat-label">Avg Transaction</div>
+        <div class="stat-trend up">↑ 5.8% from last week</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-val">87.5%</div>
+        <div class="stat-label">Customer Retention</div>
+        <div id="donutMini" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- AUTOMATED DAILY REPORTS CALLOUT -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Automated Daily Reports</div>
+          <div class="card-sub">Eliminates 1–2 hours/day of manual Excel entry per outlet</div>
+        </div>
+        <span style="background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2);font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px">Auto-Generated</span>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="callout">
+          <div class="callout-head">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--warning);flex-shrink:0"><path d="M8 2L1.5 13h13L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 6v3.5M8 11v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <div class="callout-title">Current Pain Point: Double Data Entry</div>
+          </div>
+          <div class="callout-body">After every POS transaction in Studio Manager, staff manually update Excel daily sales records in <strong>different formats</strong> for Accounts, Marketing, and Operations departments. This creates errors and wastes <strong>1–2 hours daily per outlet</strong> (9 outlets = 9–18 hours/day wasted).</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="autoReports"></div>
+        <div style="background:var(--success-bg);border:1px solid rgba(106,143,90,.2);border-radius:9px;padding:11px 14px;display:flex;align-items:center;gap:10px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--success);flex-shrink:0"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 8l2.5 2.5L11 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="font-size:12.5px;color:var(--success);font-weight:500">Time Savings: 9–18 hours/day across all outlets · One source of truth · No more Excel copy-paste errors</div>
+          <div style="margin-left:auto;display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-sm">Download Sample</button>
+            <button class="btn btn-primary btn-sm">Configure Recipients</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE TREND CHART -->
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Revenue Trends</div><div class="card-sub">Spa vs Clinic vs Total · This week</div></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--chart-spa)"></div>Spa Revenue</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--chart-clinic)"></div>Clinic Revenue</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--chart-total)"></div>Total Revenue</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding:18px 18px 8px">
+        <canvas id="revenueChart" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- TOP TREATMENTS + OUTLET COMPARISON -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Top Treatments</div><div class="card-sub">By appointment volume this month</div></div></div>
+        <div class="card-body" id="topTreatments"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Outlet Comparison</div><div class="card-sub">Revenue &amp; appointments by location</div></div></div>
+        <div class="card-body" id="outletComparison"></div>
+      </div>
+    </div>
+
+    <!-- STAFF LEADERBOARD -->
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Staff Performance Leaderboard</div><div class="card-sub">Treatments completed, revenue generated &amp; satisfaction</div></div>
+        <button class="card-action" style="border:1px solid var(--border);padding:4px 10px;border-radius:7px;font-size:10px">Full Report →</button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+        <div class="lb-podium" id="podium"></div>
+        <table class="lb-table"><thead><tr>
+          <td style="font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--border)">Rank</td>
+          <td style="font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--border)">Staff Member</td>
+          <td style="font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--border);text-align:right">Treatments</td>
+          <td style="font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--border);text-align:right">Revenue</td>
+          <td style="font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding-bottom:8px;border-bottom:1px solid var(--border);text-align:right">Satisfaction</td>
+        </tr></thead><tbody id="lbTable"></tbody></table>
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+</main>
+
+<script>
+// ── THEME ──
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+  drawRevenueChart();
+});
+
+// ── PERIOD ──
+function setPeriod(el, p) {
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── AUTO REPORTS ──
+const AUTO_REPORTS = [
+  {icon:'💰', title:'Accounts Report', team:'Finance Team', items:['GST breakdown (Clinic vs Spa)','Revenue reconciliation','Payment mode summary','Credit/package usage'], time:'8:00 AM daily'},
+  {icon:'📣', title:'Marketing Report', team:'Marketing Team', items:['Marketing source attribution','New customer acquisition','Campaign performance','Conversion rates'], time:'7:00 AM daily'},
+  {icon:'⚙️', title:'Operations Report', team:'Ops Team', items:['Appointment completion rate','No-show/cancellation list','Staff utilisation','Inventory alerts'], time:'1:00 PM daily'},
+];
+document.getElementById('autoReports').innerHTML = AUTO_REPORTS.map(r => `
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:16px">${r.icon}</span>
+      <div>
+        <div style="font-size:12.5px;font-weight:600;color:var(--text-primary)">${r.title}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${r.team}</div>
+      </div>
+      <div style="margin-left:auto;font-size:10px;color:var(--text-muted)">${r.time}</div>
+    </div>
+    ${r.items.map(i => `<div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-muted);margin-bottom:3px">
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 6l2.5 2.5L9.5 3" stroke="var(--success)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${i}</div>`).join('')}
+    <div style="margin-top:8px;display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted)">
+      <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M1 9l4-4 2.5 2.5L11 3" stroke="var(--success)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Auto-sent
+    </div>
+  </div>`).join('');
+
+// ── REVENUE CHART ──
+function getThemeColors() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    spa:   style.getPropertyValue('--chart-spa').trim()   || '#a98076',
+    clinic:style.getPropertyValue('--chart-clinic').trim()|| '#5a7a9e',
+    total: style.getPropertyValue('--chart-total').trim() || '#7a6856',
+    grid:  style.getPropertyValue('--border').trim()      || 'rgba(122,104,86,0.14)',
+    text:  style.getPropertyValue('--text-muted').trim()  || '#80756a',
+    surf:  style.getPropertyValue('--surface-2').trim()   || '#e7e5dc',
+  };
+}
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SPA_DATA    = [14200, 18400, 16800, 22100, 24600, 12400, 8400];
+const CLINIC_DATA = [9800,  13200, 11400, 16800, 18200, 7200, 2800];
+const TOTAL_DATA  = SPA_DATA.map((v,i) => v + CLINIC_DATA[i]);
+
+function drawRevenueChart() {
+  const canvas = document.getElementById('revenueChart');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width - 36;
+  const H = 180;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const c = getThemeColors();
+  const padL = 52, padR = 16, padT = 12, padB = 28;
+  const cW = W - padL - padR;
+  const cH = H - padT - padB;
+  const maxVal = Math.max(...TOTAL_DATA) * 1.1;
+  const n = DAYS.length;
+
+  // grid
+  ctx.strokeStyle = c.grid; ctx.lineWidth = 1;
+  for (let g = 0; g <= 4; g++) {
+    const y = padT + (cH / 4) * g;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + cW, y); ctx.stroke();
+    ctx.fillStyle = c.text;
+    ctx.font = `10px DM Sans, system-ui, sans-serif`;
+    ctx.textAlign = 'right';
+    const val = Math.round(maxVal - (maxVal / 4) * g);
+    ctx.fillText('$' + (val >= 1000 ? (val/1000).toFixed(0)+'k' : val), padL - 6, y + 3.5);
+  }
+
+  // x labels
+  ctx.fillStyle = c.text; ctx.font = `10px DM Sans, system-ui, sans-serif`; ctx.textAlign = 'center';
+  DAYS.forEach((d,i) => {
+    const x = padL + (i / (n-1)) * cW;
+    ctx.fillText(d, x, H - 6);
+  });
+
+  // draw line helper
+  function drawLine(data, color, fill) {
+    ctx.beginPath();
+    data.forEach((v,i) => {
+      const x = padL + (i / (n-1)) * cW;
+      const y = padT + cH * (1 - v / maxVal);
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    if (fill) {
+      const lastX = padL + cW; const lastY = padT + cH;
+      ctx.lineTo(lastX, lastY); ctx.lineTo(padL, lastY); ctx.closePath();
+      ctx.fillStyle = color + '18'; ctx.fill();
+      ctx.beginPath();
+      data.forEach((v,i) => {
+        const x = padL + (i/(n-1))*cW;
+        const y = padT + cH*(1-v/maxVal);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      });
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = fill ? 1.5 : 2;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+
+    // dots
+    data.forEach((v,i) => {
+      const x = padL + (i/(n-1))*cW;
+      const y = padT + cH*(1-v/maxVal);
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() || '#faf9f5';
+      ctx.lineWidth = 1.5; ctx.stroke();
+    });
+  }
+
+  drawLine(SPA_DATA,    c.spa,   true);
+  drawLine(CLINIC_DATA, c.clinic, true);
+  drawLine(TOTAL_DATA,  c.total, false);
+}
+
+// ── TOP TREATMENTS ──
+const TREATMENTS = [
+  {name:'Hydrafacial',          count:162, max:162},
+  {name:'Laser Hair Removal',   count:124, max:162},
+  {name:'Botox Injections',     count:98,  max:162},
+  {name:'Pico Laser',           count:87,  max:162},
+  {name:'Dermal Fillers',       count:76,  max:162},
+  {name:'Anti-Aging Treatment', count:64,  max:162},
+];
+document.getElementById('topTreatments').innerHTML = TREATMENTS.map((t,i) => {
+  const pct = Math.round((t.count/t.max)*100);
+  const colors = ['#a98076','#c8a89e','#d1baa2','#8a9e7a','#9a8a9e','#80756a'];
+  return `<div class="h-bar-row">
+    <div class="h-bar-label">${t.name}</div>
+    <div class="h-bar-track">
+      <div class="h-bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}">${t.count}</div>
+    </div>
+    <div class="h-bar-count">${t.count}</div>
+  </div>`;
+}).join('');
+
+// ── OUTLET COMPARISON ──
+const OUTLETS = [
+  {name:'Causeway Point', rev:'$52,400', appts:98,  revPct:100, apptPct:100},
+  {name:'Jurong Point',   rev:'$48,200', appts:89,  revPct:92,  apptPct:91},
+  {name:'Nic. Wheelock',  rev:'$44,100', appts:76,  revPct:84,  apptPct:78},
+  {name:'Westgate',       rev:'$28,900', appts:54,  revPct:55,  apptPct:55},
+  {name:'Mall of Asia',   rev:'$22,700', appts:25,  revPct:43,  apptPct:26},
+];
+document.getElementById('outletComparison').innerHTML = `
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);font-weight:600">
+    <div style="width:130px"></div>
+    <div style="flex:1">Revenue (Monthly)</div>
+    <div style="flex:1">Appointments</div>
+    <div style="width:64px"></div>
+  </div>` +
+  OUTLETS.map(o => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+        <div class="outlet-bar-name">${o.name}</div>
+        <div class="outlet-bar-track"><div class="outlet-bar-fill" style="width:${o.revPct}%;background:var(--chart-bar1)"></div></div>
+        <div class="outlet-bar-val">${o.rev}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="outlet-bar-name"></div>
+        <div class="outlet-bar-track"><div class="outlet-bar-fill" style="width:${o.apptPct}%;background:var(--chart-bar2)"></div></div>
+        <div class="outlet-bar-val" style="color:var(--text-muted);font-weight:400">${o.appts} appts</div>
+      </div>
+    </div>`).join('') +
+  `<div style="display:flex;gap:12px;margin-top:8px">
+    <div class="legend-item" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)"><div class="legend-dot" style="width:8px;height:8px;border-radius:50%;background:var(--chart-bar1)"></div>Revenue</div>
+    <div class="legend-item" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)"><div class="legend-dot" style="width:8px;height:8px;border-radius:50%;background:var(--chart-bar2)"></div>Appointments</div>
+  </div>`;
+
+// ── LEADERBOARD ──
+const STAFF = [
+  {name:'Chai Ting',  color:'#c8a89e', treatments:24, rev:'$44,231', rating:3.6, rank:1},
+  {name:'TCL Rosie',  color:'#d1baa2', treatments:34, rev:'$43,555', rating:3.8, rank:2},
+  {name:'Ginli',      color:'#a98076', treatments:41, rev:'$34,225', rating:4.4, rank:3},
+  {name:'Na Na',      color:'#9a8a9e', treatments:33, rev:'$34,018', rating:4.8, rank:4},
+  {name:'Apple',      color:'#8a9e7a', treatments:26, rev:'$32,888', rating:4.3, rank:5},
+  {name:'TCL Rachel', color:'#ae8a8a', treatments:59, rev:'$30,922', rating:4.5, rank:6},
+  {name:'Iris Tan',   color:'#d4b89e', treatments:44, rev:'$29,835', rating:5.0, rank:7},
+  {name:'Estee',      color:'#c8a898', treatments:33, rev:'$28,905', rating:4.3, rank:8},
+  {name:'Jin Ying',   color:'#8a9aae', treatments:24, rev:'$23,921', rating:3.6, rank:9},
+  {name:'TCL Y Anne', color:'#9e9a7a', treatments:41, rev:'$17,063', rating:4.1, rank:10},
+];
+
+const MEDALS = ['🥇','🥈','🥉'];
+document.getElementById('podium').innerHTML = STAFF.slice(0,3).map((s,i) => {
+  const initials = s.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+  return `<div class="lb-pod ${i===0?'first':''}">
+    <div class="lb-medal">${MEDALS[i]}</div>
+    <div class="lb-av" style="background:${s.color}">${initials}</div>
+    <div class="lb-name">${s.name}</div>
+    <div class="lb-title">${i===0?'Top Performer':i===1?'2nd Place':'3rd Place'}</div>
+    <div class="lb-rev">${s.rev}</div>
+    <div class="lb-meta"><span>${s.treatments} treatments</span><span>★ ${s.rating}</span></div>
+  </div>`;
+}).join('');
+
+document.getElementById('lbTable').innerHTML = STAFF.map(s => {
+  const initials = s.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+  const rColor = s.rating >= 4.5 ? 'var(--success)' : s.rating >= 4.0 ? 'var(--warning)' : 'var(--danger)';
+  return `<tr>
+    <td class="lb-rank">${s.rank}</td>
+    <td><div style="display:flex;align-items:center;gap:9px">
+      <div class="lb-staff-av" style="background:${s.color}">${initials}</div>
+      <span style="font-weight:500">${s.name}</span>
+    </div></td>
+    <td style="text-align:right">${s.treatments}</td>
+    <td style="text-align:right;font-weight:600">${s.rev}</td>
+    <td style="text-align:right;color:${rColor};font-weight:600">★ ${s.rating}</td>
+  </tr>`;
+}).join('');
+
+// ── MINI DONUT ──
+(function() {
+  const wrap = document.getElementById('donutMini');
+  wrap.innerHTML = `<svg width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="18" fill="none" stroke="var(--surface-2)" stroke-width="7"/>
+    <circle cx="24" cy="24" r="18" fill="none" stroke="var(--success)" stroke-width="7"
+      stroke-dasharray="${2*Math.PI*18*0.875} ${2*Math.PI*18*0.125}"
+      stroke-dashoffset="${2*Math.PI*18*0.25}"
+      stroke-linecap="round" transform="rotate(-90 24 24)"/>
+  </svg>`;
+})();
+
+// ── INIT CHART ──
+window.addEventListener('load', () => {
+  drawRevenueChart();
+});
+window.addEventListener('resize', () => {
+  drawRevenueChart();
+});
+
+// ── SIDEBAR CHEVRONS ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (item.querySelector('.nav-chevron')) {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  }
+});
+</script>
+</body>
+</html>

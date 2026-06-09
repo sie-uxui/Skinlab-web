@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — CSO Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060; --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e; --info-bg:rgba(90,122,158,0.1);
+  --gold:#c8962a; --gold-bg:rgba(200,150,42,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+  --gold:#d4a830; --gold-bg:rgba(212,168,48,0.12);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s,color .3s}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0;text-decoration:none}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px;text-decoration:none;display:block}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-left{display:flex;flex-direction:column;gap:1px;flex:1}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:11.5px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-muted);position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.btn-primary:hover{background:var(--shitake)}
+.btn-sm{font-size:11.5px;padding:5px 11px}
+
+/* ─── PAGE ─── */
+.page-body{flex:1;overflow-y:auto;padding:24px 28px 60px;display:flex;flex-direction:column;gap:20px;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.page-body::-webkit-scrollbar{width:4px}
+.page-body::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* ─── STAT STRIP ─── */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stat-cell{padding:16px 20px;border-right:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.stat-cell:last-child{border-right:none}
+.stat-cell-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-cell-body{flex:1}
+.stat-val{font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:600;color:var(--text-primary);line-height:1;letter-spacing:-.02em}
+.stat-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:3px}
+.stat-pill{display:inline-flex;align-items:center;gap:4px;font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:99px;margin-top:5px}
+.stat-pill.auto{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.stat-pill.today{background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2)}
+.stat-pill.overdue{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.card-action{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);cursor:pointer;border:none;background:transparent;transition:opacity .15s;white-space:nowrap;flex-shrink:0}
+.card-action:hover{opacity:.7}
+
+/* ─── TWO COL ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ─── OUTLET FILTER PILLS ─── */
+.outlet-pills{display:flex;gap:5px;flex-wrap:wrap}
+.outlet-chip{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 11px;border-radius:99px;cursor:pointer;transition:all .15s;border:1px solid var(--border);color:var(--text-muted);background:transparent}
+.outlet-chip:hover{background:var(--surface-2)}
+.outlet-chip.active{background:var(--surface-2);color:var(--text-primary);border-color:var(--border-mid)}
+
+/* ─── THERAPIST TABLE ─── */
+.therapist-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border-soft);transition:background .12s;cursor:pointer}
+.therapist-row:last-child{border-bottom:none}
+.therapist-row:hover{background:var(--surface-2)}
+.th-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:14px;font-weight:500;color:white;flex-shrink:0}
+.th-info{flex:1;min-width:0}
+.th-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.th-outlet{font-size:11px;color:var(--text-muted);margin-top:1px}
+.th-metric{text-align:center;min-width:56px;flex-shrink:0}
+.th-metric-val{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;font-weight:600;color:var(--text-primary);line-height:1}
+.th-metric-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);font-weight:600;margin-top:2px}
+.th-rating{display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:500}
+.th-rating.high{color:var(--success)}
+.th-rating.mid{color:var(--warning)}
+.th-rating.low{color:var(--danger)}
+.th-detail-btn{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:4px 11px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.th-detail-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+
+/* ─── CAMPAIGN TABLE ─── */
+.campaign-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border-soft)}
+.campaign-row:last-child{border-bottom:none}
+.camp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.camp-info{flex:1;min-width:0}
+.camp-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.camp-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.camp-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;flex-shrink:0}
+.camp-badge.active{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+.camp-badge.paused{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+.camp-stat{text-align:center;min-width:44px;flex-shrink:0}
+.camp-stat-val{font-size:13px;font-weight:600;color:var(--text-primary)}
+.camp-stat-label{font-size:9.5px;color:var(--text-muted);font-family:'Cormorant Garamond',serif;letter-spacing:.08em;text-transform:uppercase}
+
+/* ─── PROGRESS BAR ─── */
+.prog-wrap{display:flex;align-items:center;gap:8px;min-width:100px}
+.prog-bar-track{flex:1;height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:99px}
+.prog-bar-fill.green{background:linear-gradient(90deg,#8a9e7a,#a8bc96)}
+.prog-bar-fill.amber{background:linear-gradient(90deg,#c8962a,#d4a85e)}
+.prog-pct{font-size:11.5px;font-weight:500;color:var(--text-secondary);min-width:30px;text-align:right}
+
+/* ─── FOLLOW-UP QUEUE ─── */
+.queue-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border-soft);transition:background .12s}
+.queue-row:last-child{border-bottom:none}
+.queue-row:hover{background:var(--surface-2)}
+.q-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:14px;font-weight:500;color:white;flex-shrink:0}
+.q-info{flex:1;min-width:0}
+.q-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.q-phone{font-size:11px;color:var(--text-muted);margin-top:1px}
+.q-reason{flex:1;min-width:0}
+.q-reason-text{font-size:12.5px;color:var(--text-secondary)}
+.q-reason-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.q-overdue{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px;flex-shrink:0}
+.q-overdue.urgent{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.q-overdue.soon{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2)}
+.q-overdue.new{background:var(--info-bg);color:var(--info);border:1px solid rgba(90,122,158,.2)}
+.q-actions{display:flex;gap:5px;flex-shrink:0}
+.q-btn{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:500;padding:5px 10px;border-radius:7px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-muted);white-space:nowrap}
+.q-btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.q-btn.call{color:var(--success);border-color:rgba(106,143,90,.3)}
+.q-btn.call:hover{background:var(--success-bg)}
+.q-btn.msg{color:var(--info);border-color:rgba(90,122,158,.3)}
+.q-btn.msg:hover{background:var(--info-bg)}
+
+/* ─── PRIORITIES / QUICK ACTIONS ─── */
+.priority-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.priority-item:last-child{border-bottom:none}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.priority-text{flex:1;font-size:12.5px;color:var(--text-primary);line-height:1.4}
+.priority-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.quick-action{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:all .15s}
+.quick-action:last-child{border-bottom:none}
+.quick-action:hover{opacity:.75}
+.qa-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.qa-label{font-size:12.5px;font-weight:500;color:var(--text-primary)}
+.qa-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+/* ─── SIDE PANEL ─── */
+.main-split{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page-body>*{animation:fadeUp .25s ease both}
+.page-body>*:nth-child(2){animation-delay:.04s}
+.page-body>*:nth-child(3){animation-delay:.08s}
+.page-body>*:nth-child(4){animation-delay:.12s}
+.page-body>*:nth-child(5){animation-delay:.16s}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory &amp; Profiles</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </a>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex">
+      <div class="nav-sub-item active">CSO Dashboard</div>
+      <a class="nav-sub-item" href="skinlab-reports.html">Reports</a>
+      <a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a>
+    </div>
+    <a class="nav-item" href="skinlab-analytics.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#7a6856" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>CSO Dashboard</h1>
+      <p>Customer service operations &amp; therapist performance tracking · Causeway Point</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-primary btn-sm" onclick="newCampaignPrompt()">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        New Campaign
+      </button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip" id="statStrip"></div>
+
+    <!-- THERAPIST PERFORMANCE + RIGHT PANEL -->
+    <div class="main-split">
+
+      <!-- LEFT: THERAPIST PERFORMANCE -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Therapist Performance Today</div>
+              <div class="card-sub">Hands-on tracking &amp; service points</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="outlet-pills" id="outletPills"></div>
+              <button class="card-action" style="border:1px solid var(--border);padding:4px 10px;border-radius:7px;font-size:10px">Full Report →</button>
+            </div>
+          </div>
+          <div id="therapistList"></div>
+        </div>
+
+        <!-- AUTOMATED CAMPAIGNS -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Automated Reminder Campaigns</div>
+              <div class="card-sub">Scheduled WhatsApp &amp; SMS campaigns</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="newCampaignPrompt()">
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              New Campaign
+            </button>
+          </div>
+          <div id="campaignList"></div>
+        </div>
+
+        <!-- FOLLOW-UP QUEUE -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Customer Follow-up Queue</div>
+              <div class="card-sub">Prioritised by overdue days</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2);font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px" id="overdueCount">5 Overdue</span>
+              <button class="card-action" style="border:1px solid var(--border);padding:4px 10px;border-radius:7px;font-size:10px">View All →</button>
+            </div>
+          </div>
+          <div id="queueList"></div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: QUICK ACTIONS + PRIORITIES -->
+      <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:24px">
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Quick Actions</div></div>
+          <div style="padding:8px 18px" id="quickActions"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Today's Priorities</div></div>
+          <div style="padding:8px 18px" id="priorities"></div>
+        </div>
+
+        <!-- mini stat card -->
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Response Rate</div><div class="card-sub">Campaigns this week</div></div></div>
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px" id="responseRates"></div>
+        </div>
+
+      </div>
+    </div><!-- /main-split -->
+  </div><!-- /page-body -->
+</main>
+
+<script>
+// ── THEME ──
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+});
+
+// ── DATA ──
+const THERAPISTS = [
+  {name:'Chai Ting',  outlet:'CWP', color:'#c8a89e', treatments:2, points:181, rating:5.0},
+  {name:'Estee',      outlet:'CWP', color:'#a98076', treatments:6, points:174, rating:4.2},
+  {name:'TCL Y Anne', outlet:'WL3', color:'#9a8a9e', treatments:4, points:173, rating:4.5},
+  {name:'Ailie',      outlet:'CWP', color:'#8a9e7a', treatments:2, points:172, rating:5.0},
+  {name:'Iris Tan',   outlet:'CWP', color:'#d1baa2', treatments:7, points:170, rating:4.3},
+  {name:'Apple',      outlet:'CWP', color:'#7a9e8a', treatments:9, points:127, rating:3.5},
+  {name:'TCL Rosie',  outlet:'WL3', color:'#c8b490', treatments:8, points:125, rating:4.8},
+  {name:'Ginli',      outlet:'CWP', color:'#a0907a', treatments:7, points:118, rating:3.8},
+  {name:'Stephanie',  outlet:'CWP', color:'#9e8a7a', treatments:4, points:111, rating:4.8},
+  {name:'Na Na',      outlet:'CWP', color:'#b09e8a', treatments:4, points:107, rating:4.5},
+  {name:'Jin Ying',   outlet:'WGT', color:'#8a9aae', treatments:5, points:102, rating:4.8},
+  {name:'TCL Rachel', outlet:'WL3', color:'#ae8a8a', treatments:2, points:91,  rating:4.9},
+  {name:'P Noon',     outlet:'CWP', color:'#9e9a7a', treatments:7, points:79,  rating:4.1},
+];
+
+const CAMPAIGNS = [
+  {name:'Post-Treatment Follow-up (Day 3)', status:'active', sent:156, openRate:79, responseRate:57, next:'Today 13:00', color:'#8a9e7a'},
+  {name:'Package Expiry Alert (30 days)',   status:'active', sent:23,  openRate:91, responseRate:78, next:'Today 14:00', color:'#d1baa2'},
+  {name:'Birthday Promotion',              status:'active', sent:45,  openRate:84, responseRate:27, next:'Tomorrow 09:00', color:'#c8a89e'},
+  {name:'Dormant Customer Re-engagement',  status:'paused', sent:67,  openRate:51, responseRate:12, next:'Paused',   color:'#80756a'},
+];
+
+const QUEUE = [
+  {name:'Victoria Tan',   phone:'+65 9239 0254', color:'#c8a89e', reason:'Complaint follow-up',    sub:'Last contact: 9 days ago',  urgency:'urgent'},
+  {name:'Victoria Lim',   phone:'+65 9750 7515', color:'#a98076', reason:'Upsell opportunity',     sub:'Last contact: 25 days ago', urgency:'urgent'},
+  {name:'Li Ying Kumar',  phone:'+65 9002 1283', color:'#9a8a9e', reason:'Complaint follow-up',    sub:'Last contact: 11 days ago', urgency:'urgent'},
+  {name:'Wendy Goh',      phone:'+65 9087 1117', color:'#d1baa2', reason:'Package expiring soon',  sub:'Last contact: 3 days ago',  urgency:'urgent'},
+  {name:'Elisabeth Lee',  phone:'+65 8223 8493', color:'#8a9e7a', reason:'Package expiring soon',  sub:'Last contact: 27 days ago', urgency:'urgent'},
+  {name:'Zara Lim',       phone:'+65 8077 4116', color:'#80756a', reason:'Complaint follow-up',    sub:'Last contact: 5 days ago',  urgency:'soon'},
+  {name:'Emily Singh',    phone:'+65 9154 9034', color:'#c8a89e', reason:'Feedback request',       sub:'Last contact: 23 days ago', urgency:'soon'},
+  {name:'Mei Lin Chong',  phone:'+65 8264 0784', color:'#cec4b4', reason:'Complaint follow-up',    sub:'Last contact: 8 days ago',  urgency:'soon'},
+  {name:'Farah Chong',    phone:'+65 9034 9937', color:'#a98076', reason:'Complaint follow-up',    sub:'Last contact: 16 days ago', urgency:'soon'},
+  {name:'Catherine Ong',  phone:'+65 9050 7192', color:'#d1baa2', reason:'Feedback request',       sub:'Last contact: 9 days ago',  urgency:'new'},
+  {name:'Elisabeth Chan', phone:'+65 8605 4971', color:'#9e8a7a', reason:'Package expiring soon',  sub:'Last contact: 39 days ago', urgency:'new'},
+];
+
+const QUICK_ACTIONS = [
+  {icon:'📞', label:'Make Follow-up Call',      sub:'Open dialler for next in queue', color:'rgba(106,143,90,.1)'},
+  {icon:'💬', label:'Send Custom Reminder',     sub:'WhatsApp or SMS individual',     color:'rgba(90,122,158,.1)'},
+  {icon:'📅', label:'Schedule Campaign',        sub:'Set up a new automated send',    color:'rgba(200,150,42,.1)'},
+  {icon:'📊', label:'View Analytics',          sub:'Full performance dashboard',     color:'rgba(122,104,86,.1)', href:'skinlab-analytics.html'},
+];
+
+const PRIORITIES = [
+  {text:'5 Overdue Follow-ups', sub:'Requires immediate attention', color:'var(--danger)',  dot:'var(--danger)'},
+  {text:'Schedule before EOD', sub:'2 campaigns need review',       color:'var(--warning)', dot:'var(--warning)'},
+  {text:'18 Completed Today',  sub:'Great job today!',              color:'var(--success)', dot:'var(--success)'},
+];
+
+const RESPONSE_RATES = [
+  {label:'Post-Treatment',  pct:57, color:'green'},
+  {label:'Expiry Alert',    pct:78, color:'green'},
+  {label:'Birthday Promo',  pct:27, color:'amber'},
+  {label:'Re-engagement',   pct:12, color:'amber'},
+];
+
+// ── STAT STRIP ──
+document.getElementById('statStrip').innerHTML = `
+  <div class="stat-cell">
+    <div class="stat-cell-icon" style="background:rgba(90,122,158,.1)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l2-4 3 3 3-5 3 3" stroke="var(--info)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="stat-cell-body"><div class="stat-val">23</div><div class="stat-label">Calls Made</div><div class="stat-pill today">Today</div></div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-icon" style="background:rgba(106,143,90,.1)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="10" rx="2" stroke="var(--success)" stroke-width="1.3"/><path d="M1.5 6l6.5 4 6.5-4" stroke="var(--success)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="stat-cell-body"><div class="stat-val" style="color:var(--success)">45</div><div class="stat-label">Reminders Sent</div><div class="stat-pill auto">Auto-sent</div></div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-icon" style="background:rgba(160,128,64,.1)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="var(--warning)" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="var(--warning)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="stat-cell-body"><div class="stat-val" style="color:var(--warning)">12</div><div class="stat-label">Follow-ups Due</div><div class="stat-pill overdue">5 Overdue</div></div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-icon" style="background:rgba(122,104,86,.1)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="var(--accent)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="stat-cell-body"><div class="stat-val">68%</div><div class="stat-label">Response Rate</div><div class="stat-pill today">↑ 4% vs last week</div></div>
+  </div>`;
+
+// ── OUTLET PILLS ──
+const outlets = ['All Outlets','CWP','WL3','WGT','JP'];
+let activeOutlet = 'All Outlets';
+const pillsWrap = document.getElementById('outletPills');
+outlets.forEach(o => {
+  const chip = document.createElement('div');
+  chip.className = 'outlet-chip' + (o === activeOutlet ? ' active' : '');
+  chip.textContent = o;
+  chip.addEventListener('click', () => {
+    activeOutlet = o;
+    document.querySelectorAll('.outlet-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderTherapists();
+  });
+  pillsWrap.appendChild(chip);
+});
+
+// ── THERAPISTS ──
+function renderTherapists() {
+  const filtered = activeOutlet === 'All Outlets' ? THERAPISTS : THERAPISTS.filter(t => t.outlet === activeOutlet);
+  const el = document.getElementById('therapistList');
+  el.innerHTML = filtered.map(t => {
+    const initials = t.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    const rClass = t.rating >= 4.5 ? 'high' : t.rating >= 3.8 ? 'mid' : 'low';
+    return `
+      <div class="therapist-row">
+        <div class="th-av" style="background:${t.color}">${initials}</div>
+        <div class="th-info"><div class="th-name">${t.name}</div><div class="th-outlet">${t.outlet}</div></div>
+        <div class="th-metric"><div class="th-metric-val">${t.treatments}</div><div class="th-metric-label">Treatments</div></div>
+        <div class="th-metric"><div class="th-metric-val">${t.points}</div><div class="th-metric-label">Svc Points</div></div>
+        <div class="th-metric"><div class="th-rating ${rClass}">★ ${t.rating.toFixed(1)}</div><div class="th-metric-label">Rating</div></div>
+        <button class="th-detail-btn">View Details</button>
+      </div>`;
+  }).join('');
+}
+renderTherapists();
+
+// ── CAMPAIGNS ──
+document.getElementById('campaignList').innerHTML = CAMPAIGNS.map(c => `
+  <div class="campaign-row">
+    <div class="camp-dot" style="background:${c.color}"></div>
+    <div class="camp-info">
+      <div class="camp-name">${c.name}</div>
+      <div class="camp-meta">Next: ${c.next}</div>
+    </div>
+    <span class="camp-badge ${c.status}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span>
+    <div class="camp-stat"><div class="camp-stat-val">${c.sent}</div><div class="camp-stat-label">Sent</div></div>
+    <div class="prog-wrap">
+      <div class="prog-bar-track"><div class="prog-bar-fill ${c.openRate>60?'green':'amber'}" style="width:${c.openRate}%"></div></div>
+      <div class="prog-pct">${c.openRate}%</div>
+    </div>
+    <div class="camp-stat"><div class="camp-stat-val">${c.responseRate}%</div><div class="camp-stat-label">Response</div></div>
+    <button class="btn btn-sm">View</button>
+  </div>`).join('');
+
+// ── FOLLOW-UP QUEUE ──
+document.getElementById('queueList').innerHTML = QUEUE.map(q => {
+  const initials = q.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+  const urgencyLabel = q.urgency === 'urgent' ? 'Overdue' : q.urgency === 'soon' ? 'Due soon' : 'New';
+  return `
+    <div class="queue-row">
+      <div class="q-av" style="background:${q.color}">${initials}</div>
+      <div class="q-info"><div class="q-name">${q.name}</div><div class="q-phone">${q.phone}</div></div>
+      <div class="q-reason"><div class="q-reason-text">${q.reason}</div><div class="q-reason-sub">${q.sub}</div></div>
+      <span class="q-overdue ${q.urgency}">${urgencyLabel}</span>
+      <div class="q-actions">
+        <button class="q-btn call"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 2.5c0 5.52 4.48 10 10 10l.5-2.5-2.5-1-1 1.5C7.5 9.5 4.5 6.5 4 5l1.5-1L4.5 1.5 2 2.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Call</button>
+        <button class="q-btn msg"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v7H2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M4 12l2-3h2l2 3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>Message</button>
+      </div>
+    </div>`;
+}).join('');
+
+// ── QUICK ACTIONS ──
+document.getElementById('quickActions').innerHTML = QUICK_ACTIONS.map(q => `
+  <div class="quick-action" ${q.href ? `onclick="location.href='${q.href}'"` : ''}>
+    <div class="qa-icon" style="background:${q.color}">${q.icon}</div>
+    <div><div class="qa-label">${q.label}</div><div class="qa-sub">${q.sub}</div></div>
+  </div>`).join('');
+
+// ── PRIORITIES ──
+document.getElementById('priorities').innerHTML = PRIORITIES.map(p => `
+  <div class="priority-item">
+    <div class="priority-dot" style="background:${p.dot}"></div>
+    <div><div class="priority-text" style="color:${p.color}">${p.text}</div><div class="priority-sub">${p.sub}</div></div>
+  </div>`).join('');
+
+// ── RESPONSE RATES ──
+document.getElementById('responseRates').innerHTML = RESPONSE_RATES.map(r => `
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <div style="display:flex;justify-content:space-between;font-size:12px">
+      <span style="color:var(--text-secondary)">${r.label}</span>
+      <span style="font-weight:600;color:var(--text-primary)">${r.pct}%</span>
+    </div>
+    <div class="prog-bar-track" style="height:5px"><div class="prog-bar-fill ${r.color}" style="width:${r.pct}%"></div></div>
+  </div>`).join('');
+
+// ── NEW CAMPAIGN ──
+function newCampaignPrompt() {
+  alert('New Campaign: configure WhatsApp / SMS campaign (connects to Envoy integration in production).');
+}
+
+// ── SIDEBAR CHEVRONS ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (item.querySelector('.nav-chevron')) {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  }
+});
+</script>
+</body>
+</html>

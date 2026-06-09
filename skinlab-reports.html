@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinLab — Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+
+/* ─── TOKENS ─── */
+:root {
+  --cloud-dancer:#f1f0ea; --lily-white:#e7e5dc;
+  --jet-stream:#e9e0d7; --oatmeal:#cec4b4; --frosted-almond:#d1baa2;
+  --misty-rose:#c8a89e; --mocha-mousse:#a98076; --fallen-rock:#80756a;
+  --shitake:#7a6856; --jet-set:#212322;
+  --bg:#f1f0ea; --surface:#faf9f5; --surface-2:#e7e5dc; --surface-3:#f4f2ec;
+  --border:rgba(122,104,86,0.14); --border-soft:rgba(122,104,86,0.08);
+  --border-mid:rgba(122,104,86,0.22);
+  --text-primary:#212322; --text-secondary:#7a6856; --text-muted:#80756a;
+  --text-placeholder:#b0a090;
+  --accent:#7a6856; --accent-warm:#a98076;
+  --sidebar-bg:#faf9f5; --sidebar-border:rgba(122,104,86,0.1);
+  --sidebar-text:#3a2f24; --sidebar-muted:#80756a;
+  --sidebar-active-bg:rgba(122,104,86,0.08); --sidebar-active-border:#7a6856;
+  --sidebar-hover-bg:rgba(122,104,86,0.05);
+  --sidebar-label:#b0a090; --sidebar-logo:#7a6856; --sidebar-tagline:#b0a090;
+  --success:#6a8f5a; --success-bg:rgba(106,143,90,0.1);
+  --warning:#a08040; --warning-bg:rgba(160,128,64,0.1);
+  --danger:#a06060; --danger-bg:rgba(160,96,96,0.1);
+  --info:#5a7a9e; --info-bg:rgba(90,122,158,0.1);
+  --gold:#c8962a; --gold-bg:rgba(200,150,42,0.1);
+}
+[data-theme="dark"] {
+  --bg:#1e1b18; --surface:#252118; --surface-2:#2e2820; --surface-3:#2a2520;
+  --border:rgba(209,186,162,0.1); --border-soft:rgba(209,186,162,0.06);
+  --border-mid:rgba(209,186,162,0.16);
+  --text-primary:#e7e5dc; --text-secondary:#cec4b4; --text-muted:#9e8e7a;
+  --text-placeholder:#5a4e42;
+  --accent:#d1baa2; --accent-warm:#c8a89e;
+  --sidebar-bg:#1a1712; --sidebar-border:rgba(209,186,162,0.07);
+  --sidebar-text:#cec4b4; --sidebar-muted:#6b5e52;
+  --sidebar-active-bg:rgba(209,186,162,0.1); --sidebar-active-border:#d1baa2;
+  --sidebar-hover-bg:rgba(255,255,255,0.03);
+  --sidebar-label:#403830; --sidebar-logo:#d1baa2; --sidebar-tagline:#4a3f33;
+  --success:#7aab68; --success-bg:rgba(122,171,104,0.12);
+  --warning:#c0a050; --warning-bg:rgba(192,160,80,0.12);
+  --danger:#c07070; --danger-bg:rgba(192,112,112,0.12);
+  --info:#7a9abe; --info-bg:rgba(122,154,190,0.12);
+  --gold:#d4a830; --gold-bg:rgba(212,168,48,0.12);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;font-size:15px;line-height:1.6;transition:background .3s,color .3s}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:10;transition:background .3s}
+.logo-wrap{padding:0 26px;height:64px;display:flex;align-items:center;border-bottom:1px solid var(--sidebar-border);flex-shrink:0;justify-content:space-between}
+.logo-mark{display:flex;flex-direction:column;gap:2px}
+.logo-wordmark{font-family:'EB Garamond',serif;font-size:24px;font-weight:400;color:var(--sidebar-logo);letter-spacing:.02em;line-height:1}
+.logo-wordmark span{font-weight:500}
+.logo-tagline{font-family:'Cormorant Garamond',serif;font-size:9px;font-weight:300;letter-spacing:.24em;color:var(--sidebar-tagline);text-transform:lowercase;margin-top:4px}
+.outlet-pill{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--mocha-mousse);background:rgba(169,128,118,.1);border:1px solid rgba(169,128,118,.2);padding:3px 9px;border-radius:99px;cursor:pointer;font-weight:600;transition:all .15s}
+.outlet-pill:hover{background:rgba(169,128,118,.18)}
+.nav-section{padding:18px 0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.nav-section::-webkit-scrollbar{width:3px}
+.nav-section::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+.nav-label{font-family:'Cormorant Garamond',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--sidebar-label);padding:0 22px 8px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 22px;font-size:13.5px;color:var(--sidebar-muted);cursor:pointer;transition:all .2s;letter-spacing:.01em;border-left:2.5px solid transparent;margin:1px 0;text-decoration:none}
+.nav-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-item.active{color:var(--sidebar-text);background:var(--sidebar-active-bg);border-left-color:var(--sidebar-active-border);font-weight:500}
+.nav-icon-pill{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-badge-count{margin-left:auto;background:var(--danger);color:white;font-size:10px;font-weight:500;padding:3px 7px;border-radius:99px;min-width:20px;text-align:center}
+.nav-chevron{margin-left:auto;width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.45;transition:transform .25s}
+.nav-item.open .nav-chevron{transform:rotate(180deg)}
+.nav-sub{display:none;flex-direction:column;padding:2px 0 6px 61px}
+.nav-item.open+.nav-sub{display:flex}
+.nav-sub-item{font-size:12.5px;color:var(--sidebar-muted);padding:5px 12px;cursor:pointer;transition:all .15s;border-radius:8px;text-decoration:none;display:block}
+.nav-sub-item:hover{color:var(--sidebar-text);background:var(--sidebar-hover-bg)}
+.nav-sub-item.active{color:var(--sidebar-text);font-weight:500}
+.sidebar-footer{padding:16px 22px;border-top:1px solid var(--sidebar-border)}
+.therapist-pill{display:flex;align-items:center;gap:11px}
+.therapist-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.therapist-name{font-size:13px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.therapist-role{font-size:10px;color:var(--sidebar-muted);letter-spacing:.04em}
+.admin-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;gap:12px;padding:0 28px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:8}
+.topbar-left{display:flex;flex-direction:column;gap:1px;flex:1}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary);letter-spacing:-.01em}
+.topbar-left p{font-size:11.5px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--text-muted);position:relative}
+.icon-btn:hover{background:var(--surface-2)}
+.notif-dot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--misty-rose);border:1.5px solid var(--surface)}
+.theme-toggle{width:34px;height:34px;border:1px solid var(--border);border-radius:8px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:15px}
+.theme-toggle:hover{background:var(--surface-2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d1baa2,#a98076);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:white;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-primary{background:var(--accent);color:#faf9f5;border-color:transparent}
+.btn-primary:hover{background:var(--shitake)}
+
+/* ─── PAGE ─── */
+.page-body{flex:1;overflow-y:auto;padding:28px 32px 60px;display:flex;flex-direction:column;gap:24px;scrollbar-width:thin;scrollbar-color:rgba(122,104,86,.15) transparent}
+.page-body::-webkit-scrollbar{width:4px}
+.page-body::-webkit-scrollbar-thumb{background:rgba(122,104,86,.2);border-radius:99px}
+
+/* ─── REPORT TYPE SELECTOR ─── */
+.report-types{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.rt-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px}
+.rt-card:hover{border-color:var(--border-mid);background:var(--surface-3)}
+.rt-card.active{border-color:var(--accent);background:rgba(122,104,86,.04);box-shadow:0 0 0 3px rgba(122,104,86,.07)}
+.rt-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.rt-card.active .rt-icon{background:rgba(122,104,86,.12)}
+.rt-info{flex:1;min-width:0}
+.rt-name{font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.2}
+.rt-desc{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+
+/* ─── FILTER BAR ─── */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-label{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--text-muted);flex-shrink:0}
+.filter-input{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:var(--text-primary);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;outline:none;transition:all .2s;height:34px}
+.filter-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(122,104,86,.08)}
+.filter-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' stroke='%2380756a' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;cursor:pointer}
+.filter-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.filter-apply{display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;font-weight:500;padding:6px 13px;border-radius:8px;cursor:pointer;transition:all .15s;border:none;background:var(--accent);color:#faf9f5}
+.filter-apply:hover{background:var(--shitake)}
+
+/* ─── STAT STRIP ─── */
+.stat-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stat-cell{padding:16px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.stat-cell:last-child{border-right:none}
+.stat-val{font-family:'DM Sans',system-ui,sans-serif;font-size:22px;font-weight:600;color:var(--text-primary);line-height:1;letter-spacing:-.02em}
+.stat-val.up{color:var(--success)}
+.stat-val.down{color:var(--danger)}
+.stat-label{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.stat-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.stat-trend{font-size:10.5px;font-weight:500;margin-top:2px;display:flex;align-items:center;gap:3px}
+.stat-trend.up{color:var(--success)}
+.stat-trend.down{color:var(--danger)}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.card-action{font-family:'Cormorant Garamond',serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--accent);cursor:pointer;border:none;background:transparent;transition:opacity .15s;white-space:nowrap}
+.card-action:hover{opacity:.7}
+.card-body{padding:18px}
+
+/* ─── TWO COL GRID ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+/* ─── TABLE ─── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-family:'Cormorant Garamond',serif;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-muted);font-weight:600;padding:0 0 10px;text-align:left;border-bottom:1px solid var(--border)}
+.data-table th.right{text-align:right}
+.data-table td{padding:11px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px;vertical-align:middle;color:var(--text-primary)}
+.data-table td.right{text-align:right;font-weight:500}
+.data-table td.muted{color:var(--text-muted)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(122,104,86,.02)}
+.table-name{font-weight:500;color:var(--text-primary)}
+.table-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+
+/* ─── LINE ITEM ROWS (sales by category / payment type) ─── */
+.line-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.line-row:last-child{border-bottom:none}
+.line-name{font-size:13px;color:var(--text-primary)}
+.line-count{font-size:11px;color:var(--text-muted);margin-top:1px}
+.line-val{font-family:'DM Sans',system-ui,sans-serif;font-size:14px;font-weight:600;color:var(--text-primary)}
+.line-bar-wrap{height:3px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:4px;width:100%}
+.line-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-warm))}
+
+/* ─── PAYMENT METHOD BADGE ─── */
+.pay-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border)}
+
+/* ─── COMMISSION / STAFF TABLE ─── */
+.staff-rank{width:20px;font-family:'EB Garamond',serif;font-size:16px;color:var(--text-muted);text-align:center;flex-shrink:0}
+.staff-rank.top{color:var(--gold)}
+.staff-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'EB Garamond',serif;font-size:12px;color:white;flex-shrink:0}
+
+/* ─── EOD SIGN-OFF ─── */
+.signoff-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft)}
+.signoff-row:last-child{border-bottom:none}
+.signoff-label{font-size:13px;color:var(--text-secondary)}
+.signoff-val{font-size:13px;font-weight:600;color:var(--text-primary)}
+.signoff-val.positive{color:var(--success)}
+.signoff-val.negative{color:var(--danger)}
+
+/* ─── EXPIRY TABLE BADGE ─── */
+.expiry-badge{font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:99px}
+.expiry-badge.urgent{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(160,96,96,.2)}
+.expiry-badge.soon{background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2)}
+.expiry-badge.ok{background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2)}
+
+/* ─── REPORT SECTIONS ─── */
+.report-section{display:none;flex-direction:column;gap:16px;animation:fadeUp .22s ease both}
+.report-section.active{display:flex}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">
+      <div class="logo-wordmark">Skin<span>Lab</span></div>
+      <div class="logo-tagline">the medical spa</div>
+    </div>
+    <div class="outlet-pill">CWP ▾</div>
+  </div>
+  <nav class="nav-section">
+    <span class="nav-label">Overview</span>
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".4"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="#7a6856" opacity=".7"/></svg></span>Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-appointments-v3.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="2" stroke="#d1baa2" stroke-width="1.3"/><path d="M5 2.5V1m6 1.5V1M1.5 6h13" stroke="#d1baa2" stroke-width="1.3" stroke-linecap="round"/></svg></span>Appointments
+    </a>
+    <a class="nav-item" href="skinlab-therapist-schedule.html">
+      <span class="nav-icon-pill" style="background:rgba(209,186,162,.2)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#d1baa2" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" stroke="#d1baa2" stroke-width="1.2"/></svg></span>Schedule
+    </a>
+    <a class="nav-item" href="skinlab-checkout.html">
+      <span class="nav-icon-pill" style="background:rgba(200,168,158,.18)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="2" stroke="#c8a89e" stroke-width="1.2"/><path d="M1 6.5h14M5 6.5V12M9 6.5V12" stroke="#c8a89e" stroke-width="1.1" stroke-linecap="round"/></svg></span>Checkout<span class="nav-badge-count">2</span>
+    </a>
+    <span class="nav-label" style="margin-top:12px">Operations</span>
+    <div class="nav-item" onclick="this.classList.toggle('open')">
+      <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub">
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory &amp; Profiles</a>
+      <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
+      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+    </div>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
+    </a>
+    <a class="nav-item" href="#">
+      <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
+    </a>
+    <span class="nav-label" style="margin-top:12px">Management</span>
+    <div class="nav-item open">
+      <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="nav-sub" style="display:flex">
+      <a class="nav-sub-item" href="skinlab-cso-dashboard.html">CSO Dashboard</a>
+      <div class="nav-sub-item active">Reports</div>
+      <a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a>
+    </div>
+    <a class="nav-item" href="skinlab-analytics.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#7a6856" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics Dashboard
+    </a>
+    <a class="nav-item" href="skinlab-settings.html">
+      <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="therapist-pill">
+      <div class="therapist-avatar">A</div>
+      <div class="therapist-info">
+        <div class="therapist-name">Admin</div>
+        <div class="therapist-role">Full system access</div>
+      </div>
+      <div class="admin-badge">Admin</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>Reports</h1>
+      <p>View and export business reports · Causeway Point</p>
+    </div>
+    <div class="topbar-right">
+      <button class="btn" id="exportBtn">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 11V2M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v1.5A1.5 1.5 0 003.5 14h9a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Export
+      </button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <button class="icon-btn">
+        <div class="notif-dot"></div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a4.5 4.5 0 00-4.5 4.5v2L2 10h12l-1.5-2V6A4.5 4.5 0 008 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 10v.5a1.5 1.5 0 003 0V10" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </button>
+      <div class="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- REPORT TYPE SELECTOR -->
+    <div class="report-types" id="reportTypes"></div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <span class="filter-label">Filters</span>
+      <input class="filter-input" type="date" id="filterDate" value="2026-05-15">
+      <div class="filter-sep"></div>
+      <select class="filter-input filter-select" id="filterOutlet">
+        <option>Causeway Point</option>
+        <option>Jurong Point</option>
+        <option>Westgate</option>
+        <option>All Outlets</option>
+      </select>
+      <div class="filter-sep"></div>
+      <select class="filter-input filter-select" id="filterPeriod" style="display:none">
+        <option>This Month</option>
+        <option>Last Month</option>
+        <option>Last 3 Months</option>
+        <option>Custom Range</option>
+      </select>
+      <button class="filter-apply" onclick="applyFilters()">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M4 7h6M6 10h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Apply Filters
+      </button>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn" style="font-size:11.5px;padding:5px 11px">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Schedule Email
+        </button>
+        <button class="btn" style="font-size:11.5px;padding:5px 11px">Print</button>
+      </div>
+    </div>
+
+    <!-- ── EOD REPORT ── -->
+    <div class="report-section active" id="section-eod">
+      <!-- stat strip -->
+      <div class="stat-strip" id="eodStats"></div>
+      <!-- body -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Sales by Category</div><div class="card-sub">15 May 2026 · Causeway Point</div></div>
+          </div>
+          <div class="card-body" id="salesByCat"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Collections by Payment Type</div><div class="card-sub">Cash, card &amp; digital breakdown</div></div>
+          </div>
+          <div class="card-body" id="collectByPay"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Staff Performance</div><div class="card-sub">Sales, usages &amp; commission quantity today</div></div>
+          <button class="card-action">Full Report →</button>
+        </div>
+        <div class="card-body" style="padding:0 18px">
+          <table class="data-table" id="staffPerfTable">
+            <thead><tr><th>Staff</th><th class="right">Sales</th><th class="right">Usages</th><th class="right">Commission Qty</th></tr></thead>
+            <tbody id="staffPerfBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">End of Day Cash Reconciliation</div><div class="card-sub">Cash drawer summary — requires manager sign-off</div></div>
+          <div style="display:flex;gap:6px">
+            <span id="eodSignStatus" style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2);align-self:center">Pending Sign-off</span>
+            <button class="btn btn-primary" style="font-size:11.5px;padding:5px 13px" onclick="signOffEOD()">Sign Off</button>
+          </div>
+        </div>
+        <div class="card-body" id="eodCash"></div>
+      </div>
+    </div>
+
+    <!-- ── COMMISSION REPORT ── -->
+    <div class="report-section" id="section-commission">
+      <div class="stat-strip" id="commStats"></div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Commission by Staff</div><div class="card-sub">Quantity only — dollar values visible to Finance role</div></div>
+          <button class="card-action">Export CSV →</button>
+        </div>
+        <div class="card-body" style="padding:0 18px">
+          <table class="data-table">
+            <thead><tr><th>Staff</th><th class="right">Sales Commission</th><th class="right">Hands-on Fee</th><th class="right">Total Qty</th><th class="right">Status</th></tr></thead>
+            <tbody id="commBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Sale-Based Commission</div><div class="card-sub">Triggered on full payment received</div></div></div>
+          <div class="card-body" id="saleCommBody"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Hands-on Delivery Fee</div><div class="card-sub">Triggered per treatment session completed</div></div></div>
+          <div class="card-body" id="handsonBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UNEARNED REVENUE ── -->
+    <div class="report-section" id="section-unearned">
+      <div class="stat-strip" id="unearnedStats"></div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Prepaid Package Liability</div><div class="card-sub">Packages sold but not yet fully redeemed · 15 May 2026</div></div>
+          <button class="card-action">Export →</button>
+        </div>
+        <div class="card-body" style="padding:0 18px">
+          <table class="data-table">
+            <thead><tr><th>Package Type</th><th class="right">Active Packages</th><th class="right">Sessions Remaining</th><th class="right">Estimated Value</th><th class="right">Avg Age</th></tr></thead>
+            <tbody id="unearnedBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">Expiring Packages</div><div class="card-sub">Packages expiring within 90 days — proactive outreach recommended</div></div><button class="card-action">Export →</button></div>
+        <div class="card-body" style="padding:0 18px">
+          <table class="data-table">
+            <thead><tr><th>Customer</th><th>Package</th><th class="right">Sessions Left</th><th class="right">Expiry</th><th class="right">Status</th></tr></thead>
+            <tbody id="expiryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EXPIRED INVOICES ── -->
+    <div class="report-section" id="section-expired">
+      <div class="stat-strip" id="expiredStats"></div>
+      <div class="card">
+        <div class="card-head">
+          <div><div class="card-title">Expired Package Invoices</div><div class="card-sub">Packages past expiry date with remaining balance — revenue recognition pending</div></div>
+          <button class="card-action">Export →</button>
+        </div>
+        <div class="card-body" style="padding:0 18px">
+          <table class="data-table">
+            <thead><tr><th>Customer</th><th>Package / Invoice</th><th class="right">Sessions Forfeited</th><th class="right">Value Forfeited</th><th class="right">Expired</th></tr></thead>
+            <tbody id="expiredBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+</main>
+
+<script>
+// ── THEME ──
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  this.textContent = dark ? '🌙' : '☀️';
+});
+
+// ── REPORT TYPES ──
+const REPORT_TYPES = [
+  { id:'eod',        name:'End of Day (EOD)',       desc:'Daily sales &amp; collection summary', icon:'📊', color:'rgba(122,104,86,.1)' },
+  { id:'commission', name:'Commission Report',       desc:'Staff commission by qty (not $)',       icon:'👥', color:'rgba(106,143,90,.1)'  },
+  { id:'unearned',   name:'Unearned Revenue',        desc:'Prepaid packages not yet utilised',     icon:'📦', color:'rgba(200,150,42,.1)'  },
+  { id:'expired',    name:'Expired Invoices',        desc:'Packages past expiry date',             icon:'⏰', color:'rgba(160,96,96,.1)'   },
+];
+
+let activeReport = 'eod';
+
+function buildReportTypes() {
+  const wrap = document.getElementById('reportTypes');
+  REPORT_TYPES.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'rt-card' + (r.id === activeReport ? ' active' : '');
+    card.innerHTML = `
+      <div class="rt-icon" style="background:${r.color}">${r.icon}</div>
+      <div class="rt-info">
+        <div class="rt-name">${r.name}</div>
+        <div class="rt-desc">${r.desc}</div>
+      </div>`;
+    card.addEventListener('click', () => switchReport(r.id));
+    wrap.appendChild(card);
+  });
+}
+
+function switchReport(id) {
+  activeReport = id;
+  document.querySelectorAll('.rt-card').forEach((c,i) => {
+    c.classList.toggle('active', REPORT_TYPES[i].id === id);
+  });
+  document.querySelectorAll('.report-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + id)?.classList.add('active');
+  // toggle period filter for commission/unearned
+  document.getElementById('filterPeriod').style.display = (id === 'commission' || id === 'unearned' || id === 'expired') ? 'block' : 'none';
+}
+
+// ── EOD DATA ──
+function buildEOD() {
+  // Stats
+  document.getElementById('eodStats').innerHTML = `
+    <div class="stat-cell"><div class="stat-val">$12,580</div><div class="stat-label">Total Sales</div><div class="stat-trend up">↑ 12% vs last week</div></div>
+    <div class="stat-cell"><div class="stat-val">$11,200</div><div class="stat-label">Collections</div><div class="stat-sub">Cash + card + digital</div></div>
+    <div class="stat-cell"><div class="stat-val">8</div><div class="stat-label">Invoices</div><div class="stat-sub">Avg $1,572 per invoice</div></div>
+    <div class="stat-cell"><div class="stat-val">15</div><div class="stat-label">Usages</div><div class="stat-sub">Package redemptions</div></div>
+    <div class="stat-cell"><div class="stat-val">2</div><div class="stat-label">New Customers</div><div class="stat-sub">Onboarded today</div></div>`;
+
+  // Sales by category
+  const cats = [
+    {name:'Packages', count:'3 invoices', val:'$6,800', pct:54},
+    {name:'Treatments', count:'4 items', val:'$5,200', pct:41},
+    {name:'Products', count:'6 items', val:'$580', pct:5},
+  ];
+  const catEl = document.getElementById('salesByCat');
+  catEl.innerHTML = cats.map(c => `
+    <div class="line-row">
+      <div><div class="line-name">${c.name}</div><div class="line-count">${c.count}</div>
+      <div class="line-bar-wrap"><div class="line-bar" style="width:${c.pct}%"></div></div></div>
+      <div class="line-val">${c.val}</div>
+    </div>`).join('');
+
+  // Payment types
+  const pays = [
+    {name:'Credit Card', val:'$4,500', ref:'VISA · MASTER · AMEX'},
+    {name:'NETS',        val:'$3,200', ref:'NETS FlashPay'},
+    {name:'Cash',        val:'$2,500', ref:'SGD'},
+    {name:'GrabPay',     val:'$800',   ref:'Digital wallet'},
+    {name:'Atome',       val:'$780',   ref:'BNPL'},
+  ];
+  document.getElementById('collectByPay').innerHTML = pays.map(p => `
+    <div class="line-row">
+      <div><div class="line-name">${p.name}</div><div class="line-count">${p.ref}</div></div>
+      <div class="line-val">${p.val}</div>
+    </div>`).join('');
+
+  // Staff
+  const staff = [
+    {name:'Sarah Chen',   color:'#c8a89e', sales:'$4,200', usages:5, comm:12},
+    {name:'Michelle Tan', color:'#a98076', sales:'$3,800', usages:4, comm:10},
+    {name:'Lisa Wong',    color:'#8a9e7a', sales:'$2,580', usages:3, comm:8},
+    {name:'Amy Lim',      color:'#9a8a9e', sales:'$2,000', usages:3, comm:6},
+  ];
+  document.getElementById('staffPerfBody').innerHTML = staff.map((s,i) => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div class="staff-av" style="background:${s.color}">${s.name[0]}</div>
+        <div class="table-name">${s.name}</div>
+      </div></td>
+      <td class="right">${s.sales}</td>
+      <td class="right">${s.usages}</td>
+      <td class="right">${s.comm}</td>
+    </tr>`).join('');
+
+  // EOD cash
+  const cashRows = [
+    {label:'Opening Float',          val:'$300.00',   cls:''},
+    {label:'Cash Sales',             val:'+$2,500.00', cls:'positive'},
+    {label:'Cash Withdrawals',       val:'−$200.00',  cls:'negative'},
+    {label:'Expected Closing Float', val:'$2,600.00', cls:''},
+    {label:'Actual Closing Float',   val:'$2,600.00', cls:'positive'},
+    {label:'Discrepancy',            val:'$0.00',     cls:'positive'},
+  ];
+  document.getElementById('eodCash').innerHTML = `<div style="max-width:480px">` +
+    cashRows.map(r => `
+      <div class="signoff-row">
+        <div class="signoff-label">${r.label}</div>
+        <div class="signoff-val ${r.cls}">${r.val}</div>
+      </div>`).join('') + `</div>`;
+}
+
+// ── COMMISSION DATA ──
+function buildCommission() {
+  document.getElementById('commStats').innerHTML = `
+    <div class="stat-cell"><div class="stat-val">36</div><div class="stat-label">Total Commission</div><div class="stat-sub">All types · this month</div></div>
+    <div class="stat-cell"><div class="stat-val">14</div><div class="stat-label">Sales Commission</div><div class="stat-sub">On package sales</div></div>
+    <div class="stat-cell"><div class="stat-val">22</div><div class="stat-label">Hands-on Fee</div><div class="stat-sub">Per session delivered</div></div>
+    <div class="stat-cell"><div class="stat-val">4</div><div class="stat-label">Staff Earning</div><div class="stat-sub">This period</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:var(--warning)">3</div><div class="stat-label">Pending Approval</div><div class="stat-sub">Awaiting payroll</div></div>`;
+
+  const staff = [
+    {name:'Sarah Chen',   color:'#c8a89e', salesComm:5, handsOn:7,  status:'approved'},
+    {name:'Michelle Tan', color:'#a98076', salesComm:4, handsOn:6,  status:'approved'},
+    {name:'Lisa Wong',    color:'#8a9e7a', salesComm:3, handsOn:5,  status:'pending'},
+    {name:'Amy Lim',      color:'#9a8a9e', salesComm:2, handsOn:4,  status:'pending'},
+  ];
+  document.getElementById('commBody').innerHTML = staff.map(s => {
+    const badge = s.status === 'approved'
+      ? `<span style="background:var(--success-bg);color:var(--success);border:1px solid rgba(106,143,90,.2);font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px">Approved</span>`
+      : `<span style="background:var(--warning-bg);color:var(--warning);border:1px solid rgba(160,128,64,.2);font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:99px">Pending</span>`;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:9px"><div class="staff-av" style="background:${s.color}">${s.name[0]}</div><div class="table-name">${s.name}</div></div></td>
+      <td class="right">${s.salesComm}</td>
+      <td class="right">${s.handsOn}</td>
+      <td class="right">${s.salesComm + s.handsOn}</td>
+      <td class="right">${badge}</td>
+    </tr>`;
+  }).join('');
+
+  // Sale-based
+  document.getElementById('saleCommBody').innerHTML = [
+    {pkg:'LuminaLift 6x — $2,199', staff:'Sarah Chen', qty:2},
+    {pkg:'HydraFacial Platinum 6x', staff:'Michelle Tan', qty:1},
+    {pkg:'Pico Rejuvenate 3x', staff:'Amy Lim', qty:1},
+  ].map(r => `<div class="line-row"><div><div class="line-name">${r.pkg}</div><div class="line-count">${r.staff}</div></div><div class="line-val">${r.qty} commission</div></div>`).join('');
+
+  // Hands-on
+  document.getElementById('handsonBody').innerHTML = [
+    {svc:'HydraFacial Platinum', staff:'Sarah Chen', sessions:7},
+    {svc:'LuminaLift Facial',    staff:'Michelle Tan', sessions:6},
+    {svc:'Gold Facial',          staff:'Lisa Wong', sessions:5},
+    {svc:'Pico Rejuvenate',      staff:'Amy Lim', sessions:4},
+  ].map(r => `<div class="line-row"><div><div class="line-name">${r.svc}</div><div class="line-count">${r.staff}</div></div><div class="line-val">${r.sessions} sessions</div></div>`).join('');
+}
+
+// ── UNEARNED REVENUE DATA ──
+function buildUnearned() {
+  document.getElementById('unearnedStats').innerHTML = `
+    <div class="stat-cell"><div class="stat-val">$214,800</div><div class="stat-label">Total Liability</div><div class="stat-sub">All active packages</div></div>
+    <div class="stat-cell"><div class="stat-val">$48,200</div><div class="stat-label">Expiring ≤30 days</div><div class="stat-trend down">↑ 8% vs last month</div></div>
+    <div class="stat-cell"><div class="stat-val">$72,400</div><div class="stat-label">Expiring ≤60 days</div><div class="stat-sub">Action recommended</div></div>
+    <div class="stat-cell"><div class="stat-val">342</div><div class="stat-label">Active Packages</div><div class="stat-sub">Across all customers</div></div>
+    <div class="stat-cell"><div class="stat-val">68%</div><div class="stat-label">Utilisation Rate</div><div class="stat-sub">Sessions redeemed</div></div>`;
+
+  document.getElementById('unearnedBody').innerHTML = [
+    {type:'HydraFacial Platinum 6x', active:48, sessions:96,  val:'$57,600', age:'4.2 mo'},
+    {type:'LuminaLift 6x',           active:36, sessions:144, val:'$52,800', age:'3.8 mo'},
+    {type:'Pico Rejuvenate 3x',      active:29, sessions:58,  val:'$28,400', age:'2.1 mo'},
+    {type:'Gold Facial Bundle',      active:24, sessions:72,  val:'$19,200', age:'5.6 mo'},
+    {type:'Credit Package $500',     active:61, sessions:null, val:'$30,500', age:'6.2 mo'},
+    {type:'Cryotherapy Facial 5x',   active:18, sessions:45,  val:'$8,280',  age:'3.4 mo'},
+  ].map(r => `<tr>
+    <td><div class="table-name">${r.type}</div></td>
+    <td class="right">${r.active}</td>
+    <td class="right">${r.sessions ?? '—'}</td>
+    <td class="right">${r.val}</td>
+    <td class="right muted">${r.age}</td>
+  </tr>`).join('');
+
+  document.getElementById('expiryBody').innerHTML = [
+    {cust:'Wendy Goh',     pkg:'LuminaLift 6x',           left:4, expiry:'3 Feb 2026',  urgency:'soon'},
+    {cust:'Elisabeth Lee', pkg:'HydraFacial Platinum 6x',  left:2, expiry:'12 Jan 2026', urgency:'urgent'},
+    {cust:'Victoria Tan',  pkg:'Gold Facial Bundle',        left:3, expiry:'20 Feb 2026', urgency:'soon'},
+    {cust:'Li Ying Kumar', pkg:'Cryotherapy Facial 5x',    left:1, expiry:'5 Jan 2026',  urgency:'urgent'},
+    {cust:'Zara Lim',      pkg:'Pico Rejuvenate 3x',       left:2, expiry:'28 Mar 2026', urgency:'ok'},
+    {cust:'Emily Singh',   pkg:'LuminaLift 6x',            left:5, expiry:'15 Mar 2026', urgency:'ok'},
+  ].map(r => `<tr>
+    <td><div class="table-name">${r.cust}</div></td>
+    <td class="muted">${r.pkg}</td>
+    <td class="right">${r.left}</td>
+    <td class="right" style="${r.urgency==='urgent'?'color:var(--danger)':r.urgency==='soon'?'color:var(--warning)':''}">${r.expiry}</td>
+    <td class="right"><span class="expiry-badge ${r.urgency}">${r.urgency==='urgent'?'Urgent':r.urgency==='soon'?'Soon':'OK'}</span></td>
+  </tr>`).join('');
+}
+
+// ── EXPIRED INVOICES DATA ──
+function buildExpired() {
+  document.getElementById('expiredStats').innerHTML = `
+    <div class="stat-cell"><div class="stat-val">23</div><div class="stat-label">Expired Packages</div><div class="stat-sub">This month</div></div>
+    <div class="stat-cell"><div class="stat-val">$18,400</div><div class="stat-label">Value Forfeited</div><div class="stat-sub">Revenue to recognise</div></div>
+    <div class="stat-cell"><div class="stat-val">47</div><div class="stat-label">Sessions Forfeited</div><div class="stat-sub">Undelivered</div></div>
+    <div class="stat-cell"><div class="stat-val">$800</div><div class="stat-label">Avg Per Package</div><div class="stat-sub">Forfeited value</div></div>
+    <div class="stat-cell"><div class="stat-val" style="color:var(--danger)">8</div><div class="stat-label">No Contact Made</div><div class="stat-sub">Escalate to CSO</div></div>`;
+
+  document.getElementById('expiredBody').innerHTML = [
+    {cust:'Rachel Koh',     pkg:'Cryotherapy Facial 5x · INV-20241202-044', forfeited:3, val:'$276',  expired:'2 Dec 2025'},
+    {cust:'Mei Lin Chong',  pkg:'HydraFacial Express 4x · INV-20241115-031', forfeited:2, val:'$160',  expired:'15 Nov 2025'},
+    {cust:'Farah Chong',    pkg:'Gold Facial Bundle · INV-20241020-089',     forfeited:4, val:'$520',  expired:'20 Oct 2025'},
+    {cust:'Siti Zubaidah',  pkg:'LuminaLift 3x · INV-20240901-012',         forfeited:1, val:'$366',  expired:'1 Sep 2025'},
+    {cust:'Priya Menon',    pkg:'Pico Rejuvenate 3x · INV-20240815-078',    forfeited:3, val:'$980',  expired:'15 Aug 2025'},
+  ].map(r => `<tr>
+    <td><div class="table-name">${r.cust}</div></td>
+    <td class="muted" style="font-size:12px">${r.pkg}</td>
+    <td class="right">${r.forfeited}</td>
+    <td class="right" style="color:var(--danger)">${r.val}</td>
+    <td class="right muted">${r.expired}</td>
+  </tr>`).join('');
+}
+
+// ── EOD SIGN-OFF ──
+function signOffEOD() {
+  const btn = event.target;
+  btn.textContent = '✓ Signed Off';
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+  document.getElementById('eodSignStatus').textContent = 'Signed Off';
+  document.getElementById('eodSignStatus').style.background = 'var(--success-bg)';
+  document.getElementById('eodSignStatus').style.color = 'var(--success)';
+  document.getElementById('eodSignStatus').style.borderColor = 'rgba(106,143,90,.2)';
+}
+
+// ── FILTERS ──
+function applyFilters() {
+  // In production this would refetch — here just re-render with a subtle flash
+  document.querySelectorAll('.report-section.active').forEach(s => {
+    s.style.opacity = '0';
+    setTimeout(() => { s.style.opacity = '1'; s.style.transition = 'opacity .3s'; }, 50);
+  });
+}
+
+// ── INIT ──
+buildReportTypes();
+buildEOD();
+buildCommission();
+buildUnearned();
+buildExpired();
+
+// ── SIDEBAR CHEVRONS ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  if (item.querySelector('.nav-chevron')) {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  }
+});
+</script>
+</body>
+</html>

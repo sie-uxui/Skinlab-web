@@ -312,21 +312,24 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
       <span class="nav-icon-pill" style="background:rgba(206,196,180,.22)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="#cec4b4" stroke-width="1.2"/><path d="M3 14c0-2.21 2.24-4 5-4s5 1.79 5 4" stroke="#cec4b4" stroke-width="1.2" stroke-linecap="round"/></svg></span>Customers<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </div>
     <div class="nav-sub" style="display:flex">
-      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory</a>
+      <a class="nav-sub-item" href="skinlab-customer-360.html">Directory &amp; Profiles</a>
       <a class="nav-sub-item" href="skinlab-onboarding.html">Onboarding</a>
-      <a class="nav-sub-item" href="skinlab-package-usage.html">Package Usage</a>
+      <div class="nav-sub-item active">Package Usage</div>
     </div>
-    <div class="nav-item">
+    <a class="nav-item" href="#">
       <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="1.5" width="9" height="11" rx="1.5" stroke="#8a9e7a" stroke-width="1.2"/><path d="M5 4.5h5M5 7h4M5 9.5h3" stroke="#8a9e7a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Inventory
-    </div>
-    <div class="nav-item">
+    </a>
+    <a class="nav-item" href="#">
       <span class="nav-icon-pill" style="background:rgba(169,128,118,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v3.5L8 10 3 6.5V3z" stroke="#a98076" stroke-width="1.2" stroke-linejoin="round"/><path d="M3 13h10M6 10v3M10 10v3" stroke="#a98076" stroke-width="1.1" stroke-linecap="round"/></svg></span>Packages
-    </div>
+    </a>
     <span class="nav-label" style="margin-top:12px">Management</span>
     <div class="nav-item" onclick="this.classList.toggle('open')">
       <span class="nav-icon-pill" style="background:rgba(138,158,122,.15)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#8a9e7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics<span class="nav-chevron"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </div>
-    <div class="nav-sub"><div class="nav-sub-item">CSO Dashboard</div><div class="nav-sub-item">Reports</div><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <div class="nav-sub"><a class="nav-sub-item" href="skinlab-cso-dashboard.html">CSO Dashboard</a><a class="nav-sub-item" href="skinlab-reports.html">Reports</a><a class="nav-sub-item" href="skinlab-duty-roster.html">Roster</a></div>
+    <a class="nav-item" href="skinlab-analytics.html">
+      <span class="nav-icon-pill" style="background:rgba(122,104,86,.12)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-6" stroke="#7a6856" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Analytics Dashboard
+    </a>
     <a class="nav-item" href="skinlab-settings.html">
       <span class="nav-icon-pill" style="background:rgba(225,215,203,.3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#80756a" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41" stroke="#80756a" stroke-width="1.1" stroke-linecap="round"/></svg></span>Settings
     </a>
@@ -555,6 +558,7 @@ function openDrawer() {
   document.getElementById('custDrawer').classList.add('open');
   document.getElementById('drawerOverlay').classList.add('open');
   document.getElementById('custToggle').classList.add('active');
+  buildCustList();
   setTimeout(() => document.getElementById('custSearch').focus(), 260);
 }
 function closeDrawer() {
@@ -564,6 +568,306 @@ function closeDrawer() {
   document.getElementById('custToggle').classList.remove('active');
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawerOpen) closeDrawer(); });
+
+// ── DATA ──
+const CUSTOMERS = [
+  { name:'Wendy Goh',     phone:'+65 9087 1117', ref:'SB-001234', color:'#c8a89e,#7a6856', flags:['vip','allergy'], tier:'gold'   },
+  { name:'Elisabeth Lee', phone:'+65 8223 8493', ref:'SB-001892', color:'#d1baa2,#a98076', flags:['birthday'],      tier:'silver' },
+  { name:'Victoria Tan',  phone:'+65 8256 0254', ref:'SB-002104', color:'#cec4b4,#80756a', flags:['vip'],           tier:'gold'   },
+  { name:'Victoria Lim',  phone:'+65 9750 7515', ref:'SB-002390', color:'#a98076,#7a6856', flags:[],                tier:'gold'   },
+  { name:'Li Ying Kumar', phone:'+65 9002 1283', ref:'SB-003011', color:'#d1baa2,#cec4b4', flags:[],                tier:'silver' },
+  { name:'Zara Lim',      phone:'+65 8077 4116', ref:'SB-003456', color:'#80756a,#7a6856', flags:[],                tier:'bronze' },
+  { name:'Emily Singh',   phone:'+65 9154 9034', ref:'SB-003789', color:'#c8a89e,#a98076', flags:['allergy'],       tier:'silver' },
+  { name:'Mei Lin Chong', phone:'+65 8264 0784', ref:'SB-004120', color:'#cec4b4,#d1baa2', flags:[],                tier:'bronze' },
+  { name:'Catherine Ong', phone:'+65 9050 7192', ref:'SB-004567', color:'#d1baa2,#7a6856', flags:['vip'],           tier:'gold'   },
+  { name:'Farah Chong',   phone:'+65 9034 9937', ref:'SB-004890', color:'#a98076,#c8a89e', flags:[],                tier:'silver' },
+];
+const FLAG_ICONS  = { vip:'⭐', allergy:'⚠️', birthday:'🎂' };
+const TIER_COLORS = { gold:'#c8962a', silver:'#8a9aaa', bronze:'#a06040' };
+
+const PACKAGES = [
+  {
+    name:'HydraFacial Platinum 6x', code:'PKG-HF-006', icon:'💧',
+    iconBg:'rgba(90,122,158,.1)', purchased:'10 Jan 2025', value:'$1,200',
+    total:6, used:4, remaining:2, expiry:'10 Jan 2026', status:'active',
+    bar:'green', barPct:67, outlet:'CWP',
+    history:[
+      {day:'28',mon:'May',svc:'HydraFacial Platinum · 75 min',therapist:'Chai Ting · CWP',deduct:'−1 session'},
+      {day:'15',mon:'Apr',svc:'HydraFacial Platinum · 75 min',therapist:'Chai Ting · CWP',deduct:'−1 session'},
+      {day:'02',mon:'Mar',svc:'HydraFacial Platinum · 75 min',therapist:'Ginli · CWP',deduct:'−1 session'},
+      {day:'18',mon:'Feb',svc:'HydraFacial Platinum · 75 min',therapist:'Chai Ting · CWP',deduct:'−1 session'},
+    ]
+  },
+  {
+    name:'LuminaLift 6x', code:'PKG-LL-003', icon:'✨',
+    iconBg:'rgba(200,150,42,.1)', purchased:'3 Aug 2025', value:'$2,199',
+    total:6, used:2, remaining:4, expiry:'3 Feb 2026', status:'expiring',
+    bar:'amber', barPct:33, outlet:'CWP',
+    history:[
+      {day:'10',mon:'May',svc:'LuminaLift Facial · 90 min',therapist:'Ginli · CWP',deduct:'−1 session'},
+      {day:'20',mon:'Mar',svc:'LuminaLift Facial · 90 min',therapist:'Nadiah · CWP',deduct:'−1 session'},
+    ]
+  },
+  {
+    name:'Pico Rejuvenate 3x', code:'PKG-PR-009', icon:'⚡',
+    iconBg:'rgba(169,128,118,.12)', purchased:'15 Oct 2025', value:'$980',
+    total:3, used:0, remaining:3, expiry:'15 Oct 2026', status:'active',
+    bar:'green', barPct:0, outlet:'CWP Clinic',
+    history:[]
+  },
+];
+
+const CREDITS = [
+  {name:'Store Credit', val:'$320.00', sub:'Available · All outlets',  icon:'💳', iconBg:'rgba(106,143,90,.1)', note:'No expiry · Purchased 2022 · 7% GST'},
+  {name:'Contra Value', val:'$120.00', sub:'Cross-outlet redemption',  icon:'🔄', iconBg:'rgba(90,122,158,.1)', note:'From package PKG-HF-003 contra · 2023'},
+];
+
+const EXPIRED = [
+  {
+    name:'Cryotherapy Facial 5x', code:'PKG-CF-012', icon:'❄️',
+    iconBg:'rgba(122,104,86,.08)', purchased:'2 Dec 2024', value:'$460',
+    total:5, used:5, remaining:0, expiry:'2 Dec 2025', status:'expired',
+    bar:'red', barPct:100, outlet:'CWP', history:[]
+  }
+];
+
+const THERAPISTS = [
+  {name:'Chai Ting', color:'#a98076'}, {name:'Nadiah',    color:'#9a8a9e'},
+  {name:'Ginli',     color:'#8a9e7a'}, {name:'Dr. Sarah', color:'#5a7a9e'},
+];
+
+let selectedCust = 0;
+let currentTab   = 'active';
+
+// ── BUILD CUSTOMER LIST ──
+function buildCustList(filter='') {
+  const list = document.getElementById('custList');
+  list.innerHTML = '';
+  const filtered = CUSTOMERS.filter(c =>
+    !filter ||
+    c.name.toLowerCase().includes(filter.toLowerCase()) ||
+    c.phone.includes(filter) ||
+    c.ref.toLowerCase().includes(filter.toLowerCase())
+  );
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:32px 18px;text-align:center;color:var(--text-muted);font-size:12.5px">No customers found</div>`;
+    return;
+  }
+  filtered.forEach(c => {
+    const origIdx = CUSTOMERS.indexOf(c);
+    const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+    const flags = c.flags.map(f=>`<span class="sp-flag">${FLAG_ICONS[f]||''}</span>`).join('');
+    const div = document.createElement('div');
+    div.className = 'sp-item' + (origIdx === selectedCust ? ' active' : '');
+    div.innerHTML = `
+      <div class="sp-av" style="background:linear-gradient(135deg,${c.color})">${initials}</div>
+      <div class="sp-info">
+        <div class="sp-name">${c.name}</div>
+        <div class="sp-meta">
+          <span style="width:6px;height:6px;border-radius:50%;background:${TIER_COLORS[c.tier]};display:inline-block;flex-shrink:0"></span>
+          ${c.phone}
+        </div>
+      </div>
+      <div class="sp-flags">${flags}</div>`;
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.sp-item').forEach(el => el.classList.remove('active'));
+      div.classList.add('active');
+      selectCustomer(origIdx);
+      closeDrawer();
+    });
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('custSearch').addEventListener('input', e => buildCustList(e.target.value));
+
+// ── SELECT CUSTOMER ──
+function selectCustomer(idx) {
+  selectedCust = idx;
+  const c = CUSTOMERS[idx];
+  document.getElementById('pkgEmpty').style.display = 'none';
+  const cv = document.getElementById('custView');
+  cv.style.display = 'flex';
+
+  const initials = c.name.split(' ').map(w=>w[0]).join('').slice(0,2);
+  document.getElementById('cvAv').style.background = `linear-gradient(135deg,${c.color})`;
+  document.getElementById('cvAv').innerHTML = initials + '<div class="cust-online"></div>';
+  document.getElementById('cvName').textContent = c.name;
+
+  document.querySelectorAll('.type-tab').forEach((t,i) => { t.classList.remove('active'); if(i===0) t.classList.add('active'); });
+  currentTab = 'active';
+  renderPackages();
+}
+
+// ── TABS ──
+function switchTab(el, tab) {
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  renderPackages();
+}
+
+// ── RENDER ──
+function renderPackages() {
+  const content = document.getElementById('pkgContent');
+  content.innerHTML = '';
+
+  if (currentTab === 'active') {
+    const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Treatment Packages'; content.appendChild(lbl);
+    PACKAGES.forEach((pkg, i) => content.appendChild(buildPkgCard(pkg, i)));
+
+  } else if (currentTab === 'credits') {
+    const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Credit Balances'; content.appendChild(lbl);
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px';
+    CREDITS.forEach(cr => {
+      const card = document.createElement('div');
+      card.className = 'credit-card';
+      card.innerHTML = `
+        <div class="credit-card-icon" style="background:${cr.iconBg}">${cr.icon}</div>
+        <div class="credit-card-body">
+          <div class="credit-card-name">${cr.name}</div>
+          <div class="credit-card-meta">${cr.note}</div>
+          <div class="credit-card-val">${cr.val}</div>
+          <div class="credit-card-sub">${cr.sub}</div>
+          <div class="credit-card-actions">
+            <button class="pkg-use-btn" onclick="openModal(null)">Redeem Credit</button>
+            <button class="pkg-use-btn secondary">View History</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    content.appendChild(grid);
+
+  } else if (currentTab === 'history') {
+    const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'All Redemptions'; content.appendChild(lbl);
+    const card = document.createElement('div');
+    card.className = 'pkg-card';
+    const allHistory = [];
+    PACKAGES.forEach(p => p.history.forEach(h => allHistory.push({...h, pkg: p.name})));
+    card.innerHTML = '<div style="padding:0 18px">' +
+      allHistory.map(h => `
+        <div class="usage-row">
+          <div style="text-align:center;min-width:26px">
+            <div class="usage-date">${h.day}</div>
+            <div class="usage-month">${h.mon}</div>
+          </div>
+          <div class="usage-line"></div>
+          <div class="usage-info">
+            <div class="usage-svc">${h.svc}</div>
+            <div class="usage-therapist">${h.therapist} · ${h.pkg}</div>
+          </div>
+          <div class="usage-deduct">${h.deduct}</div>
+        </div>`).join('') + '</div>';
+    content.appendChild(card);
+
+  } else if (currentTab === 'expired') {
+    const lbl = document.createElement('div'); lbl.className = 'section-label'; lbl.textContent = 'Expired Packages'; content.appendChild(lbl);
+    if (EXPIRED.length) {
+      EXPIRED.forEach((pkg, i) => { const card = buildPkgCard(pkg, i); card.style.opacity = '.65'; content.appendChild(card); });
+    } else {
+      content.innerHTML += '<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:13px">No expired packages</div>';
+    }
+  }
+}
+
+function buildPkgCard(pkg, idx) {
+  const card = document.createElement('div');
+  card.className = 'pkg-card';
+  const canRedeem = pkg.remaining > 0;
+  card.innerHTML = `
+    <div class="pkg-card-head">
+      <div class="pkg-card-icon" style="background:${pkg.iconBg}">${pkg.icon}</div>
+      <div class="pkg-card-info">
+        <div class="pkg-card-name">${pkg.name}</div>
+        <div class="pkg-card-code">${pkg.code} · Purchased ${pkg.purchased} · ${pkg.value} · ${pkg.outlet}</div>
+      </div>
+      <div class="pkg-card-actions">
+        <span class="pkg-badge ${pkg.status}">${pkg.status.charAt(0).toUpperCase()+pkg.status.slice(1)}</span>
+        ${canRedeem ? `<button class="pkg-use-btn" onclick="openModal(${idx})">
+          <svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Redeem</button>` : ''}
+      </div>
+    </div>
+    <div class="pkg-card-body">
+      <div class="pkg-sessions" style="flex:1">
+        <div class="pkg-sess-row">
+          <span class="pkg-sess-label">Sessions used</span>
+          <span class="pkg-sess-val">${pkg.used} of ${pkg.total}</span>
+        </div>
+        <div class="pkg-bar-wrap"><div class="pkg-bar ${pkg.bar}" style="width:${pkg.barPct}%"></div></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${pkg.remaining} session${pkg.remaining!==1?'s':''} remaining</div>
+      </div>
+      <div class="pkg-meta-col">
+        <div class="pkg-meta-val" style="${pkg.status==='expiring'?'color:var(--warning)':''}">${pkg.expiry}</div>
+        <div class="pkg-meta-label">Expiry date</div>
+      </div>
+    </div>
+    ${pkg.history.length ? `
+      <div class="pkg-history">
+        <span class="pkg-history-label">Recent Redemptions</span>
+        ${pkg.history.slice(0,3).map(h=>`
+          <div class="usage-row">
+            <div style="text-align:center;min-width:26px">
+              <div class="usage-date">${h.day}</div>
+              <div class="usage-month">${h.mon}</div>
+            </div>
+            <div class="usage-line"></div>
+            <div class="usage-info">
+              <div class="usage-svc">${h.svc}</div>
+              <div class="usage-therapist">${h.therapist}</div>
+            </div>
+            <div class="usage-deduct">${h.deduct}</div>
+          </div>`).join('')}
+      </div>` : ''}`;
+  return card;
+}
+
+// ── MODAL ──
+function openModal(pkgIdx) {
+  const sel = document.getElementById('modalPkgSelect');
+  if (pkgIdx !== null && pkgIdx !== undefined) {
+    sel.value = String(pkgIdx);
+    updateModalPkg();
+  } else {
+    sel.value = '';
+    document.getElementById('modalPkgStrip').style.display = 'none';
+  }
+  const row = document.getElementById('servedRow');
+  row.innerHTML = '';
+  THERAPISTS.forEach((t, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'served-chip' + (i===0?' active':'');
+    chip.innerHTML = `<div class="served-av" style="background:${t.color}">${t.name[0]}</div>${t.name}`;
+    chip.onclick = () => chip.classList.toggle('active');
+    row.appendChild(chip);
+  });
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); }
+function updateModalPkg() {
+  const idx = document.getElementById('modalPkgSelect').value;
+  const strip = document.getElementById('modalPkgStrip');
+  if (idx === '') { strip.style.display = 'none'; return; }
+  const pkg = PACKAGES[parseInt(idx)];
+  document.getElementById('mPkgName').textContent = pkg.name;
+  document.getElementById('mPkgMeta').textContent = `${pkg.code} · Purchased ${pkg.purchased}`;
+  document.getElementById('mPkgBal').textContent = pkg.remaining;
+  strip.style.display = 'flex';
+}
+function confirmRedeem() {
+  const idx = document.getElementById('modalPkgSelect').value;
+  if (idx !== '' && PACKAGES[parseInt(idx)].remaining > 0) {
+    PACKAGES[parseInt(idx)].remaining--;
+    PACKAGES[parseInt(idx)].used++;
+  }
+  closeModalDirect();
+  renderPackages();
+}
+
+// ── INIT ──
+buildCustList();
 
 // ── SIDEBAR CHEVRONS ──
 document.querySelectorAll('.nav-item').forEach(item => {
